@@ -9,14 +9,14 @@ export const VideoCarousel: FC<RecommendationShelf & { shuffle?: boolean }> = ({
   shuffle,
   dir,
   library,
-  link,
+  // link,
   title,
 }) => {
-  const [isLoading, setIsLoading] = useState(true);
+  // const [isLoading, setIsLoading] = useState(true);
   const [items, setItems] = useState<Plex.Metadata[] | null>(null);
 
   useEffect(() => {
-    setIsLoading(true);
+    // setIsLoading(true);
     ServerApi.library({
       key: library,
       directory: dir,
@@ -27,39 +27,39 @@ export const VideoCarousel: FC<RecommendationShelf & { shuffle?: boolean }> = ({
         setItems(shuffle ? _.shuffle(media) : media);
       })
       .finally(() => {
-        setIsLoading(false);
+        // setIsLoading(false);
       });
   }, [dir, library, shuffle]);
 
   const token = localStorage.getItem("token");
 
   return (
-    <div className="w-[100%] pb-5 overflow-x-hidden">
-      <p className="px-20 font-bold text-2xl mb-5">{title}</p>
-      {items && items.length > 5 && (
+    <div className="w-[100%] overflow-x-hidden">
+      <p className="px-20 font-bold text-3xl tracking-tight">
+        <span className="px-[5px]">{title}</span>
+      </p>
+      {items && (
         <Slider
-          slides={items.map((item) => ({
-            id: item.key,
-            title: item.title,
+          items={items.map((item) => ({
+            ...item,
             image:
               item.type === "episode"
                 ? `${PLEX.server}/photo/:/transcode?${qs.stringify({
-                    width: 300,
-                    height: 170,
+                    width: 300 * 2,
+                    height: 170 * 2,
                     url: `${item.thumb}?X-Plex-Token=${token}`,
                     minSize: 1,
                     upscale: 1,
                     "X-Plex-Token": token,
                   })}`
                 : `${PLEX.server}/photo/:/transcode?${qs.stringify({
-                    width: 300,
-                    height: 170,
+                    width: 300 * 2,
+                    height: 170 * 2,
                     url: `${item.art}?X-Plex-Token=${token}`,
                     minSize: 1,
                     upscale: 1,
                     "X-Plex-Token": token,
                   })}`,
-            subtitle: <></>,
           }))}
         />
       )}

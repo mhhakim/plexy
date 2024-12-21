@@ -17,6 +17,85 @@ const includes = {
   includeStations: 1,
 };
 
+const version = () => {
+  const userAgent = navigator.userAgent;
+  let browserVersion = "Unknown";
+
+  // Check for different browsers
+  const browsers = [
+    { name: "Chrome", identifier: "Chrome" },
+    { name: "Safari", identifier: "Version" },
+    { name: "Opera", identifier: "OPR" },
+    { name: "Firefox", identifier: "Firefox" },
+    { name: "Internet Explorer", identifier: ["MSIE", "Trident"] },
+  ];
+
+  for (const browser of browsers) {
+    if (Array.isArray(browser.identifier)) {
+      if (browser.identifier.some((id) => userAgent.includes(id))) {
+        browserVersion = userAgent
+          .split(browser.identifier[0])[1]
+          .split(" ")[0];
+        break;
+      }
+    } else if (userAgent.includes(browser.identifier)) {
+      browserVersion = userAgent.split(browser.identifier)[1].split(" ")[0];
+      break;
+    }
+  }
+
+  return browserVersion;
+};
+
+const browser = () => {
+  const userAgent = navigator.userAgent;
+  let browserName = "Unknown";
+
+  // Check for different browsers
+  const browsers = [
+    { name: "Chrome", identifier: "Chrome" },
+    { name: "Safari", identifier: "Safari" },
+    { name: "Opera", identifier: "Opera" },
+    { name: "Firefox", identifier: "Firefox" },
+    { name: "Internet Explorer", identifier: ["MSIE", "Trident"] },
+  ];
+
+  for (const browser of browsers) {
+    if (Array.isArray(browser.identifier)) {
+      if (browser.identifier.some((id) => userAgent.includes(id))) {
+        browserName = browser.name;
+        break;
+      }
+    } else if (userAgent.includes(browser.identifier)) {
+      browserName = browser.name;
+      break;
+    }
+  }
+
+  return browserName;
+};
+
+const xprops = () => {
+  return {
+    "X-Incomplete-Segments": "1",
+    "X-Plex-Product": "PerPlexed",
+    "X-Plex-Version": "0.1.0",
+    "X-Plex-Client-Identifier": localStorage.getItem("clientId"),
+    "X-Plex-Platform": browser(),
+    "X-Plex-Platform-Version": version(),
+    "X-Plex-Features": "external-media,indirect-media,hub-style-list",
+    "X-Plex-Model": "bundled",
+    "X-Plex-Device": browser(),
+    "X-Plex-Device-Name": browser(),
+    "X-Plex-Device-Screen-Resolution": `${window.screen.width}x${window.screen.height}`,
+    "X-Plex-Token": localStorage.getItem("token"),
+    "X-Plex-Language": "en",
+    "X-Plex-Session-Id": sessionStorage.getItem("sessionId"),
+    "X-Plex-Session-Identifier": window.plexSessionId ?? "",
+    session: window.sessionId ?? "",
+  };
+};
+
 export interface RecommendationShelf {
   title: string;
   library: string;
@@ -65,6 +144,81 @@ export class ServerApi {
       .catch((err) => {
         console.log(err);
         return null;
+      });
+  }
+  static async metadata({ id }: { id: string }) {
+    return await axios
+      .get<{ MediaContainer: { Metadata: Plex.Metadata[] } }>(
+        `${PLEX.server}/library/metadata/${id}?${qs.stringify({
+          ...includes,
+          ...xprops(),
+        })}`,
+        {
+          headers: {
+            "X-Plex-Token": localStorage.getItem("token") as string,
+            accept: "application/json",
+          },
+        },
+      )
+      .then((res) => {
+        return res?.data?.MediaContainer?.Metadata &&
+          res.data.MediaContainer.Metadata.length > 0
+          ? res.data.MediaContainer.Metadata[0]
+          : null;
+      })
+      .catch((err) => {
+        console.log(err);
+        return null;
+      });
+  }
+  static async children({ id }: { id: string }) {
+    return await axios
+      .get<{ MediaContainer: { Metadata: Plex.Metadata[] } }>(
+        `${PLEX.server}/library/metadata/${id}/children?${qs.stringify({
+          ...includes,
+          ...xprops(),
+        })}`,
+        {
+          headers: {
+            "X-Plex-Token": localStorage.getItem("token") as string,
+            accept: "application/json",
+          },
+        },
+      )
+      .then((res) => {
+        return res?.data?.MediaContainer?.Metadata ?? null;
+      })
+      .catch((err) => {
+        console.log(err);
+        return null;
+      });
+  }
+  static async similar({ id }: { id?: string | null }) {
+    if (!id) return [];
+    return await axios
+      .get<{ MediaContainer: { Metadata: Plex.Metadata[] } }>(
+        `${PLEX.server}/library/metadata/${id}/similar?${qs.stringify({
+          limit: 10,
+          excludeFields: "summary",
+          includeMarkerCounts: 1,
+          includeRelated: 1,
+          includeExternalMedia: 1,
+          async: 1,
+          ...xprops(),
+        })}`,
+        {
+          headers: {
+            "X-Plex-Token": localStorage.getItem("token") as string,
+            accept: "application/json",
+          },
+        },
+      )
+      .then((res) => {
+        return res?.data?.MediaContainer?.Metadata ?? [];
+      })
+      .catch((err) => {
+        console.log(err);
+        return [];
       });
   }
   static async libraries() {

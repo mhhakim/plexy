@@ -5,8 +5,13 @@ import { PLEX } from "@/constants";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { VideoCarousel } from "@/components/video-carousel";
+import { Button } from "@/components/ui/button";
+import { usePathname, useRouter } from "next/navigation";
+import { Info } from "lucide-react";
 
 export default function Home() {
+  const pathname = usePathname();
+  const router = useRouter();
   const [recommendations, setRecommendations] = useState<RecommendationShelf[]>(
     [],
   );
@@ -47,9 +52,9 @@ export default function Home() {
         // Hero
         <div className="w-full flex flex-col items-start justify-start h-auto">
           <div
-            className="w-full flex flex-col items-start justify-center z-0 pt-72 pb-60"
+            className="w-full flex flex-col items-start justify-center z-0 pt-[40vh] pb-60"
             style={{
-              background: `linear-gradient(0, hsl(var(--background)), rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.4)), url(${PLEX.server}${item.art}?X-Plex-Token=${localStorage.getItem("token")}) center center / cover no-repeat`,
+              background: `linear-gradient(0, hsl(var(--background)), rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4)), url(${PLEX.server}${item.art}?X-Plex-Token=${localStorage.getItem("token")}) center center / cover no-repeat`,
             }}
           >
             <div className="ml-20 mr-20 flex flex-col gap-4">
@@ -68,6 +73,16 @@ export default function Home() {
               <p className="font-bold text-muted-foreground max-w-4xl line-clamp-3">
                 {item.summary}
               </p>
+              <Button
+                type="button"
+                className="w-fit font-bold"
+                variant="secondary"
+                onClick={() => {
+                  router.push(`${pathname}?mid=${item.ratingKey.toString()}`);
+                }}
+              >
+                <Info /> More Info
+              </Button>
             </div>
           </div>
         </div>

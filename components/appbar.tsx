@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSession } from "@/hooks/use-session";
 import { ServerApi } from "@/api";
-import _ from "lodash";
 import {
   Popover,
   PopoverContent,
@@ -49,7 +48,7 @@ export const Appbar = () => {
   };
 
   return (
-    <div className="flex flex-row gap-8 px-8 py-4 items-center fixed top-0 h-16 w-full z-50">
+    <div className="flex flex-row gap-8 px-8 py-4 items-center fixed top-0 h-16 w-full z-50 bg-[hsl(var(--background))]/70">
       <Image src="/plex.png" alt="Plex logo" height={25} width={54} />
       <HeadLink href="/" active={path === "/"}>
         Home
