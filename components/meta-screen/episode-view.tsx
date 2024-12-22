@@ -1,0 +1,44 @@
+import { FC } from "react";
+import { durationToText } from "@/lib/utils";
+import { Progress } from "@/components/ui/progress";
+import { PlayIcon } from "@/components/icons/play-icon";
+
+export const EpisodeView: FC<{
+  item: Plex.Metadata & { image: string };
+}> = ({ item }) => {
+  return (
+    <button className="flex flex-row items-center p-4 group transition hover:bg-secondary w-full border-b-2 justify-start text-left">
+      <p className="pr-4 text-xl font-bold">{item.index}</p>
+      <div className="mr-4 hidden sm:block sm:min-w-[200px] sm:w-[200px] md:min-w-[250px] md:w-[250px] relative">
+        <img
+          className="rounded aspect-video object-cover w-full"
+          src={item.image}
+          alt="episode preview image"
+        />
+        {(item.viewOffset || (item.viewCount && item.viewCount >= 1)) && (
+          <Progress
+            className="absolute rounded-t-none rounded-b bottom-0 left-0 h-[4px]"
+            value={
+              item.viewOffset
+                ? Math.floor((item.viewOffset / item.duration) * 100)
+                : 100
+            }
+            // color="bg-plex"
+          />
+        )}
+        <div className="absolute inset-0 flex justify-center items-center opacity-0 group-hover:opacity-100 transition">
+          <PlayIcon />
+        </div>
+      </div>
+      <div className="w-full">
+        <p className="font-bold flex flex-row justify-between gap-4">
+          <span className="line-clamp-1 sm:line-clamp-2 md:line-clamp-3">
+            {item.title}
+          </span>
+          <span>{durationToText(item.duration)}</span>
+        </p>
+        <p className="line-clamp-2">{item.summary}</p>
+      </div>
+    </button>
+  );
+};

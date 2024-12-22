@@ -76,7 +76,6 @@ export default function Home() {
               <Button
                 type="button"
                 className="w-fit font-bold"
-                variant="secondary"
                 onClick={() => {
                   router.push(`${pathname}?mid=${item.ratingKey.toString()}`);
                 }}
@@ -90,7 +89,7 @@ export default function Home() {
         <div className="h-16" />
       )}
       <div
-        className={`flex flex-col gap-6 items-start justify-start w-full z-10 ${item ? "-mt-20" : ""}`}
+        className={`flex flex-col items-start justify-start w-full z-10 ${item ? "-mt-20" : ""}`}
       >
         {recommendations.map((recommendation) => (
           <VideoCarousel

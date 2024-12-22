@@ -242,13 +242,39 @@ export class ServerApi {
         return null;
       });
   }
+  static async details({
+    key,
+    include = true,
+  }: {
+    key: string;
+    include?: boolean;
+  }) {
+    return await axios
+      .get<{ MediaContainer: Plex.LibraryDetails }>(
+        `${PLEX.server}/library/sections/${key}${include ? `?${qs.stringify(includes)}` : ""}`,
+        {
+          headers: {
+            "X-Plex-Token": localStorage.getItem("token") as string,
+            accept: "application/json",
+          },
+        },
+      )
+      .then((res) => {
+        if (!res.data) return null;
+        return res.data.MediaContainer;
+      })
+      .catch((err) => {
+        console.log(err);
+        return null;
+      });
+  }
   static async library({
     key,
-    directory,
+    directory = "",
     include = false,
   }: {
     key: string;
-    directory: string;
+    directory?: string;
     include?: boolean;
   }) {
     return await axios

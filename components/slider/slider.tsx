@@ -53,7 +53,6 @@ export const Slider: FC<{ items: VideoItemInterface[] }> = ({ items }) => {
             const episodes = item.leafCount
               ? `${item.leafCount} Episode${item.leafCount > 1 ? "s" : ""}`
               : "";
-            const rating = item.contentRating ?? "";
             const duration =
               item.duration &&
               (item.type === "episode" || item.type === "movie")
@@ -66,7 +65,7 @@ export const Slider: FC<{ items: VideoItemInterface[] }> = ({ items }) => {
             return (
               <button
                 key={`${item.image}-${i}`}
-                className="item group"
+                className="item group overflow-hidden"
                 {...{ "data-first": isFirst(i), "data-last": isLast(i) }}
                 ref={i === 0 ? elementRef : undefined}
                 style={{
@@ -89,29 +88,28 @@ export const Slider: FC<{ items: VideoItemInterface[] }> = ({ items }) => {
                   )}
                   <div className="flex-1"></div>
                   <div className="absolute bottom-0 px-4 py-2 w-full max-w-full text-left">
-                    <p className="font-bold truncate lg:text-lg text-sm text-plex flex flex-row items-center gap-2 uppercase">
+                    <p className="font-bold truncate sm:text-md text-sm text-plex flex flex-row items-center gap-2 uppercase">
                       {item.type}
                     </p>
-                    <p className="font-bold truncate lg:text-lg text-normal">
+                    <p className="font-bold truncate lg:text-lg">
                       {item.title}
                     </p>
-                    <p className="w-full max-w-full truncate lg:text-lg text-sm text-muted-foreground flex flex-row items-center gap-2">
+                    {item.type === "episode" && item.grandparentTitle && (
+                      <p className="font-bold text-sm text-muted-foreground line-clamp-1">
+                        {item.grandparentTitle}
+                      </p>
+                    )}
+                    <p className="w-full max-w-full truncate text-sm text-muted-foreground flex flex-row items-center gap-2">
                       {(episodes || seasons) && (
                         <span className="font-bold">{seasons || episodes}</span>
                       )}
                       {duration && (
                         <span className="font-bold">{duration}</span>
                       )}
-                      {rating && (
-                        <span className="lg:block hidden border-2 border-muted-foreground rounded-sm px-1 py-0.5 font-bold text-sm">
-                          {rating}
-                        </span>
-                      )}
                       <span className="flex-1" />
                       <span className="text-xs font-bold">{item.year}</span>
                     </p>
                   </div>
-                  <div></div>
                 </div>
               </button>
             );

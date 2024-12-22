@@ -16,6 +16,14 @@ import { durationToText } from "@/lib/utils";
 import { create } from "zustand";
 import { VideoItem } from "@/components/video-item";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { EpisodeView } from "@/components/meta-screen/episode-view";
 
 interface PreviewPlayerState {
   MetaScreenPlayerMuted: boolean;
@@ -68,7 +76,7 @@ export const MetaScreen: FC = () => {
 
   useEffect(() => {
     if (!metadata.data) return;
-    setSeason((metadata.data.OnDeck?.Metadata?.parentIndex ?? 1) - 1);
+    setSeason(0);
 
     const extras = metadata.data.Extras?.Metadata;
     if (!extras?.[0] || !extras?.[0]?.Media?.[0]?.Part?.[0]?.key) return;
@@ -279,80 +287,103 @@ export const MetaScreen: FC = () => {
               </div>
             )}
             <div className="relative mt-96 z-50">
-              <div className="lg:px-40 px-20 pt-0 pb-20 flex flex-col gap-6">
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-row items-center justify-start gap-2">
-                    <Image
-                      src="/plexicon.png"
-                      alt="plex icon"
-                      width={35}
-                      height={35}
-                    />
-                    <p className="text-plex text-2xl font-bold drop-shadow-md uppercase tracking-wider">
-                      {metadata.data.type}
+              <div className="px-20 pt-0 pb-20 flex flex-col gap-6">
+                <div className="flex flex-row gap-6 items-center justify-start">
+                  <img
+                    className="hidden [@media(min-width:1200px)]:block rounded w-[300px] h-[450px] object-cover"
+                    src={`${PLEX.server}/photo/:/transcode?${qs.stringify({
+                      width: 300,
+                      height: 450,
+                      url: `${metadata.data.thumb}?X-Plex-Token=${token}`,
+                      minSize: 1,
+                      upscale: 1,
+                      "X-Plex-Token": token,
+                    })}`}
+                    alt="element poster"
+                  />
+                  <div className="flex flex-col gap-6">
+                    <div className="flex flex-col gap-4">
+                      <div className="flex flex-row items-center justify-start gap-2">
+                        <Image
+                          src="/plexicon.png"
+                          alt="plex icon"
+                          width={35}
+                          height={35}
+                        />
+                        <p className="text-plex text-2xl font-bold drop-shadow-md uppercase tracking-wider">
+                          {metadata.data.type}
+                        </p>
+                      </div>
+                      <p className="font-bold text-5xl">
+                        {metadata.data.title}
+                      </p>
+                      <p className="font-bold text-muted-foreground max-w-4xl line-clamp-3 flex flex-row items-center gap-4">
+                        {metadata.data?.contentRating && (
+                          <span className="border-2 border-muted-foreground rounded-sm px-1 py-0.5 font-bold text-sm">
+                            {metadata.data?.contentRating}
+                          </span>
+                        )}
+                        <span>{metadata.data.year}</span>
+                        {duration && <span>{duration}</span>}
+                        {(show.seasons || show.episodes) && (
+                          <span>{show.seasons || show.episodes}</span>
+                        )}
+                      </p>
+                    </div>
+                    {watched && (
+                      <p className="text-plex uppercase flex flex-row items-center gap-2 font-bold">
+                        <CircleCheck />
+                        <span>watched</span>
+                      </p>
+                    )}
+                    <p className="font-bold text-muted-foreground max-w-4xl line-clamp-3">
+                      {metadata.data.summary}
                     </p>
+                    <div>
+                      {metadata.data.Genre &&
+                        metadata.data.Genre.length > 0 && (
+                          <div className="font-bold line-clamp-1">
+                            <span className="text-muted-foreground pr-4">
+                              Genre
+                            </span>
+                            {metadata.data.Genre.map((genre, i, arr) => (
+                              <span key={genre.tag}>
+                                {genre.tag}
+                                {i !== arr.length - 1 ? ", " : ""}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      {languages && languages.length > 0 && (
+                        <div className="font-bold line-clamp-2">
+                          <span className="text-muted-foreground pr-4">
+                            Audio
+                          </span>
+                          {languages?.map((lang, i, arr) => (
+                            <span key={lang}>
+                              {lang}
+                              {i !== arr.length - 1 ? ", " : ""}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {subtitles && subtitles.length > 0 && (
+                        <div className="font-bold line-clamp-2">
+                          <span className="text-muted-foreground pr-4">
+                            Subtitle
+                          </span>
+                          {subtitles?.map((lang, i, arr) => (
+                            <span key={lang}>
+                              {lang}
+                              {i !== arr.length - 1 ? ", " : ""}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <p className="font-bold text-5xl">{metadata.data.title}</p>
-                  <p className="font-bold text-muted-foreground max-w-4xl line-clamp-3 flex flex-row items-center gap-4">
-                    {metadata.data?.contentRating && (
-                      <span className="border-2 border-muted-foreground rounded-sm px-1 py-0.5 font-bold text-sm">
-                        {metadata.data?.contentRating}
-                      </span>
-                    )}
-                    <span>{metadata.data.year}</span>
-                    {duration && <span>{duration}</span>}
-                    {(show.seasons || show.episodes) && (
-                      <span>{show.seasons ?? show.episodes}</span>
-                    )}
-                  </p>
                 </div>
-                {watched && (
-                  <p className="text-plex uppercase flex flex-row items-center gap-2 font-bold">
-                    <CircleCheck />
-                    <span>watched</span>
-                  </p>
-                )}
-                <p className="font-bold text-muted-foreground max-w-4xl line-clamp-3">
-                  {metadata.data.summary}
-                </p>
-                <div>
-                  {metadata.data.Genre && metadata.data.Genre.length > 0 && (
-                    <div className="font-bold">
-                      <span className="text-muted-foreground pr-4">Genre</span>
-                      {metadata.data.Genre.map((genre, i, arr) => (
-                        <span key={genre.tag}>
-                          {genre.tag}
-                          {i !== arr.length - 1 ? ", " : ""}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  {languages && languages.length > 0 && (
-                    <div className="font-bold">
-                      <span className="text-muted-foreground pr-4">Audio</span>
-                      {languages?.map((lang, i, arr) => (
-                        <span key={lang}>
-                          {lang}
-                          {i !== arr.length - 1 ? ", " : ""}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  {subtitles && subtitles.length > 0 && (
-                    <div className="font-bold">
-                      <span className="text-muted-foreground pr-4">
-                        Subtitle
-                      </span>
-                      {subtitles?.map((lang, i, arr) => (
-                        <span key={lang}>
-                          {lang}
-                          {i !== arr.length - 1 ? ", " : ""}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                {metadata.data.type === "movie" ? (
+                {metadata.data.type === "movie" && (
                   <div className="flex flex-col gap-6">
                     <p className="font-bold text-2xl">Similar Movies</p>
                     <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
@@ -381,8 +412,90 @@ export const MetaScreen: FC = () => {
                         ))}
                     </div>
                   </div>
-                ) : (
-                  <div></div>
+                )}
+                {metadata.data.type === "show" && (
+                  <div className="flex flex-col gap-6">
+                    {metadata.data.Children && (
+                      <div className="flex flex-row items-center w-full">
+                        <p className="text-2xl font-bold">
+                          {metadata.data.Children.size > 1
+                            ? metadata.data.Children.Metadata[season].title
+                            : show.episodes}
+                        </p>
+                        <div className="flex-1" />
+                        {metadata.data.Children.size > 1 && (
+                          <Select
+                            onValueChange={(value) => setSeason(Number(value))}
+                            value={season.toString()}
+                          >
+                            <Button
+                              asChild
+                              variant="secondary"
+                              className="w-min"
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a season" />
+                              </SelectTrigger>
+                            </Button>
+                            <SelectContent>
+                              {metadata.data.Children.Metadata.map(
+                                (season, i) => (
+                                  <SelectItem
+                                    className="text-left"
+                                    key={i}
+                                    value={i.toString()}
+                                  >
+                                    {season.title}
+                                  </SelectItem>
+                                ),
+                              )}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      </div>
+                    )}
+                    {!episodes && (
+                      <div className="flex flex-col w-fu;;">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <div
+                            key={i}
+                            className="flex flex-row items-center p-4 group transition hover:bg-secondary w-full border-b-2 justify-start text-left"
+                          >
+                            <Skeleton className="w-[8px] h-[28px] mr-4" />
+                            <div className="pr-4 min-w-[150px] w-[150px] sm:min-w-[200px] sm:w-[200px] md:min-w-[250px] md:w-[250px] relative">
+                              <Skeleton className="aspect-video w-full" />
+                            </div>
+                            <div className="w-full">
+                              <Skeleton className="w-full sm:w-[200px] h-[22px] mb-1" />
+                              <Skeleton className="h-[22px] w-full" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {episodes && (
+                      <div className="flex flex-col w-full">
+                        {episodes.map((item, i) => (
+                          <EpisodeView
+                            key={i}
+                            item={{
+                              ...item,
+                              image: `${PLEX.server}/photo/:/transcode?${qs.stringify(
+                                {
+                                  width: 16 * 20,
+                                  height: 9 * 20,
+                                  url: `${item.thumb}?X-Plex-Token=${token}`,
+                                  minSize: 1,
+                                  upscale: 1,
+                                  "X-Plex-Token": token,
+                                },
+                              )}`,
+                            }}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             </div>

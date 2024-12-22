@@ -33,6 +33,8 @@ export const VideoCarousel: FC<RecommendationShelf & { shuffle?: boolean }> = ({
 
   const token = localStorage.getItem("token");
 
+  if (!items) return;
+
   return (
     <div className="w-[100%] overflow-x-hidden">
       <p className="px-20 font-bold text-3xl tracking-tight">

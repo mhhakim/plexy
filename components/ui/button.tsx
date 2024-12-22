@@ -19,6 +19,8 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        search:
+          "shadow-sm group bg-muted/40 text-muted-foreground hover:text-primary border font-semibold tracking-wide",
       },
       size: {
         default: "h-9 px-4 py-2",
@@ -28,7 +30,7 @@ const buttonVariants = cva(
       },
     },
     defaultVariants: {
-      variant: "default",
+      variant: "search",
       size: "default",
     },
   },
