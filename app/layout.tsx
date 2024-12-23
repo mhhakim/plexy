@@ -4,6 +4,7 @@ import { Appbar } from "@/components/appbar";
 import { ReactNode } from "react";
 import Providers from "@/components/providers";
 import { Quicksand } from "next/font/google";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const quicksand = Quicksand({ subsets: ["latin"] });
 

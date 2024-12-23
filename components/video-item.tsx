@@ -16,7 +16,6 @@ export const VideoItem: FC<{ item: VideoItemInterface }> = ({ item }) => {
   const episodes = item.leafCount
     ? `${item.leafCount} Episode${item.leafCount > 1 ? "s" : ""}`
     : "";
-  const rating = item.contentRating ?? "";
   const duration =
     item.duration && (item.type === "episode" || item.type === "movie")
       ? durationToText(item.duration)
@@ -55,18 +54,11 @@ export const VideoItem: FC<{ item: VideoItemInterface }> = ({ item }) => {
           <p className="font-bold truncate lg:text-lg text-normal">
             {item.title}
           </p>
-          <p className="w-full max-w-full truncate lg:text-lg text-sm text-muted-foreground flex flex-row items-center gap-2">
-            {(episodes || seasons) && (
-              <span className="font-bold">{seasons || episodes}</span>
-            )}
-            {duration && <span className="font-bold">{duration}</span>}
-            {rating && (
-              <span className="lg:block hidden border-2 border-muted-foreground rounded-sm px-1 py-0.5 font-bold text-sm">
-                {rating}
-              </span>
-            )}
+          <p className="w-full max-w-full font-semibold t-sm truncate lg:text-md text-sm text-muted-foreground flex flex-row items-center gap-2">
+            {(episodes || seasons) && <span>{seasons || episodes}</span>}
+            {duration && <span>{duration}</span>}
             <span className="flex-1" />
-            <span className="text-xs font-bold">{item.year}</span>
+            <span className="text-xs">{item.year}</span>
           </p>
         </div>
       </div>

@@ -74,7 +74,9 @@ export const Slider: FC<{ items: VideoItemInterface[] }> = ({ items }) => {
                 type="button"
                 onClick={(e) => {
                   e.preventDefault();
-                  router.push(`${pathname}?mid=${mid}`);
+                  router.push(
+                    `${pathname}?${item.type === "episode" ? `watch=${item.ratingKey.toString()}` : `mid=${mid}`}`,
+                  );
                 }}
               >
                 <div className="relative w-full h-full flex flex-col">

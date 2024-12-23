@@ -7,16 +7,23 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SessionProvider } from "@/hooks/use-session";
 import { uuid, uuidv4 } from "@/lib/utils";
 import { MetaScreen } from "@/components/meta-screen/meta-screen";
+import { useSearchParams } from "next/navigation";
+import { WatchScreen } from "@/components/watch-screen/watch-screen";
 
 const client = new QueryClient();
 
 export default function Providers({ children }: { children: ReactNode }) {
+  const searchParams = useSearchParams();
+  const watch = searchParams.get("watch");
+
   useEffect(() => {
     if (!localStorage.getItem("clientId")) {
       localStorage.setItem("clientId", uuidv4());
     }
 
-    sessionStorage.setItem("sessionId", uuid());
+    if (!sessionStorage.getItem("sessionId")) {
+      sessionStorage.setItem("sessionId", uuid());
+    }
   }, []);
 
   return (
@@ -30,6 +37,7 @@ export default function Providers({ children }: { children: ReactNode }) {
         <AuthProvider>
           <SessionProvider>
             <MetaScreen />
+            <WatchScreen watch={watch ?? undefined} />
             {children}
           </SessionProvider>
         </AuthProvider>

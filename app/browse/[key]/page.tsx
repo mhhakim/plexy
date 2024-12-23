@@ -16,7 +16,6 @@ export default function Page() {
   });
 
   if (!library.data) {
-    // TODO: handle error
     return null;
   }
 

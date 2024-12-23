@@ -2,13 +2,30 @@ import { FC } from "react";
 import { durationToText } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import { PlayIcon } from "@/components/icons/play-icon";
+import { usePathname, useRouter } from "next/navigation";
 
 export const EpisodeView: FC<{
   item: Plex.Metadata & { image: string };
-}> = ({ item }) => {
+  count: number;
+}> = ({ item, count }) => {
+  const router = useRouter();
+  const pathname = usePathname();
   return (
-    <button className="flex flex-row items-center p-4 group transition hover:bg-secondary w-full border-b-2 justify-start text-left">
-      <p className="pr-4 text-xl font-bold">{item.index}</p>
+    <button
+      type="button"
+      onClick={(e) => {
+        e.preventDefault();
+        const mid = item.ratingKey.toString();
+        router.push(`${pathname}?watch=${mid}`);
+      }}
+      className="flex flex-row items-center p-4 group transition hover:bg-secondary w-full border-b-2 justify-start text-left"
+    >
+      <p
+        className={`mr-4 text-xl font-bold`}
+        style={{ minWidth: `${count}ch` }}
+      >
+        {item.index}
+      </p>
       <div className="mr-4 hidden sm:block sm:min-w-[200px] sm:w-[200px] md:min-w-[250px] md:w-[250px] relative">
         <img
           className="rounded aspect-video object-cover w-full"

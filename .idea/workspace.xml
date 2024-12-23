@@ -5,24 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1fe09ec0-188b-4e83-b5dc-c24c5f216ee0" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/app/browse/[key]/movie.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/browse/[key]/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/browse/[key]/show.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/components/icons/play-icon.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/components/meta-screen/episode-view.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/components/search.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hooks/use-is-scroll-at-top.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/watch-screen/watch-screen.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/api/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/app/globals.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/browse/[key]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/browse/[key]/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/layout.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/appbar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/appbar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/meta-screen/episode-view.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/meta-screen/episode-view.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/meta-screen/meta-screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/meta-screen/meta-screen.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/slider/slider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/slider/slider.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/providers.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/providers.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/search.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/search.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/ui/button.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/ui/button.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/video-carousel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/video-carousel.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ui/input.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/ui/input.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/video-item.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/video-item.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/utils.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hooks/use-session.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/hooks/use-session.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
     </list>
@@ -94,7 +90,7 @@
       <workItem from="1734654296552" duration="351000" />
       <workItem from="1734654658351" duration="10151000" />
       <workItem from="1734667303506" duration="11261000" />
-      <workItem from="1734678854301" duration="84307000" />
+      <workItem from="1734678854301" duration="111109000" />
     </task>
     <servers />
   </component>

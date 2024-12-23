@@ -75,12 +75,12 @@ const browser = () => {
   return browserName;
 };
 
-const xprops = () => {
+export const xprops = () => {
   return {
     "X-Incomplete-Segments": "1",
-    "X-Plex-Product": "PerPlexed",
+    "X-Plex-Product": "plexy",
     "X-Plex-Version": "0.1.0",
-    "X-Plex-Client-Identifier": localStorage.getItem("clientId"),
+    "X-Plex-Client-Identifier": localStorage.getItem("clientId") as string,
     "X-Plex-Platform": browser(),
     "X-Plex-Platform-Version": version(),
     "X-Plex-Features": "external-media,indirect-media,hub-style-list",
@@ -88,11 +88,44 @@ const xprops = () => {
     "X-Plex-Device": browser(),
     "X-Plex-Device-Name": browser(),
     "X-Plex-Device-Screen-Resolution": `${window.screen.width}x${window.screen.height}`,
-    "X-Plex-Token": localStorage.getItem("token"),
+    "X-Plex-Token": localStorage.getItem("token") as string,
     "X-Plex-Language": "en",
-    "X-Plex-Session-Id": sessionStorage.getItem("sessionId"),
+    "X-Plex-Session-Id": sessionStorage.getItem("sessionId") as string,
     "X-Plex-Session-Identifier": window.plexSessionId ?? "",
     session: window.sessionId ?? "",
+  };
+};
+
+export const streamprops = ({
+  id,
+  limitation,
+}: {
+  id: string;
+  limitation: {
+    autoAdjustQuality?: boolean;
+    maxVideoBitrate?: number;
+  };
+}) => {
+  return {
+    path: "/library/metadata/" + id,
+    protocol: "dash",
+    fastSeek: 1,
+    directPlay: 0,
+    directStream: 1,
+    subtitleSize: 100,
+    audioBoost: 200,
+    addDebugOverlay: 0,
+    directStreamAudio: 1,
+    mediaBufferSize: 102400,
+    subtitles: "burn",
+    "Accept-Language": "en",
+    ...xprops(),
+    ...(limitation.autoAdjustQuality && {
+      autoAdjustQuality: limitation.autoAdjustQuality ? 1 : 0,
+    }),
+    ...(limitation.maxVideoBitrate && {
+      maxVideoBitrate: limitation.maxVideoBitrate,
+    }),
   };
 };
 
@@ -242,6 +275,32 @@ export class ServerApi {
         return null;
       });
   }
+  static async search({ query }: { query: string }) {
+    return await axios
+      .get<{ MediaContainer: { SearchResult: Plex.SearchResult[] } }>(
+        `${PLEX.server}/library/search?${qs.stringify({
+          query,
+          includeCollections: 1,
+          includeExtras: 1,
+          searchTypes: "movies,otherVideos,tv",
+          limit: 100,
+          "X-Plex-Token": localStorage.getItem("token") as string,
+        })}`,
+        {
+          headers: {
+            "X-Plex-Token": localStorage.getItem("token") as string,
+            accept: "application/json",
+          },
+        },
+      )
+      .then((res) => {
+        return res.data?.MediaContainer?.SearchResult ?? null;
+      })
+      .catch((err) => {
+        console.log(err);
+        return null;
+      });
+  }
   static async details({
     key,
     include = true,
@@ -373,5 +432,131 @@ export class ServerApi {
     return items.data.MediaContainer.Metadata[
       Math.floor(Math.random() * items.data.MediaContainer.Metadata.length)
     ];
+  }
+  static async decision({
+    id,
+    limitation,
+  }: {
+    id: string;
+    limitation: {
+      autoAdjustQuality?: boolean;
+      maxVideoBitrate?: number;
+    };
+  }) {
+    return await axios
+      .get(
+        `${PLEX.server}/video/:/transcode/universal/decision?${qs.stringify(streamprops({ id, limitation }))}}`,
+        {
+          headers: {
+            "X-Plex-Token": localStorage.getItem("token") as string,
+            accept: "application/json",
+          },
+        },
+      )
+      .then((res) => {
+        return res.status === 200;
+      })
+      .catch((err) => {
+        console.log(err);
+        return false;
+      });
+  }
+  static async ping() {
+    return await axios
+      .get(
+        `${PLEX.server}/video/:/transcode/universal/ping?${qs.stringify(xprops())}}`,
+        {
+          headers: {
+            "X-Plex-Token": localStorage.getItem("token") as string,
+            accept: "application/json",
+          },
+        },
+      )
+      .then((res) => {
+        return res.status === 200;
+      })
+      .catch((err) => {
+        console.log(err);
+        return false;
+      });
+  }
+  static async preferences() {
+    return await axios
+      .get<{ MediaContainer: Plex.ServerPreferences }>(`${PLEX.server}/`, {
+        headers: {
+          "X-Plex-Token": localStorage.getItem("token") as string,
+          accept: "application/json",
+        },
+      })
+      .then((res) => {
+        return res.data?.MediaContainer ?? null;
+      })
+      .catch((err) => {
+        console.log(err);
+        return null;
+      });
+  }
+  static async queue({ uri }: { uri: string }) {
+    return await axios
+      .post<{ MediaContainer: { Metadata: Plex.Metadata[] } }>(
+        `${PLEX.server}/playQueues?${qs.stringify({
+          type: "video",
+          uri,
+          continuous: 1,
+          ...includes,
+          ...xprops(),
+        })}`,
+        {
+          headers: {
+            "X-Plex-Token": localStorage.getItem("token") as string,
+            accept: "application/json",
+          },
+        },
+      )
+      .then((res) => {
+        return res.data?.MediaContainer?.Metadata ?? null;
+      })
+      .catch((err) => {
+        console.log(err);
+        return null;
+      });
+  }
+  static async timeline({
+    id,
+    duration,
+    state,
+    time,
+  }: {
+    id: number;
+    duration: number;
+    state: string;
+    time: number;
+  }) {
+    return await axios
+      .get<Plex.TimelineUpdateResult>(
+        `${PLEX.server}/${qs.stringify({
+          ratingKey: id,
+          key: `/library/metadata/${id}/`,
+          duration: duration,
+          state: state,
+          playbackTime: time,
+          time: time,
+          context: "library",
+          ...xprops(),
+        })}`,
+        {
+          headers: {
+            "X-Plex-Token": localStorage.getItem("token") as string,
+            accept: "application/json",
+          },
+        },
+      )
+      .then((res) => {
+        return res.data ?? null;
+      })
+      .catch((err) => {
+        console.log(err);
+        return null;
+      });
   }
 }
