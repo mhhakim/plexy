@@ -250,6 +250,14 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
       if (e.key === "." && player.current) {
         player.current.seekTo(player.current.getCurrentTime() + 0.04);
       }
+      console.log(e.key);
+      if (e.key === "f" && player.current) {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().then();
+        } else {
+          document.exitFullscreen().then();
+        }
+      }
     };
 
     document.addEventListener("keydown", handleKeyDown);
@@ -292,7 +300,9 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                   if (!document.fullscreenElement) {
                     document.documentElement.requestFullscreen();
                     setPlaying(true);
-                  } else document.exitFullscreen();
+                  } else {
+                    document.exitFullscreen();
+                  }
                   break;
                 default:
                   break;

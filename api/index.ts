@@ -464,7 +464,7 @@ export class ServerApi {
   static async ping() {
     return await axios
       .get(
-        `${PLEX.server}/video/:/transcode/universal/ping?${qs.stringify(xprops())}}`,
+        `${PLEX.server}/video/:/transcode/universal/ping?${qs.stringify({ ...xprops() })}}`,
         {
           headers: {
             "X-Plex-Token": localStorage.getItem("token") as string,
