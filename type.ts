@@ -14,6 +14,9 @@ export interface VideoItemInterface
     | "duration"
     | "grandparentRatingKey"
     | "ratingKey"
+    | "summary"
+    | "viewOffset"
+    | "parentTitle"
   > {
   image: string;
 }

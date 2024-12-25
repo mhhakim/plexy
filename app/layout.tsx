@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Appbar } from "@/components/appbar";
-import { ReactNode } from "react";
+import { ReactNode, Suspense } from "react";
 import Providers from "@/components/providers";
 import { Quicksand } from "next/font/google";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import "@/app/slider.scss";
 
 const quicksand = Quicksand({ subsets: ["latin"] });
 
@@ -19,15 +19,17 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/plexicon.png" />
       </head>
       <body className={`${quicksand.className} antialiased bg-background`}>
-        <Providers>
-          <Appbar />
-          {children}
-        </Providers>
+        <Suspense>
+          <Providers>
+            <Appbar />
+            {children}
+          </Providers>
+        </Suspense>
       </body>
     </html>
   );

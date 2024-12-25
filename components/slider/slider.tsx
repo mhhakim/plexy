@@ -1,11 +1,10 @@
 import { FC } from "react";
 import { useSliding } from "@/components/slider/use-sliding";
-import "@/components/slider/slider.scss";
 import { useIsSize } from "@/hooks/use-is-size";
 import { ChevronDown, CircleCheck } from "lucide-react";
+import { VideoItemInterface } from "@/type";
 import { durationToText } from "@/lib/utils";
 import { usePathname, useRouter } from "next/navigation";
-import { VideoItemInterface } from "@/type";
 
 export const Slider: FC<{ items: VideoItemInterface[] }> = ({ items }) => {
   const {
@@ -17,9 +16,9 @@ export const Slider: FC<{ items: VideoItemInterface[] }> = ({ items }) => {
     hasPrev,
     elementRef,
   } = useSliding(items.length);
+  const { isTiny, isMobile, isTablet, isDesktop } = useIsSize();
   const router = useRouter();
   const pathname = usePathname();
-  const { isTiny, isMobile, isTablet, isDesktop } = useIsSize();
 
   const isFirst = (i: number) => {
     if (isTiny) return i % 2 === 0;
@@ -64,19 +63,25 @@ export const Slider: FC<{ items: VideoItemInterface[] }> = ({ items }) => {
                 : item.ratingKey.toString();
             return (
               <button
-                key={`${item.image}-${i}`}
-                className="item group overflow-hidden"
+                key={i}
+                className={"item group overflow-hidden aspect-video rounded"}
                 {...{ "data-first": isFirst(i), "data-last": isLast(i) }}
-                ref={i === 0 ? elementRef : undefined}
+                ref={elementRef}
                 style={{
                   background: `linear-gradient(0, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.5)), url(${item.image}) center center / cover no-repeat`,
                 }}
                 type="button"
                 onClick={(e) => {
                   e.preventDefault();
-                  router.push(
-                    `${pathname}?${item.type === "episode" ? `watch=${item.ratingKey.toString()}` : `mid=${mid}`}`,
-                  );
+                  if (item.type === "episode") {
+                    router.push(
+                      `${pathname}?watch=${item.ratingKey.toString()}${item.viewOffset ? `&t=${item.viewOffset}` : ""}`,
+                      { scroll: false },
+                    );
+                    return;
+                  }
+
+                  router.push(`${pathname}?mid=${mid}`, { scroll: false });
                 }}
               >
                 <div className="relative w-full h-full flex flex-col">
@@ -94,11 +99,18 @@ export const Slider: FC<{ items: VideoItemInterface[] }> = ({ items }) => {
                       {item.type}
                     </p>
                     <p className="font-bold truncate lg:text-lg">
-                      {item.title}
+                      {(item.type === "season"
+                        ? item.parentTitle
+                        : item.title) ?? item.title}
                     </p>
                     {item.type === "episode" && item.grandparentTitle && (
                       <p className="font-bold text-sm text-muted-foreground line-clamp-1">
                         {item.grandparentTitle}
+                      </p>
+                    )}
+                    {item.type === "season" && item.parentTitle && (
+                      <p className="font-bold text-sm text-muted-foreground line-clamp-1">
+                        {item.title}
                       </p>
                     )}
                     <p className="w-full max-w-full truncate text-sm text-muted-foreground flex flex-row items-center gap-2">

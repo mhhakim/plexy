@@ -11,10 +11,11 @@ export const useSliding = (countElements: number) => {
   useEffect(() => {
     const containerWidth = containerRef.current!.clientWidth - PADDINGS;
 
+    if (!elementRef.current) return;
     setTotalInViewport(
       Math.floor(containerWidth / elementRef.current!.clientWidth),
     );
-  }, [containerRef.current]);
+  }, [elementRef.current]);
 
   const handlePrev = () => {
     setViewed(viewed - totalInViewport);

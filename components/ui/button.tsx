@@ -21,6 +21,7 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         search:
           "group backdrop-blur supports-[backdrop-filter]:bg-muted/40 text-muted-foreground hover:text-primary border font-semibold tracking-wide",
+        plex: "group backdrop-blur supports-[backdrop-filter]:bg-plex text-primary border font-semibold tracking-wide",
       },
       size: {
         default: "h-9 px-4 py-2",

@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode, Suspense, useEffect } from "react";
 import ThemeProvider from "@/components/theme-provier";
 import { AuthProvider } from "@/components/auth-provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -36,8 +36,10 @@ export default function Providers({ children }: { children: ReactNode }) {
       <QueryClientProvider client={client}>
         <AuthProvider>
           <SessionProvider>
-            <MetaScreen />
-            <WatchScreen watch={watch ?? undefined} />
+            <Suspense>
+              <MetaScreen />
+              <WatchScreen watch={watch ?? undefined} />
+            </Suspense>
             {children}
           </SessionProvider>
         </AuthProvider>

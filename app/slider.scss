@@ -62,7 +62,6 @@ $isTiny: 800px;
     margin: 0 5px;
     position: relative;
     aspect-ratio: 16/9;
-    border-radius: 5px;
 
     &[data-first="true"]:hover {
       transform: translateX(10%) scale(1.2);

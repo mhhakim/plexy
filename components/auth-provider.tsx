@@ -6,9 +6,12 @@ import { Api, ServerApi } from "@/api";
 import { PLEX } from "@/constants";
 import _ from "lodash";
 import { XMLParser } from "fast-xml-parser";
+import { usePathname } from "next/navigation";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | undefined>();
+  const pathname = usePathname();
+
   useEffect(() => {
     let pin = localStorage.getItem("pin");
     const stored = localStorage.getItem("token");
@@ -22,7 +25,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (!stored) {
       if (!pinId) {
-        console.log(window.location.href);
         Api.pin({ uuid })
           .then((res) => {
             pin = res.data.code;
@@ -43,12 +45,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // TODO: handle error
           });
       } else {
+        console.log("here 1");
         Api.token({ uuid, pin: pinId })
           .then(async (res) => {
             // should have the token here
-            console.log(res.data);
             if (!res.data.authToken) {
               // TODO: handle error
+              console.log(res.data);
               return;
             }
 
@@ -56,6 +59,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const validation = await ServerApi.validate({
               token: res.data.authToken,
             });
+
+            console.log("validation", validation);
 
             if (validation?.status === 200) {
               localStorage.setItem("token", res.data.authToken);
@@ -68,6 +73,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const identity = await ServerApi.identity({
               token: res.data.authToken,
             });
+
+            console.log(identity);
 
             if (!identity || !identity.data.MediaContainer) {
               // TODO: handle error
@@ -85,12 +92,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               token: res.data.authToken,
             });
 
+            console.log(resources);
+
             const servers = parser.parse(resources.data);
             const target = _.find(servers.MediaContainer.Device, {
               clientIdentifier: identity.data.MediaContainer.machineIdentifier,
             });
 
+            console.log(target);
+
             if (!target) {
+              console.log("here");
               // TODO: handle error
               return;
             }

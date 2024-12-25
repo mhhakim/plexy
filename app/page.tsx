@@ -1,22 +1,19 @@
 "use client";
 
-import { RecommendationShelf, ServerApi } from "@/api";
-import { PLEX } from "@/constants";
+import { ServerApi } from "@/api";
 import { useEffect, useState } from "react";
-import Image from "next/image";
-import { VideoCarousel } from "@/components/video-carousel";
-import { Button } from "@/components/ui/button";
-import { usePathname, useRouter } from "next/navigation";
-import { Info } from "lucide-react";
+import { Hero } from "@/components/hero";
+import { Slider } from "@/components/slider";
+import { PLEX } from "@/constants";
+import qs from "qs";
+import _ from "lodash";
 
 export default function Home() {
-  const pathname = usePathname();
-  const router = useRouter();
-  const [recommendations, setRecommendations] = useState<RecommendationShelf[]>(
-    [],
-  );
   const [item, setItem] = useState<Plex.Metadata | null>(null);
-
+  const [continueWatching, setContinueWatched] = useState<Plex.Hub | null>(
+    null,
+  );
+  const [promoted, setPromoted] = useState<Plex.Hub[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -26,16 +23,27 @@ export default function Home() {
         if (!data) {
           return;
         }
-        ServerApi.recommendations({ libraries: data }).then((res) => {
-          setRecommendations(res);
-        });
-        let elem = await ServerApi.random({ libraries: data });
-        let retries = 0;
-        while (!elem && retries < 15) {
-          elem = await ServerApi.random({ libraries: data });
-          retries++;
+        const dirs = data.map((a) => a.key);
+        const randomDir = _.sample(dirs);
+        if (randomDir) {
+          const item = await ServerApi.random({ dir: randomDir });
+          setItem(item);
         }
-        setItem(elem);
+        ServerApi.continue({ dirs }).then((res) => {
+          if (!res) return;
+          if (res.length === 0) return;
+          setContinueWatched(res[0]);
+        });
+        const promo: Plex.Hub[] = [];
+        for (const dir of dirs) {
+          const res = await ServerApi.promoted({ dir, dirs });
+          if (!res) continue;
+          if (res.length === 0) continue;
+          res.forEach((hub) => {
+            promo.push(hub);
+          });
+        }
+        setPromoted(promo);
       })
       .finally(() => {
         setIsLoading(false);
@@ -46,60 +54,84 @@ export default function Home() {
     return null;
   }
 
+  const token = localStorage.getItem("token");
+
   return (
     <div className="w-full flex flex-col items-start justify-start">
-      {item ? (
-        // Hero
-        <div className="w-full flex flex-col items-start justify-start h-auto">
-          <div
-            className="w-full flex flex-col items-start justify-center z-0 pt-[40vh] pb-60"
-            style={{
-              background: `linear-gradient(0, hsl(var(--background)), rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4)), url(${PLEX.server}${item.art}?X-Plex-Token=${localStorage.getItem("token")}) center center / cover no-repeat`,
-            }}
-          >
-            <div className="ml-20 mr-20 flex flex-col gap-4">
-              <div className="flex flex-row items-center justify-start gap-2">
-                <Image
-                  src="/plexicon.png"
-                  alt="plex icon"
-                  width={35}
-                  height={35}
-                />
-                <p className="text-plex text-2xl font-bold drop-shadow-md uppercase tracking-wider">
-                  {item.type}
-                </p>
-              </div>
-              <p className="font-bold text-5xl">{item.title}</p>
-              <p className="font-bold text-muted-foreground max-w-4xl line-clamp-3">
-                {item.summary}
-              </p>
-              <Button
-                type="button"
-                className="w-fit font-bold"
-                onClick={() => {
-                  router.push(`${pathname}?mid=${item.ratingKey.toString()}`);
-                }}
-              >
-                <Info /> More Info
-              </Button>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="h-16" />
-      )}
+      {item ? <Hero item={item} /> : <div className="h-16" />}
       <div
         className={`flex flex-col items-start justify-start w-full z-10 ${item ? "-mt-20" : ""}`}
       >
-        {recommendations.map((recommendation) => (
-          <VideoCarousel
-            key={recommendation.key}
-            dir={recommendation.dir}
-            title={recommendation.title}
-            link={recommendation.link}
-            library={recommendation.library}
-          />
-        ))}
+        {continueWatching && (
+          <div className="w-[100%] overflow-x-hidden">
+            <p className="px-20 font-bold text-3xl tracking-tight">
+              <span className="px-[5px]">{continueWatching.title}</span>
+            </p>
+            {continueWatching.Metadata && (
+              <Slider
+                items={continueWatching.Metadata.map((item) => ({
+                  ...item,
+                  contentRating: item.contentRating ?? "",
+                  image:
+                    item.type === "episode"
+                      ? `${PLEX.server}/photo/:/transcode?${qs.stringify({
+                          width: 300 * 2,
+                          height: 170 * 2,
+                          url: `${item.thumb}?X-Plex-Token=${token}`,
+                          minSize: 1,
+                          upscale: 1,
+                          "X-Plex-Token": token,
+                        })}`
+                      : `${PLEX.server}/photo/:/transcode?${qs.stringify({
+                          width: 300 * 2,
+                          height: 170 * 2,
+                          url: `${item.art}?X-Plex-Token=${token}`,
+                          minSize: 1,
+                          upscale: 1,
+                          "X-Plex-Token": token,
+                        })}`,
+                }))}
+              />
+            )}
+          </div>
+        )}
+        {promoted &&
+          promoted.map((item, i) => (
+            <div
+              key={`${item.key}-${i}`}
+              className="w-[100%] overflow-x-hidden"
+            >
+              <p className="px-20 font-bold text-3xl tracking-tight">
+                <span className="px-[5px]">{item.title}</span>
+              </p>
+              {item.Metadata && (
+                <Slider
+                  items={item.Metadata.map((item) => ({
+                    ...item,
+                    contentRating: item.contentRating ?? "",
+                    image:
+                      item.type === "episode"
+                        ? `${PLEX.server}/photo/:/transcode?${qs.stringify({
+                            width: 300 * 2,
+                            height: 170 * 2,
+                            url: `${item.thumb}?X-Plex-Token=${token}`,
+                            minSize: 1,
+                            upscale: 1,
+                            "X-Plex-Token": token,
+                          })}`
+                        : `${PLEX.server}/photo/:/transcode?${qs.stringify({
+                            width: 300 * 2,
+                            height: 170 * 2,
+                            url: `${item.art}?X-Plex-Token=${token}`,
+                            minSize: 1,
+                            upscale: 1,
+                            "X-Plex-Token": token,
+                          })}`,
+                  }))}
+                />
+              )}
+            </div>
+          ))}
       </div>
     </div>
   );

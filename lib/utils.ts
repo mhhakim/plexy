@@ -19,6 +19,22 @@ export function uuidv4() {
   return result;
 }
 
+export function getFormatedTime(time: number) {
+  const hours = Math.floor(time / 3600);
+  const minutes = Math.floor((time % 3600) / 60);
+  const seconds = Math.floor(time % 60);
+
+  // only show hours if there are any
+  if (hours > 0)
+    return `${hours}:${minutes.toString().padStart(2, "0")}:${seconds
+      .toString()
+      .padStart(2, "0")}`;
+
+  return `${minutes.toString().padStart(2, "0")}:${seconds
+    .toString()
+    .padStart(2, "0")}`;
+}
+
 export function durationToText(duration: number): string {
   const hours = Math.floor(duration / 1000 / 60 / 60);
   const minutes = (duration / 1000 / 60 / 60 - hours) * 60;

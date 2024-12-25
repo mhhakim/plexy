@@ -16,7 +16,7 @@ export const EpisodeView: FC<{
       onClick={(e) => {
         e.preventDefault();
         const mid = item.ratingKey.toString();
-        router.push(`${pathname}?watch=${mid}`);
+        router.push(`${pathname}?watch=${mid}`, { scroll: false });
       }}
       className="flex flex-row items-center p-4 group transition hover:bg-secondary w-full border-b-2 justify-start text-left"
     >

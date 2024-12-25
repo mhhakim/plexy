@@ -73,8 +73,6 @@ export const Search = () => {
     });
   };
 
-  console.log(results);
-
   const token = localStorage.getItem("token");
 
   return (
@@ -111,7 +109,10 @@ export const Search = () => {
                   className={`rounded flex w-full flex-row gap-2 justify-start text-left items-center p-2 hover:bg-accent hover:text-accent-foreground`}
                   onClick={(e) => {
                     e.preventDefault();
-                    router.push(`${pathname}?mid=${item.ratingKey.toString()}`);
+                    router.push(
+                      `${pathname}?mid=${item.ratingKey.toString()}`,
+                      { scroll: false },
+                    );
                     handleReset();
                     setOpen(false);
                   }}

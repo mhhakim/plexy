@@ -10,7 +10,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        plex: "var(--plex-accent)",
+        plex: "hsl(var(--plex-accent))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {

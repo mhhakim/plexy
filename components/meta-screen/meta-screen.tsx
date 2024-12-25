@@ -14,7 +14,6 @@ import { CircleCheck, Volume2, VolumeX, X } from "lucide-react";
 import Image from "next/image";
 import { durationToText } from "@/lib/utils";
 import { create } from "zustand";
-import { VideoItem } from "@/components/video-item";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
@@ -25,6 +24,8 @@ import {
 } from "@/components/ui/select";
 import { EpisodeView } from "@/components/meta-screen/episode-view";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { PlayIcon } from "@/components/icons/play-icon";
+import { VideoItem } from "@/components/video-item";
 
 interface PreviewPlayerState {
   MetaScreenPlayerMuted: boolean;
@@ -51,9 +52,9 @@ export const MetaScreen: FC = () => {
       return ServerApi.metadata({ id: mid });
     },
   });
-  const similar = useQuery({
-    queryKey: ["similar", mid],
-    queryFn: async () => await ServerApi.similar({ id: mid }),
+  const related = useQuery({
+    queryKey: ["related", mid],
+    queryFn: async () => await ServerApi.related({ id: mid }),
   });
 
   const [season, setSeason] = useState<number>(0);
@@ -159,12 +160,19 @@ export const MetaScreen: FC = () => {
   useEffect(() => {
     setEpisodes(null);
     if (!metadata.data) return;
-    if (metadata.data.type !== "show") return;
-    if (!metadata.data?.Children?.Metadata[season]?.ratingKey) return;
+    let id = "";
+    if (metadata.data.type === "show") {
+      if (metadata.data?.Children?.Metadata[season]?.ratingKey) {
+        id = metadata.data.Children!.Metadata[season].ratingKey;
+      }
+    } else if (metadata.data.type === "season") {
+      id = metadata.data.ratingKey;
+    }
 
-    ServerApi.children({
-      id: metadata.data.Children.Metadata[season].ratingKey,
-    }).then((data) => {
+    console.log(metadata.data);
+    if (!id) return;
+
+    ServerApi.children({ id }).then((data) => {
       if (data) {
         setEpisodes({
           value: data,
@@ -217,7 +225,12 @@ export const MetaScreen: FC = () => {
   }, [metadata.data]);
 
   return (
-    <Dialog open={!!mid}>
+    <Dialog
+      open={!!mid}
+      onOpenChange={(open) => {
+        if (!open) router.replace(pathname, { scroll: false });
+      }}
+    >
       <DialogContent className="w-full p-0 max-w-[min(1500px,calc(100%-2rem))] h-full max-h-[calc(100%-2rem)] overflow-hidden">
         <VisuallyHidden>
           <DialogTitle>Item metadata dialog</DialogTitle>
@@ -263,14 +276,16 @@ export const MetaScreen: FC = () => {
                     className="absolute top-0 left-0 right-0 bottom-0"
                     style={{
                       background:
-                        "linear-gradient(0, hsl(var(--background)), rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4))",
+                        "linear-gradient(0, hsl(var(--background)), rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.1))",
                     }}
                   />
                   <div className="absolute top-0 right-0 m-4 flex flex-col gap-2">
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() => router.replace(pathname)}
+                      onClick={() =>
+                        router.replace(pathname, { scroll: false })
+                      }
                       type="button"
                     >
                       <X />
@@ -296,7 +311,7 @@ export const MetaScreen: FC = () => {
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => router.replace(pathname)}
+                    onClick={() => router.replace(pathname, { scroll: false })}
                     type="button"
                   >
                     <X />
@@ -332,7 +347,10 @@ export const MetaScreen: FC = () => {
                           </p>
                         </div>
                         <p className="font-bold text-5xl">
-                          {metadata.data.title}
+                          {metadata.data.type === "season" &&
+                          metadata.data.parentTitle
+                            ? metadata.data.parentTitle
+                            : metadata.data.title}
                         </p>
                         <p className="font-bold text-muted-foreground max-w-4xl line-clamp-3 flex flex-row items-center gap-4">
                           {metadata.data?.contentRating && (
@@ -340,19 +358,92 @@ export const MetaScreen: FC = () => {
                               {metadata.data?.contentRating}
                             </span>
                           )}
-                          <span>{metadata.data.year}</span>
+                          {metadata.data.year && (
+                            <span>{metadata.data.year}</span>
+                          )}
                           {duration && <span>{duration}</span>}
+                          {metadata.data.type === "season" &&
+                            metadata.data.parentTitle && (
+                              <span>{metadata.data.title}</span>
+                            )}
                           {(show.seasons || show.episodes) && (
                             <span>{show.seasons || show.episodes}</span>
                           )}
                         </p>
                       </div>
-                      {watched && (
-                        <p className="text-plex uppercase flex flex-row items-center gap-2 font-bold">
-                          <CircleCheck />
-                          <span>watched</span>
-                        </p>
-                      )}
+                      <div className="flex flex-row items-center gap-4">
+                        <Button
+                          variant="plex"
+                          size="lg"
+                          onClick={() => {
+                            if (metadata.data?.type === "movie") {
+                              router.push(
+                                `${pathname}?watch=${metadata.data.ratingKey}`,
+                                { scroll: false },
+                              );
+                              return;
+                            }
+
+                            if (
+                              metadata.data?.type === "show" ||
+                              metadata.data?.type === "season"
+                            ) {
+                              if (
+                                metadata.data.OnDeck &&
+                                metadata.data.OnDeck.Metadata
+                              ) {
+                                router.push(
+                                  `${pathname}?watch=${metadata.data.OnDeck.Metadata.ratingKey}${
+                                    metadata.data.OnDeck.Metadata.viewOffset
+                                      ? `&t=${metadata.data.OnDeck.Metadata.viewOffset}`
+                                      : ""
+                                  }`,
+                                  { scroll: false },
+                                );
+                                return;
+                              }
+
+                              if (!metadata.data.Children) return;
+
+                              const season =
+                                metadata.data.Children.Metadata.find(
+                                  (s) => s.title !== "Specials",
+                                );
+                              if (!season) return;
+
+                              ServerApi.children({
+                                id: season.ratingKey as string,
+                              }).then((eps) => {
+                                if (!eps) return;
+
+                                router.push(
+                                  `${pathname}?watch=${eps[0].ratingKey}`,
+                                  { scroll: false },
+                                );
+                                return;
+                              });
+                            }
+                          }}
+                        >
+                          <PlayIcon /> Play{" "}
+                          {metadata.data.type === "show" &&
+                            metadata.data.OnDeck &&
+                            metadata.data.OnDeck?.Metadata &&
+                            `${
+                              metadata.data?.Children?.size &&
+                              metadata.data.Children.size > 0
+                                ? `S${metadata.data.OnDeck.Metadata.parentIndex}`
+                                : ""
+                            }
+                              E${metadata.data.OnDeck.Metadata.index}`}
+                        </Button>
+                        {watched && (
+                          <p className="text-plex uppercase flex flex-row items-center gap-2 font-bold">
+                            <CircleCheck />
+                            <span>watched</span>
+                          </p>
+                        )}
+                      </div>
                       <p className="font-bold text-muted-foreground max-w-4xl line-clamp-3">
                         {metadata.data.summary}
                       </p>
@@ -400,37 +491,8 @@ export const MetaScreen: FC = () => {
                       </div>
                     </div>
                   </div>
-                  {metadata.data.type === "movie" && (
-                    <div className="flex flex-col gap-6">
-                      <p className="font-bold text-2xl">Similar Movies</p>
-                      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                        {similar.status === "pending" &&
-                          Array.from({ length: 5 }).map((_, i) => (
-                            <Skeleton key={i} className="aspect-video" />
-                          ))}
-                        {similar.status === "success" &&
-                          similar.data.slice(0, 20).map((item, i) => (
-                            <VideoItem
-                              key={i}
-                              item={{
-                                ...item,
-                                image: `${PLEX.server}/photo/:/transcode?${qs.stringify(
-                                  {
-                                    width: 300 * 2,
-                                    height: 170 * 2,
-                                    url: `${item.art}?X-Plex-Token=${token}`,
-                                    minSize: 1,
-                                    upscale: 1,
-                                    "X-Plex-Token": token,
-                                  },
-                                )}`,
-                              }}
-                            />
-                          ))}
-                      </div>
-                    </div>
-                  )}
-                  {metadata.data.type === "show" && (
+                  {(metadata.data.type === "show" ||
+                    metadata.data.type === "season") && (
                     <div className="flex flex-col gap-6">
                       {metadata.data.Children && (
                         <div className="flex flex-row items-center w-full">
@@ -516,6 +578,47 @@ export const MetaScreen: FC = () => {
                         </div>
                       )}
                     </div>
+                  )}
+                  {related.status === "pending" ? (
+                    <div className="flex flex-col gap-6">
+                      <Skeleton className="w-[200px] h-[24px]" />
+                      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Skeleton key={i} className="aspect-video" />
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    related.data &&
+                    related.data.map((hub, i) => (
+                      <div
+                        key={`${hub.title}-${i}`}
+                        className="flex flex-col gap-6"
+                      >
+                        <p className="font-bold text-2xl">{hub.title}</p>
+                        <div className="grid gap-4 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                          {hub.Metadata.slice(0, 15).map((item, i) => (
+                            <VideoItem
+                              key={i}
+                              item={{
+                                ...item,
+                                contentRating: item.contentRating ?? "",
+                                image: `${PLEX.server}/photo/:/transcode?${qs.stringify(
+                                  {
+                                    width: 300 * 2,
+                                    height: 170 * 2,
+                                    url: `${item.art}?X-Plex-Token=${token}`,
+                                    minSize: 1,
+                                    upscale: 1,
+                                    "X-Plex-Token": token,
+                                  },
+                                )}`,
+                              }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    ))
                   )}
                 </div>
               </div>

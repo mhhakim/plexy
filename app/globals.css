@@ -10,7 +10,7 @@
 
 @layer base {
     :root {
-        --plex-accent: #e6a104;
+        --plex-accent: 42 97% 46%;
         --background: 0 0% 100%;
         --foreground: 240 10% 3.9%;
         --card: 0 0% 100%;
@@ -39,7 +39,7 @@
     }
 
     .dark {
-        --plex-accent: #e6a104;
+        --plex-accent: 42 97% 46%;
         --background: 240 10% 3.9%;
         --foreground: 0 0% 98%;
         --card: 240 10% 3.9%;
@@ -77,27 +77,19 @@
     }
 }
 
-.head-link::after {
-    content: '';
-    display: block;
-    width: 0;
-    height: 2px;
-    background: #fff;
-    transition: width .3s;
-    margin-left: auto;
-    margin-right: auto;
+.hover-time {
+    background-color: hsl(var(--background));
 }
 
-.head-link:hover::after {
-    width: 100%;
-    transition: width .3s;
+.ui-video-seek-slider .hover-time .preview-screen {
+    width: 240px !important;
+    height: 135px !important;
+    background-color: transparent !important;
 }
 
-.head-link-active::after {
-    width: 100%;
-    transition: width .3s;
+.ui-video-seek-slider .track .main .connect {
+    background-color: hsl(var(--plex-accent));
 }
-
-.glow:hover {
-    box-shadow: 0 0 5px 0 #fff;
+.ui-video-seek-slider .thumb .handler {
+    background-color: hsl(var(--plex-accent));
 }

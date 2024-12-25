@@ -78,7 +78,7 @@ const browser = () => {
 export const xprops = () => {
   return {
     "X-Incomplete-Segments": "1",
-    "X-Plex-Product": "plexy",
+    "X-Plex-Product": PLEX.application,
     "X-Plex-Version": "0.1.0",
     "X-Plex-Client-Identifier": localStorage.getItem("clientId") as string,
     "X-Plex-Platform": browser(),
@@ -235,7 +235,7 @@ export class ServerApi {
           excludeFields: "summary",
           includeMarkerCounts: 1,
           includeRelated: 1,
-          includeExternalMedia: 1,
+          includeExternalMedia: 0,
           async: 1,
           ...xprops(),
         })}`,
@@ -248,6 +248,33 @@ export class ServerApi {
       )
       .then((res) => {
         return res?.data?.MediaContainer?.Metadata ?? [];
+      })
+      .catch((err) => {
+        console.log(err);
+        return [];
+      });
+  }
+  static async related({ id }: { id?: string | null }) {
+    if (!id) return [];
+    return await axios
+      .get<{ MediaContainer: { Hub: Plex.Hub[] } }>(
+        `${PLEX.server}/library/metadata/${id}/related?${qs.stringify({
+          ...includes,
+          includeAugmentations: 1,
+          includeExternalMetadata: 1,
+          includeMeta: 1,
+          limit: 15,
+          ...xprops(),
+        })}`,
+        {
+          headers: {
+            "X-Plex-Token": localStorage.getItem("token") as string,
+            accept: "application/json",
+          },
+        },
+      )
+      .then((res) => {
+        return res?.data?.MediaContainer?.Hub ?? [];
       })
       .catch((err) => {
         console.log(err);
@@ -283,7 +310,7 @@ export class ServerApi {
           includeCollections: 1,
           includeExtras: 1,
           searchTypes: "movies,otherVideos,tv",
-          limit: 100,
+          limit: 50,
           "X-Plex-Token": localStorage.getItem("token") as string,
         })}`,
         {
@@ -413,25 +440,22 @@ export class ServerApi {
       ? _.shuffle(selections)
       : ([] as RecommendationShelf[]);
   }
-  static async random({ libraries }: { libraries: Plex.LibarySection[] }) {
-    const library = libraries[Math.floor(Math.random() * libraries.length)];
+  static async random({ dir }: { dir: string }) {
     const dirs = await ServerApi.library({
-      key: library.key,
+      key: dir,
       directory: "genre",
     });
 
     if (!dirs?.data.MediaContainer.Directory) return null;
 
     const items = await ServerApi.library({
-      key: library.key,
-      directory: `all?genre=${dirs.data.MediaContainer.Directory[Math.floor(Math.random() * dirs.data.MediaContainer.Directory.length)].key}`,
+      key: dir,
+      directory: `all?genre=${_.sample(dirs.data.MediaContainer.Directory)!.key}`,
     });
 
     if (!items) return null;
 
-    return items.data.MediaContainer.Metadata[
-      Math.floor(Math.random() * items.data.MediaContainer.Metadata.length)
-    ];
+    return _.sample(items.data.MediaContainer.Metadata)!;
   }
   static async decision({
     id,
@@ -534,7 +558,7 @@ export class ServerApi {
   }) {
     return await axios
       .get<Plex.TimelineUpdateResult>(
-        `${PLEX.server}/${qs.stringify({
+        `${PLEX.server}/:/timeline?${qs.stringify({
           ratingKey: id,
           key: `/library/metadata/${id}/`,
           duration: duration,
@@ -557,6 +581,104 @@ export class ServerApi {
       .catch((err) => {
         console.log(err);
         return null;
+      });
+  }
+  static async continue({ dirs }: { dirs: string[] }) {
+    return await axios
+      .get<{ MediaContainer: { Hub: Plex.Hub[] } }>(
+        `${PLEX.server}/hubs/continueWatching?${qs.stringify({
+          contentDirectoryID: dirs.join(","),
+          includeMeta: 1,
+          excludeFields: "summary",
+          ...xprops(),
+        })}`,
+        {
+          headers: {
+            "X-Plex-Token": localStorage.getItem("token") as string,
+            accept: "application/json",
+          },
+        },
+      )
+      .then((res) => {
+        return res.data?.MediaContainer?.Hub ?? null;
+      })
+      .catch((err) => {
+        console.log(err);
+        return null;
+      });
+  }
+  static async promoted({ dir, dirs }: { dir: string; dirs: string[] }) {
+    return await axios
+      .get<{ MediaContainer: { Hub: Plex.Hub[] } }>(
+        `${PLEX.server}/hubs/promoted?${qs.stringify({
+          contentDirectoryID: dir,
+          pinnedContentDirectoryID: dirs.join(","),
+          includeMeta: 1,
+          excludeFields: "summary",
+          count: 12,
+          includeStations: 1,
+          includeLibraryPlaylists: 1,
+          includeRecentChannels: 1,
+          excludeContinueWatching: 1,
+          ...xprops(),
+        })}`,
+        {
+          headers: {
+            "X-Plex-Token": localStorage.getItem("token") as string,
+            accept: "application/json",
+          },
+        },
+      )
+      .then((res) => {
+        return res.data?.MediaContainer?.Hub ?? null;
+      })
+      .catch((err) => {
+        console.log(err);
+        return null;
+      });
+  }
+  static async audio({ part, stream }: { part: string; stream: string }) {
+    return await axios
+      .put(
+        `${PLEX.server}/library/parts/${part}?${qs.stringify({
+          audioStreamID: stream,
+          ...xprops(),
+        })}`,
+        {
+          headers: {
+            "X-Plex-Token": localStorage.getItem("token") as string,
+            accept: "application/json",
+          },
+        },
+      )
+      .then((res) => {
+        return !!res.data;
+      })
+      .catch((err) => {
+        console.log(err);
+        return false;
+      });
+  }
+  static async subtitle({ part, stream }: { part: string; stream: string }) {
+    return await axios
+      .put(
+        `${PLEX.server}/library/parts/${part}?${qs.stringify({
+          subtitleStreamID: stream,
+          ...xprops(),
+        })}`,
+        {
+          headers: {
+            "X-Plex-Token": localStorage.getItem("token") as string,
+            accept: "application/json",
+          },
+        },
+      )
+      .then((res) => {
+        return !!res.data;
+      })
+      .catch((err) => {
+        console.log(err);
+        return false;
       });
   }
 }
