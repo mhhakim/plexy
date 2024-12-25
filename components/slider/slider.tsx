@@ -57,34 +57,27 @@ export const Slider: FC<{ items: VideoItemInterface[] }> = ({ items }) => {
               (item.type === "episode" || item.type === "movie")
                 ? durationToText(item.duration)
                 : "";
-            const mid =
-              item.grandparentRatingKey && item.type === "episode"
-                ? item.grandparentRatingKey
-                : item.ratingKey.toString();
+            const mid = item.ratingKey.toString();
             return (
               <button
                 key={i}
-                className={"item group overflow-hidden aspect-video rounded"}
+                className={
+                  "item group overflow-y-visible overflow-x-hidden rounded relative"
+                }
                 {...{ "data-first": isFirst(i), "data-last": isLast(i) }}
                 ref={elementRef}
-                style={{
-                  background: `linear-gradient(0, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.5)), url(${item.image}) center center / cover no-repeat`,
-                }}
                 type="button"
                 onClick={(e) => {
                   e.preventDefault();
-                  if (item.type === "episode") {
-                    router.push(
-                      `${pathname}?watch=${item.ratingKey.toString()}${item.viewOffset ? `&t=${item.viewOffset}` : ""}`,
-                      { scroll: false },
-                    );
-                    return;
-                  }
-
                   router.push(`${pathname}?mid=${mid}`, { scroll: false });
                 }}
               >
-                <div className="relative w-full h-full flex flex-col">
+                <div
+                  style={{
+                    background: `linear-gradient(0, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.5)), url(${item.image}) center center / cover no-repeat`,
+                  }}
+                  className="relative w-full h-full flex flex-col aspect-video"
+                >
                   {watched && (
                     <div className="absolute top-0 px-4 pt-4 w-full max-w-full flex flex-row items-center justify-end gap-2">
                       <span className="lg:group-hover:opacity-100 opacity-0 font-bold uppercase duration-300 ease-in-out transition text-xs">

@@ -215,6 +215,7 @@ declare namespace Plex {
     year: number;
     tagline: string;
     thumb: string;
+    parentThumb?: string;
     art: string;
     theme?: string;
     duration: number;

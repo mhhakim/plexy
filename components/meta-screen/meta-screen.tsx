@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, ReactNode, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { ServerApi } from "@/api";
@@ -26,6 +26,7 @@ import { EpisodeView } from "@/components/meta-screen/episode-view";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PlayIcon } from "@/components/icons/play-icon";
 import { VideoItem } from "@/components/video-item";
+import Link from "next/link";
 
 interface PreviewPlayerState {
   MetaScreenPlayerMuted: boolean;
@@ -53,11 +54,22 @@ export const MetaScreen: FC = () => {
     },
   });
   const related = useQuery({
-    queryKey: ["related", mid],
-    queryFn: async () => await ServerApi.related({ id: mid }),
+    queryKey: ["related", metadata.data],
+    queryFn: async () => {
+      if (!metadata.data) return [];
+      let id = metadata.data.ratingKey;
+      if (metadata.data.type === "season" && metadata.data.parentRatingKey) {
+        id = metadata.data.parentRatingKey;
+      } else if (
+        metadata.data.type === "episode" &&
+        metadata.data.grandparentRatingKey
+      ) {
+        id = metadata.data.grandparentRatingKey;
+      }
+      return await ServerApi.related({ id });
+    },
   });
 
-  const [season, setSeason] = useState<number>(0);
   const [episodes, setEpisodes] = useState<{
     value: Plex.Metadata[];
     count: number;
@@ -73,7 +85,6 @@ export const MetaScreen: FC = () => {
 
   useEffect(() => {
     setEpisodes(null);
-    setSeason(0);
     setLanguages(null);
     setSubtitles(null);
     setPreview(null);
@@ -82,8 +93,6 @@ export const MetaScreen: FC = () => {
 
   useEffect(() => {
     if (!metadata.data) return;
-    setSeason(0);
-
     const extras = metadata.data.Extras?.Metadata;
     if (!extras?.[0] || !extras?.[0]?.Media?.[0]?.Part?.[0]?.key) return;
 
@@ -161,15 +170,9 @@ export const MetaScreen: FC = () => {
     setEpisodes(null);
     if (!metadata.data) return;
     let id = "";
-    if (metadata.data.type === "show") {
-      if (metadata.data?.Children?.Metadata[season]?.ratingKey) {
-        id = metadata.data.Children!.Metadata[season].ratingKey;
-      }
-    } else if (metadata.data.type === "season") {
+    if (metadata.data.type === "season") {
       id = metadata.data.ratingKey;
     }
-
-    console.log(metadata.data);
     if (!id) return;
 
     ServerApi.children({ id }).then((data) => {
@@ -186,7 +189,7 @@ export const MetaScreen: FC = () => {
         setEpisodes(null);
       }
     });
-  }, [season, metadata.data?.ratingKey]);
+  }, [metadata.data?.ratingKey, metadata.data]);
 
   const duration = useMemo(
     () =>
@@ -206,23 +209,67 @@ export const MetaScreen: FC = () => {
       return true;
     }
 
-    if (meta.type === "movie" && meta.viewCount) {
-      return true;
-    }
-
-    return false;
+    return !!(meta.type === "movie" && meta.viewCount);
   }, [metadata.data]);
 
-  const show = useMemo(() => {
-    const s =
+  const title = useMemo(() => {
+    if (!metadata.data) return "";
+
+    if (metadata.data.type === "season" && metadata.data.parentTitle) {
+      return (
+        <Link href={`${pathname}?mid=${metadata.data.parentRatingKey}`}>
+          <p className="font-bold text-5xl">{metadata.data.parentTitle}</p>
+        </Link>
+      );
+    }
+
+    if (metadata.data.type === "episode" && metadata.data.grandparentTitle) {
+      return (
+        <Link href={`${pathname}?mid=${metadata.data.grandparentRatingKey}`}>
+          <p className="font-bold text-5xl">{metadata.data.grandparentTitle}</p>
+        </Link>
+      );
+    }
+
+    return <p className="font-bold text-5xl">{metadata.data.title}</p>;
+  }, [metadata.data, pathname]);
+
+  const episodeCount = useMemo(() => {
+    if (!metadata.data) return "";
+    let episode = metadata.data?.leafCount
+      ? `${metadata.data?.leafCount} Episode${metadata.data?.leafCount > 1 ? "s" : ""}`
+      : "";
+    if (metadata.data.type === "episode") {
+      episode = `Episode ${metadata.data.index}`;
+    }
+
+    return episode;
+  }, [metadata.data]);
+
+  const subtitle = useMemo(() => {
+    if (!metadata.data) return null;
+
+    let season: string | ReactNode =
       metadata.data?.childCount && metadata.data?.childCount > 1
         ? `${metadata.data?.childCount} Seasons`
         : "";
-    const e = metadata.data?.leafCount
-      ? `${metadata.data?.leafCount} Episode${metadata.data?.leafCount > 1 ? "s" : ""}`
-      : "";
-    return { episodes: e, seasons: s };
-  }, [metadata.data]);
+    if (metadata.data.type === "season" && metadata.data.parentTitle) {
+      season = metadata.data.title;
+    } else if (metadata.data.type === "episode" && metadata.data.parentTitle) {
+      season = (
+        <Link href={`${pathname}?mid=${metadata.data.parentRatingKey}`}>
+          {metadata.data.parentTitle}
+        </Link>
+      );
+    }
+
+    return !season && !episodeCount ? null : (
+      <p className="font-bold text-muted-foreground max-w-4xl line-clamp-3 flex flex-row items-center gap-4">
+        {season && <span>{season}</span>}
+        {episodeCount && <span>{episodeCount}</span>}
+      </p>
+    );
+  }, [metadata.data, episodeCount, pathname]);
 
   return (
     <Dialog
@@ -326,7 +373,7 @@ export const MetaScreen: FC = () => {
                       src={`${PLEX.server}/photo/:/transcode?${qs.stringify({
                         width: 300,
                         height: 450,
-                        url: `${metadata.data.thumb}?X-Plex-Token=${token}`,
+                        url: `${metadata.data.type === "episode" ? metadata.data.parentThumb || metadata.data.thumb : metadata.data.thumb}?X-Plex-Token=${token}`,
                         minSize: 1,
                         upscale: 1,
                         "X-Plex-Token": token,
@@ -346,30 +393,29 @@ export const MetaScreen: FC = () => {
                             {metadata.data.type}
                           </p>
                         </div>
-                        <p className="font-bold text-5xl">
-                          {metadata.data.type === "season" &&
-                          metadata.data.parentTitle
-                            ? metadata.data.parentTitle
-                            : metadata.data.title}
-                        </p>
-                        <p className="font-bold text-muted-foreground max-w-4xl line-clamp-3 flex flex-row items-center gap-4">
-                          {metadata.data?.contentRating && (
-                            <span className="border-2 border-muted-foreground rounded-sm px-1 py-0.5 font-bold text-sm">
-                              {metadata.data?.contentRating}
-                            </span>
+                        {title}
+                        {metadata.data.type === "episode" &&
+                          metadata.data.grandparentTitle && (
+                            <p className="font-bold text-xl">
+                              {metadata.data.title}
+                            </p>
                           )}
-                          {metadata.data.year && (
-                            <span>{metadata.data.year}</span>
-                          )}
-                          {duration && <span>{duration}</span>}
-                          {metadata.data.type === "season" &&
-                            metadata.data.parentTitle && (
-                              <span>{metadata.data.title}</span>
+                        {subtitle}
+                        {(metadata.data?.contentRating ||
+                          metadata.data.year ||
+                          duration) && (
+                          <p className="font-bold text-muted-foreground max-w-4xl line-clamp-3 flex flex-row items-center gap-4">
+                            {metadata.data?.contentRating && (
+                              <span className="border-2 border-muted-foreground rounded-sm px-1 py-0.5 font-bold text-sm">
+                                {metadata.data?.contentRating}
+                              </span>
                             )}
-                          {(show.seasons || show.episodes) && (
-                            <span>{show.seasons || show.episodes}</span>
-                          )}
-                        </p>
+                            {metadata.data.year && (
+                              <span>{metadata.data.year}</span>
+                            )}
+                            {duration && <span>{duration}</span>}
+                          </p>
+                        )}
                       </div>
                       <div className="flex flex-row items-center gap-4">
                         <Button
@@ -379,6 +425,14 @@ export const MetaScreen: FC = () => {
                             if (metadata.data?.type === "movie") {
                               router.push(
                                 `${pathname}?watch=${metadata.data.ratingKey}`,
+                                { scroll: false },
+                              );
+                              return;
+                            }
+
+                            if (metadata.data?.type === "episode") {
+                              router.push(
+                                `${pathname}?watch=${metadata.data.ratingKey.toString()}${metadata.data.viewOffset ? `&t=${metadata.data.viewOffset}` : ""}`,
                                 { scroll: false },
                               );
                               return;
@@ -403,12 +457,12 @@ export const MetaScreen: FC = () => {
                                 return;
                               }
 
-                              if (!metadata.data.Children) return;
-
                               const season =
-                                metadata.data.Children.Metadata.find(
-                                  (s) => s.title !== "Specials",
-                                );
+                                metadata.data.type === "season"
+                                  ? metadata.data
+                                  : metadata.data?.Children?.Metadata.find(
+                                      (s) => s.title !== "Specials",
+                                    );
                               if (!season) return;
 
                               ServerApi.children({
@@ -426,7 +480,8 @@ export const MetaScreen: FC = () => {
                           }}
                         >
                           <PlayIcon /> Play{" "}
-                          {metadata.data.type === "show" &&
+                          {(metadata.data.type === "show" ||
+                            metadata.data?.type === "season") &&
                             metadata.data.OnDeck &&
                             metadata.data.OnDeck?.Metadata &&
                             `${
@@ -491,50 +546,54 @@ export const MetaScreen: FC = () => {
                       </div>
                     </div>
                   </div>
-                  {(metadata.data.type === "show" ||
-                    metadata.data.type === "season") && (
+                  {metadata.data.type === "show" && (
                     <div className="flex flex-col gap-6">
-                      {metadata.data.Children && (
-                        <div className="flex flex-row items-center w-full">
-                          <p className="text-2xl font-bold">
-                            {metadata.data.Children.size > 1
-                              ? metadata.data.Children.Metadata[season].title
-                              : show.episodes}
-                          </p>
-                          <div className="flex-1" />
-                          {metadata.data.Children.size > 1 && (
-                            <Select
-                              onValueChange={(value) =>
-                                setSeason(Number(value))
-                              }
-                              value={season.toString()}
+                      <p className="text-2xl font-bold">Seasons</p>
+                      <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                        {metadata.data.Children?.Metadata.map((season, i) => (
+                          <button
+                            key={i}
+                            className="relative text-left"
+                            onClick={() => {
+                              router.push(
+                                `${pathname}?mid=${season.ratingKey}`,
+                                { scroll: false },
+                              );
+                            }}
+                          >
+                            <img
+                              className="w-full"
+                              src={`${PLEX.server}/photo/:/transcode?${qs.stringify(
+                                {
+                                  width: 300,
+                                  height: 450,
+                                  url: `${season.thumb}?X-Plex-Token=${token}`,
+                                  minSize: 1,
+                                  upscale: 1,
+                                  "X-Plex-Token": token,
+                                },
+                              )}`}
+                              alt=""
+                            />
+                            <div
+                              className="absolute inset-0 p-4"
+                              style={{
+                                background:
+                                  "linear-gradient(0, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.75))",
+                              }}
                             >
-                              <Button
-                                asChild
-                                variant="secondary"
-                                className="w-min"
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select a season" />
-                                </SelectTrigger>
-                              </Button>
-                              <SelectContent>
-                                {metadata.data.Children.Metadata.map(
-                                  (season, i) => (
-                                    <SelectItem
-                                      className="text-left"
-                                      key={i}
-                                      value={i.toString()}
-                                    >
-                                      {season.title}
-                                    </SelectItem>
-                                  ),
-                                )}
-                              </SelectContent>
-                            </Select>
-                          )}
-                        </div>
-                      )}
+                              <p className="font-bold text-xl">
+                                {season.title}
+                              </p>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {metadata.data.type === "season" && (
+                    <div className="flex flex-col gap-6">
+                      <p className="text-2xl font-bold">{episodeCount}</p>
                       {!episodes && (
                         <div className="flex flex-col w-fu;;">
                           {Array.from({ length: 5 }).map((_, i) => (

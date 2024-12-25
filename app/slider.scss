@@ -53,6 +53,7 @@ $isTiny: 800px;
     transition: transform 300ms ease 100ms;
     z-index: 4;
     width: 100%;
+    overflow: visible;
   }
 
   .item {
@@ -60,7 +61,6 @@ $isTiny: 800px;
     flex: 0 0 calc(100% / 6 - (10px));
     transition: transform 300ms ease 100ms;
     margin: 0 5px;
-    position: relative;
     aspect-ratio: 16/9;
 
     &[data-first="true"]:hover {

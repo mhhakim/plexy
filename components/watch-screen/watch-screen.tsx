@@ -16,12 +16,16 @@ import {
 } from "@/components/ui/popover";
 import {
   ArrowLeft,
+  LoaderCircle,
   Maximize,
   Minimize,
   Pause,
   Play,
-  Settings,
+  SkipForward,
+  SlidersHorizontal,
+  Volume1,
   Volume2,
+  VolumeX,
 } from "lucide-react";
 import {
   Select,
@@ -34,7 +38,23 @@ import { VideoSeekSlider } from "react-video-seek-slider";
 import "react-video-seek-slider/styles.css";
 import { getFormatedTime } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
   const router = useRouter();
@@ -65,8 +85,9 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
   const [buffered, setBuffered] = useState(0);
   const [openVolume, setOpenVolume] = useState(false);
   const [buffering, setBuffering] = useState(false);
-  const [showError, setShowError] = useState<string | false>(false);
+  const [showError, setShowError] = useState(false);
   const [showControls, setShowControls] = useState(true);
+  const [pendingRefresh, setPendingRefresh] = useState(false);
   const [url, setUrl] = useState<string>("");
 
   const loaded = `${PLEX.server}/video/:/transcode/universal/start.mpd?${qs.stringify(
@@ -159,7 +180,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
       const { terminationCode, terminationText } =
         timelineUpdateData.MediaContainer;
       if (terminationCode) {
-        setShowError(`${terminationCode} - ${terminationText}`);
+        // TODO: show stopping reason
         setPlaying(false);
       }
     };
@@ -249,16 +270,16 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
     }
     return () => {
       clearAllBodyScrollLocks();
+      lastAppliedTime.current = 0;
     };
   }, [container, watch]);
 
   const videoOptions = useMemo(
     () =>
       metadata?.Media && metadata.Media.length > 0
-        ? getCurrentVideoLevels(
-            metadata.Media[0].videoResolution,
-            `${Math.floor(metadata.Media[0].bitrate / 1000)}Mbps`,
-          ).filter((opt) => opt.bitrate)
+        ? getCurrentVideoLevels(metadata.Media[0].videoResolution).filter(
+            (opt) => opt.bitrate,
+          )
         : [],
     [metadata?.Media],
   );
@@ -281,17 +302,40 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
     [metadata?.Media],
   );
 
+  const showSkip =
+    metadata?.Marker &&
+    metadata?.Marker.filter(
+      (marker) =>
+        marker.startTimeOffset / 1000 <= progress &&
+        marker.endTimeOffset / 1000 >= progress &&
+        marker.type === "intro",
+    ).length > 0;
+
+  const showCredit =
+    metadata?.Marker &&
+    metadata?.Marker.filter(
+      (marker) =>
+        marker.startTimeOffset / 1000 <= progress &&
+        marker.endTimeOffset / 1000 >= progress &&
+        marker.type === "credits" &&
+        !marker.final,
+    ).length > 0;
+
+  const token = localStorage.getItem("token");
+
   if (!watch) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 bg-black" ref={container}>
-      {metadata && (
+    <div className="fixed inset-0 z-50 flex flex-col bg-black" ref={container}>
+      {metadata ? (
         <>
           <div
             className={`absolute inset-0 ${showControls ? "" : "cursor-none"}`}
           >
             {!metadata || !url ? (
-              <div>{/* TODO: loading spinner */}</div>
+              <div className="absolute inset-0 flex flex-row items-center justify-center">
+                <LoaderCircle className="w-20 h-20 animate-spin text-plex" />
+              </div>
             ) : (
               <ReactPlayer
                 ref={player}
@@ -319,8 +363,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                 onReady={() => {
                   if (!player.current) return;
                   setReady(true);
-
-                  console.log(seekToAfterLoad.current);
+                  setShowError(false);
 
                   if (seekToAfterLoad.current !== null) {
                     player.current.seekTo(seekToAfterLoad.current);
@@ -328,18 +371,14 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                   }
 
                   if (!searchParams.has("t")) return;
-                  if (
-                    lastAppliedTime.current ===
-                    parseInt(searchParams.get("t") ?? "0")
-                  ) {
+                  const t = parseInt(searchParams.get("t") ?? "0");
+
+                  if (lastAppliedTime.current === t) {
                     return;
                   }
-                  player.current.seekTo(
-                    parseInt(searchParams.get("t") ?? "0") / 1000,
-                  );
-                  lastAppliedTime.current = parseInt(
-                    searchParams.get("t") ?? "0",
-                  );
+
+                  player.current.seekTo(t / 1000);
+                  lastAppliedTime.current = t;
                 }}
                 onProgress={(progress) => {
                   setProgress(progress.playedSeconds);
@@ -360,10 +399,17 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                 onError={(err) => {
                   console.log("Player error:");
                   console.error(err);
-                  // window.location.reload();
+                  if (err?.error?.message) {
+                    if (
+                      (err.error.message.includes("/header") ||
+                        err.error.message.includes(".m4s")) &&
+                      err.error.message.includes("is not available")
+                    ) {
+                      setShowError(true);
+                    }
+                  }
 
                   setPlaying(false);
-                  if (showError) return;
                 }}
                 config={{
                   file: {
@@ -413,7 +459,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
             )}
           </div>
           <div
-            className={`absolute top-0 w-full flex flex-col gap-6 p-6 bg-background/80 ${showControls || !playing ? "" : "hidden"}`}
+            className={`sticky top-0 w-full flex flex-col gap-6 p-6 bg-background/80 ${showControls || !playing ? "" : "-translate-y-full"} transition`}
           >
             <button
               onClick={() => {
@@ -423,8 +469,52 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
               <ArrowLeft className="w-8 h-8 text-muted-foreground hover:scale-125 hover:text-primary transition duration-75" />
             </button>
           </div>
+          <div className="flex-1" />
           <div
-            className={`absolute bottom-0 w-full flex flex-col gap-6 p-6 bg-background/80 ${showControls || !playing ? "" : "hidden"}`}
+            className={`flex flex-row p-6 justify-end z-50 ${showSkip ? "" : "hidden"} transition`}
+          >
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                if (!player.current || !metadata?.Marker) return;
+                const time =
+                  metadata.Marker?.filter(
+                    (marker) =>
+                      marker.startTimeOffset / 1000 <= progress &&
+                      marker.endTimeOffset / 1000 >= progress &&
+                      marker.type === "intro",
+                  )[0].endTimeOffset / 1000;
+                player.current.seekTo(time + 1);
+              }}
+            >
+              <SkipForward /> Skip Intro
+            </Button>
+          </div>
+          <div
+            className={`flex flex-row p-6 justify-end z-50 ${showCredit ? "" : "hidden"} transition`}
+          >
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                if (!player.current || !metadata?.Marker) return;
+                const time =
+                  metadata.Marker?.filter(
+                    (marker) =>
+                      marker.startTimeOffset / 1000 <= progress &&
+                      marker.endTimeOffset / 1000 >= progress &&
+                      marker.type === "credits" &&
+                      !marker.final,
+                  )[0].endTimeOffset / 1000;
+                player.current.seekTo(time + 1);
+              }}
+            >
+              <SkipForward /> Skip Credit
+            </Button>
+          </div>
+          <div
+            className={`sticky bottom-0 w-full flex flex-col gap-6 p-6 bg-background/80 ${showControls || !playing ? "" : "translate-y-full"} transition`}
           >
             <div className="h-4 flex flex-row gap-4">
               {metadata && (
@@ -473,14 +563,91 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
               <p className="font-bold select-none">
                 {metadata.type === "movie" && metadata.title}
                 {metadata.type === "episode" &&
-                  `${metadata.grandparentTitle} - S${metadata.parentIndex}E${metadata.index} - ${metadata.title}`}
+                  `${metadata.grandparentTitle} - S${metadata.parentIndex?.toString().padStart(2, "0")}E${metadata.index?.toString().padStart(2, "0")} - ${metadata.title}`}
               </p>
               <div className="flex-1" />
+              {playQueue && playQueue[1] && (
+                <TooltipProvider delayDuration={100}>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <button
+                        onClick={() => {
+                          if (!playQueue) return;
+                          const next = playQueue[1];
+                          if (next) {
+                            router.replace(
+                              `${pathname}?watch=${next.ratingKey}`,
+                              {
+                                scroll: false,
+                              },
+                            );
+                          }
+                        }}
+                      >
+                        <SkipForward className="w-8 h-8 text-muted-foreground hover:scale-125 hover:text-primary transition duration-75" />
+                      </button>
+                    </TooltipTrigger>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!playQueue) return;
+                        const next = playQueue[1];
+                        if (next) {
+                          router.replace(
+                            `${pathname}?watch=${next.ratingKey}`,
+                            {
+                              scroll: false,
+                            },
+                          );
+                        }
+                      }}
+                    >
+                      <TooltipContent
+                        className={`p-0 m-4 ${showControls ? "" : "hidden"} flex flex-row bg-background max-w-[600px] max-h-[${9 * 20}px]`}
+                      >
+                        <img
+                          width={16 * 20}
+                          height={9 * 20}
+                          className="aspect-video"
+                          src={`${PLEX.server}/photo/:/transcode?${qs.stringify(
+                            {
+                              width: 16 * 20,
+                              height: 9 * 20,
+                              url: `${playQueue[1].thumb}?X-Plex-Token=${token}`,
+                              minSize: 1,
+                              upscale: 1,
+                              "X-Plex-Token": token,
+                            },
+                          )}`}
+                        />
+                        <div className="p-4 text-primary">
+                          <p className="text-xl line-clamp-1 font-bold">
+                            {playQueue[1].title}
+                          </p>
+                          <p className="text-normal font-bold text-muted-foreground">
+                            S
+                            {playQueue[1].parentIndex
+                              ?.toString()
+                              .padStart(2, "0")}
+                            E{playQueue[1].index?.toString().padStart(2, "0")}
+                          </p>
+                          <p className="text-md line-clamp-6">
+                            {playQueue[1].summary}
+                          </p>
+                        </div>
+                      </TooltipContent>
+                    </button>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
               <Dialog>
                 <DialogTrigger>
-                  <Settings className="w-8 h-8 text-muted-foreground hover:scale-125 hover:text-primary transition duration-75" />
+                  <SlidersHorizontal className="w-8 h-8 text-muted-foreground hover:scale-125 hover:text-primary transition duration-75" />
                 </DialogTrigger>
                 <DialogContent className="m-4 flex flex-col gap-2">
+                  <VisuallyHidden>
+                    <DialogTitle>Playback Settings</DialogTitle>
+                  </VisuallyHidden>
                   {videoOptions.length > 0 && (
                     <>
                       <Label>Video</Label>
@@ -669,7 +836,13 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                 onOpenChange={(open) => setOpenVolume(open)}
               >
                 <PopoverTrigger>
-                  <Volume2 className="w-8 h-8 text-muted-foreground hover:scale-125 hover:text-primary transition duration-75" />
+                  {volume === 0 ? (
+                    <VolumeX className="w-8 h-8 text-muted-foreground hover:scale-125 hover:text-primary transition duration-75" />
+                  ) : volume < 45 ? (
+                    <Volume1 className="w-8 h-8 text-muted-foreground hover:scale-125 hover:text-primary transition duration-75" />
+                  ) : (
+                    <Volume2 className="w-8 h-8 text-muted-foreground hover:scale-125 hover:text-primary transition duration-75" />
+                  )}
                 </PopoverTrigger>
                 <PopoverContent className="w-min m-4">
                   <Slider
@@ -705,16 +878,55 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
             </div>
           </div>
         </>
+      ) : (
+        <div className="absolute inset-0 flex flex-row items-center justify-center">
+          <LoaderCircle className="w-20 h-20 animate-spin text-plex" />
+        </div>
       )}
+      <Dialog
+        open={showError}
+        onOpenChange={(open) => {
+          if (!pendingRefresh) setShowError(open);
+        }}
+      >
+        <DialogContent>
+          <DialogTitle>Loading Error</DialogTitle>
+          <DialogDescription>
+            The video was not able to load. You may try to refresh the page to
+            resolve the error.
+          </DialogDescription>
+          <DialogFooter className="flex flex-row gap-2">
+            <DialogClose asChild disabled={pendingRefresh}>
+              <Button type="button" disabled={pendingRefresh}>
+                Close
+              </Button>
+            </DialogClose>
+            <Button
+              type="button"
+              onClick={() => {
+                setPendingRefresh(true);
+                setTimeout(() => {
+                  window.location.reload();
+                  setPendingRefresh(false);
+                }, 2500);
+              }}
+              disabled={pendingRefresh}
+            >
+              {pendingRefresh ? (
+                <LoaderCircle className="animate-spin" />
+              ) : (
+                "Refresh"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>,
     document.body,
   );
 };
 
-export function getCurrentVideoLevels(
-  resolution: string,
-  extraForOriginal = "Auto",
-) {
+export function getCurrentVideoLevels(resolution: string) {
   const levels: {
     title: string;
     bitrate?: number;

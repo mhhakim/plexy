@@ -36,7 +36,7 @@ export const VideoCarousel: FC<RecommendationShelf & { shuffle?: boolean }> = ({
   if (!items) return;
 
   return (
-    <div className="w-[100%] overflow-x-hidden">
+    <div className="w-[100%] overflow-x-hidden overflow-y-visible">
       <p className="px-20 font-bold text-3xl tracking-tight">
         <span className="px-[5px]">{title}</span>
       </p>

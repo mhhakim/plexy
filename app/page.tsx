@@ -63,7 +63,7 @@ export default function Home() {
         className={`flex flex-col items-start justify-start w-full z-10 ${item ? "-mt-20" : ""}`}
       >
         {continueWatching && (
-          <div className="w-[100%] overflow-x-hidden">
+          <div className="w-[100%] overflow-x-hidden overflow-y-visible">
             <p className="px-20 font-bold text-3xl tracking-tight">
               <span className="px-[5px]">{continueWatching.title}</span>
             </p>
@@ -99,7 +99,7 @@ export default function Home() {
           promoted.map((item, i) => (
             <div
               key={`${item.key}-${i}`}
-              className="w-[100%] overflow-x-hidden"
+              className="w-[100%] overflow-x-hidden overflow-y-visible"
             >
               <p className="px-20 font-bold text-3xl tracking-tight">
                 <span className="px-[5px]">{item.title}</span>
