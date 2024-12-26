@@ -59,7 +59,7 @@ export const VideoView: FC<{ item: VideoItemInterface }> = ({ item }) => {
           </p>
         </div>
       </div>
-      <div className="bg-secondary/40 rounded-b p-4 text-left text-muted-foreground font-semibold flex-1 flex flex-col gap-4">
+      <div className="bg-secondary/40 rounded-b w-full p-4 text-left text-muted-foreground font-semibold flex-1 flex flex-col gap-4">
         <p className="w-full max-w-full font-semibold t-sm truncate text-md text-muted-foreground flex flex-row items-center gap-2">
           {item.contentRating && (
             <span className="border border-muted-foreground rounded-sm px-1 font-bold text-sm">

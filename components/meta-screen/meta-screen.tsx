@@ -299,6 +299,7 @@ export const MetaScreen: FC = () => {
                     />
                   ) : (
                     <img
+                      loading="lazy"
                       className="w-full"
                       src={`${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
                         {
@@ -363,6 +364,7 @@ export const MetaScreen: FC = () => {
                 <div className="px-20 pt-0 pb-20 flex flex-col gap-6">
                   <div className="flex flex-row gap-6 items-center justify-start">
                     <img
+                      loading="lazy"
                       className="hidden [@media(min-width:1200px)]:block rounded w-[300px] h-[450px] object-cover"
                       src={`${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
                         {

@@ -593,6 +593,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                       className={`p-0 m-4 ${showControls ? "" : "hidden"} flex flex-row bg-background max-w-[600px] max-h-[${9 * 20}px]`}
                     >
                       <img
+                        loading="lazy"
                         width={16 * 20}
                         height={9 * 20}
                         className="aspect-video"

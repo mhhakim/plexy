@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { Search } from "@/components/search";
+import { useLibraries } from "@/components/auth-provider";
 
 const HeadLink: FC<{
   children: ReactNode;
@@ -29,11 +30,7 @@ const HeadLink: FC<{
 export const Appbar = () => {
   const path = usePathname();
   const { user } = useSession();
-
-  const libraries = useQuery({
-    queryKey: ["libraries"],
-    queryFn: ServerApi.libraries,
-  });
+  const { libraries } = useLibraries();
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -50,17 +47,15 @@ export const Appbar = () => {
         <HeadLink href="/" active={path === "/"}>
           Home
         </HeadLink>
-        {libraries.data
-          ? libraries.data.map((section) => (
-              <HeadLink
-                key={section.key}
-                href={`/browse/${section.key}`}
-                active={path.includes(`/browse/${section.key}`)}
-              >
-                {section.title}
-              </HeadLink>
-            ))
-          : null}
+        {libraries.map((section) => (
+          <HeadLink
+            key={section.key}
+            href={`/browse/${section.key}`}
+            active={path.includes(`/browse/${section.key}`)}
+          >
+            {section.title}
+          </HeadLink>
+        ))}
       </div>
       <div className="flex-1" />
       <div className="flex flex-row gap-4 items-center">

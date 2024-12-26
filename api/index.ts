@@ -190,8 +190,8 @@ export class Api {
     >(
       `https://clients.plex.tv/api/v2/resources?${qs.stringify({
         includeHttps: 1,
-        includeRelay: 0,
-        includeIPv6: 0,
+        includeRelay: 1,
+        includeIPv6: 1,
         ...xprops(),
       })}`,
     );

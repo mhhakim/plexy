@@ -16,6 +16,7 @@ export const SeasonView: FC<{ season: Plex.Child }> = ({ season }) => {
       }}
     >
       <img
+        loading="lazy"
         className="w-full"
         src={`${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
           {

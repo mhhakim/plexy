@@ -1,12 +1,23 @@
 "use client";
 
-import { ReactNode, useEffect, useState } from "react";
+import {
+  ReactNode,
+  useEffect,
+  useState,
+  createContext,
+  useContext,
+} from "react";
 import { uuidv4 } from "@/lib/utils";
 import { Api } from "@/api";
 import { PLEX } from "@/constants";
+import axios from "axios";
+
+const LibrariesContext = createContext({ libraries: [] } as {
+  libraries: Plex.LibarySection[];
+});
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | undefined>();
+  const [libraries, setLibraries] = useState<Plex.LibarySection[]>([]);
 
   useEffect(() => {
     let pin = localStorage.getItem("pin");
@@ -52,19 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             localStorage.setItem("token", res.data.authToken);
             localStorage.setItem("auth-token", res.data.authToken);
-            Api.servers().then((res2) => {
-              if (
-                !res2.data ||
-                res2.data.length === 0 ||
-                !res2.data[0].connections ||
-                res2.data[0].connections.length === 0
-              )
-                return;
-              localStorage.setItem("server", res2.data[0].connections[0].uri);
-              setToken(res.data.authToken);
-              window.location.href = "/";
-              return;
-            });
+            window.location.href = "/";
           })
           .catch((err) => {
             console.error(err);
@@ -73,17 +72,65 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } else {
       Api.servers()
-        .then((res2) => {
+        .then(async (res2) => {
           if (
             !res2.data ||
             res2.data.length === 0 ||
             !res2.data[0].connections ||
             res2.data[0].connections.length === 0
-          )
+          ) {
             return;
-          localStorage.setItem("server", res2.data[0].connections[0].uri);
-          setToken(stored);
-          return;
+          }
+
+          // Create an array of promises for each connection
+          const promises = res2.data[0].connections.map((connection, i) => {
+            return new Promise((resolve, reject) => {
+              axios
+                .get<{ MediaContainer: { Directory: Plex.LibarySection[] } }>(
+                  `${connection.uri}/library/sections`,
+                  {
+                    headers: {
+                      "X-Plex-Token": localStorage.getItem("token") as string,
+                      accept: "application/json",
+                    },
+                  },
+                )
+                .then(({ data }) => {
+                  if (data) {
+                    resolve({
+                      data: data.MediaContainer.Directory,
+                      uri: connection.uri,
+                    });
+                  } else {
+                    setTimeout(() => {
+                      reject(
+                        new Error("Call failed for url: " + connection.uri),
+                      );
+                    }, 60_000);
+                  }
+                })
+                .catch((err) => {
+                  console.error(err);
+                  setTimeout(() => {
+                    reject(new Error("Call failed for url: " + connection.uri));
+                  }, 60_000);
+                });
+            });
+          });
+
+          // Use Promise.race to stop as soon as we find a valid server
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
+          const result: { data: Plex.LibarySection[]; uri: string } =
+            await Promise.race(promises);
+
+          if (result) {
+            localStorage.setItem("server", result.uri);
+            setLibraries(result.data);
+          } else {
+            localStorage.removeItem("token");
+            window.location.href = "/";
+          }
         })
         .catch((err) => {
           if (err.response) {
@@ -109,7 +156,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  if (!token) return null;
+  if (libraries.length === 0) return null;
 
-  return children;
+  return (
+    <LibrariesContext.Provider value={{ libraries }}>
+      {children}
+    </LibrariesContext.Provider>
+  );
 }
+
+export const useLibraries = () => {
+  return useContext(LibrariesContext);
+};

@@ -118,6 +118,7 @@ export const Search = () => {
                   }}
                 >
                   <img
+                    loading="lazy"
                     width={60}
                     height={90}
                     src={`${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(

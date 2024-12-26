@@ -28,6 +28,7 @@ export const EpisodeView: FC<{
       </p>
       <div className="mr-4 hidden sm:block sm:min-w-[200px] sm:w-[200px] md:min-w-[250px] md:w-[250px] relative">
         <img
+          loading="lazy"
           className="rounded aspect-video object-cover w-full"
           src={item.image}
           alt="episode preview image"

@@ -5,18 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1fe09ec0-188b-4e83-b5dc-c24c5f216ee0" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/components/hub-slider.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/components/meta-screen/season-view.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/browse/[key]/hub.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/browse/[key]/hub.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/browse/[key]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/browse/[key]/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/api/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/appbar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/appbar.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/auth-provider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/auth-provider.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/hero.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/hero.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/icons/play-icon.tsx" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/components/meta-screen/episode-view.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/meta-screen/episode-view.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/meta-screen/meta-screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/meta-screen/meta-screen.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/video-item.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/meta-screen/video-view.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/meta-screen/season-view.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/meta-screen/season-view.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/meta-screen/video-view.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/meta-screen/video-view.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/search.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/search.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/watch-screen/watch-screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/watch-screen/watch-screen.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -87,7 +85,7 @@
       <workItem from="1734654658351" duration="10151000" />
       <workItem from="1734667303506" duration="11261000" />
       <workItem from="1734678854301" duration="149394000" />
-      <workItem from="1735102219763" duration="36216000" />
+      <workItem from="1735102219763" duration="39909000" />
     </task>
     <servers />
   </component>
