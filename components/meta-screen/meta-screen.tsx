@@ -382,7 +382,8 @@ export const MetaScreen: FC = () => {
                       <div className="flex flex-col gap-4">
                         <div className="flex flex-row items-center justify-start gap-2">
                           <img
-                            src="/plexicon.png"
+                            loading="lazy"
+                            src="https://i.imgur.com/7MHdofK.png"
                             alt="plex icon"
                             width={35}
                             height={35}

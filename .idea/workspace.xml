@@ -5,6 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1fe09ec0-188b-4e83-b5dc-c24c5f216ee0" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/public/plexicon_100.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/hero.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/hero.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/meta-screen/meta-screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/meta-screen/meta-screen.tsx" afterDir="false" />
@@ -52,11 +53,11 @@
       <recent name="$PROJECT_DIR$" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/public" />
       <recent name="$PROJECT_DIR$/components/meta-screen" />
       <recent name="$PROJECT_DIR$/app" />
       <recent name="$PROJECT_DIR$/components" />
       <recent name="$PROJECT_DIR$/app/auth" />
-      <recent name="$PROJECT_DIR$/public" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -78,7 +79,7 @@
       <workItem from="1734654658351" duration="10151000" />
       <workItem from="1734667303506" duration="11261000" />
       <workItem from="1734678854301" duration="149394000" />
-      <workItem from="1735102219763" duration="40477000" />
+      <workItem from="1735102219763" duration="41175000" />
     </task>
     <servers />
   </component>
