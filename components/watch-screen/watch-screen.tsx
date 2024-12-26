@@ -893,6 +893,9 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
               onClick={() => {
                 setPendingRefresh(true);
                 setTimeout(() => {
+                  router.replace(
+                    `${pathname}?watch=${watch}&t=${Math.floor(progress) * 1000}`,
+                  );
                   window.location.reload();
                   setPendingRefresh(false);
                 }, 2500);
