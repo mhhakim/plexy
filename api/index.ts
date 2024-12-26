@@ -152,40 +152,42 @@ export class Api {
     return axios.get(`https://plex.tv/api/resources?X-Plex-Token=${token}`);
   }
   static async servers() {
-    return axios.get<{
-      name: string;
-      product: string;
-      productVersion: string;
-      platform: string;
-      platformVersion: string;
-      device: string;
-      clientIdentifier: string;
-      createdAt: string;
-      lastSeenAt: string;
-      provides: string;
-      ownerId: any;
-      sourceTitle: any;
-      publicAddress: string;
-      accessToken: string;
-      owned: boolean;
-      home: boolean;
-      synced: boolean;
-      relay: boolean;
-      presence: boolean;
-      httpsRequired: boolean;
-      publicAddressMatches: boolean;
-      dnsRebindingProtection: boolean;
-      natLoopbackSupported: boolean;
-      connections: {
-        protocol: string;
-        address: string;
-        port: number;
-        uri: string;
-        local: boolean;
+    return axios.get<
+      {
+        name: string;
+        product: string;
+        productVersion: string;
+        platform: string;
+        platformVersion: string;
+        device: string;
+        clientIdentifier: string;
+        createdAt: string;
+        lastSeenAt: string;
+        provides: string;
+        ownerId: any;
+        sourceTitle: any;
+        publicAddress: string;
+        accessToken: string;
+        owned: boolean;
+        home: boolean;
+        synced: boolean;
         relay: boolean;
-        IPv6: boolean;
-      }[];
-    }>(
+        presence: boolean;
+        httpsRequired: boolean;
+        publicAddressMatches: boolean;
+        dnsRebindingProtection: boolean;
+        natLoopbackSupported: boolean;
+        connections: {
+          protocol: string;
+          address: string;
+          port: number;
+          uri: string;
+          local: boolean;
+          relay: boolean;
+          IPv6: boolean;
+        }[];
+      }[]
+    >(
       `https://clients.plex.tv/api/v2/resources?${qs.stringify({
         includeHttps: 1,
         includeRelay: 0,
@@ -204,7 +206,7 @@ export class Api {
 export class ServerApi {
   static async validate({ token }: { token: string }) {
     return await axios
-      .get(`${PLEX.server}/?X-Plex-Token=${token}`)
+      .get(`${localStorage.getItem("server")}/?X-Plex-Token=${token}`)
       .catch((err) => {
         console.log(err);
         return null;
@@ -212,7 +214,7 @@ export class ServerApi {
   }
   static async identity({ token }: { token: string }) {
     return await axios
-      .get(`${PLEX.server}/identity`, {
+      .get(`${localStorage.getItem("server")}/identity`, {
         headers: {
           "X-Plex-Token": token,
         },
@@ -225,10 +227,12 @@ export class ServerApi {
   static async metadata({ id }: { id: string }) {
     return await axios
       .get<{ MediaContainer: { Metadata: Plex.Metadata[] } }>(
-        `${PLEX.server}/library/metadata/${id}?${qs.stringify({
-          ...includes,
-          ...xprops(),
-        })}`,
+        `${localStorage.getItem("server")}/library/metadata/${id}?${qs.stringify(
+          {
+            ...includes,
+            ...xprops(),
+          },
+        )}`,
         {
           headers: {
             "X-Plex-Token": localStorage.getItem("token") as string,
@@ -250,10 +254,12 @@ export class ServerApi {
   static async children({ id }: { id: string }) {
     return await axios
       .get<{ MediaContainer: { Metadata: Plex.Metadata[] } }>(
-        `${PLEX.server}/library/metadata/${id}/children?${qs.stringify({
-          ...includes,
-          ...xprops(),
-        })}`,
+        `${localStorage.getItem("server")}/library/metadata/${id}/children?${qs.stringify(
+          {
+            ...includes,
+            ...xprops(),
+          },
+        )}`,
         {
           headers: {
             "X-Plex-Token": localStorage.getItem("token") as string,
@@ -273,15 +279,17 @@ export class ServerApi {
     if (!id) return [];
     return await axios
       .get<{ MediaContainer: { Metadata: Plex.Metadata[] } }>(
-        `${PLEX.server}/library/metadata/${id}/similar?${qs.stringify({
-          limit: 10,
-          excludeFields: "summary",
-          includeMarkerCounts: 1,
-          includeRelated: 1,
-          includeExternalMedia: 0,
-          async: 1,
-          ...xprops(),
-        })}`,
+        `${localStorage.getItem("server")}/library/metadata/${id}/similar?${qs.stringify(
+          {
+            limit: 10,
+            excludeFields: "summary",
+            includeMarkerCounts: 1,
+            includeRelated: 1,
+            includeExternalMedia: 0,
+            async: 1,
+            ...xprops(),
+          },
+        )}`,
         {
           headers: {
             "X-Plex-Token": localStorage.getItem("token") as string,
@@ -301,14 +309,16 @@ export class ServerApi {
     if (!id) return [];
     return await axios
       .get<{ MediaContainer: { Hub: Plex.Hub[] } }>(
-        `${PLEX.server}/library/metadata/${id}/related?${qs.stringify({
-          ...includes,
-          includeAugmentations: 1,
-          includeExternalMetadata: 1,
-          includeMeta: 1,
-          limit: 15,
-          ...xprops(),
-        })}`,
+        `${localStorage.getItem("server")}/library/metadata/${id}/related?${qs.stringify(
+          {
+            ...includes,
+            includeAugmentations: 1,
+            includeExternalMetadata: 1,
+            includeMeta: 1,
+            limit: 15,
+            ...xprops(),
+          },
+        )}`,
         {
           headers: {
             "X-Plex-Token": localStorage.getItem("token") as string,
@@ -327,7 +337,7 @@ export class ServerApi {
   static async libraries() {
     return await axios
       .get<{ MediaContainer: { Directory: Plex.LibarySection[] } }>(
-        `${PLEX.server}/library/sections`,
+        `${localStorage.getItem("server")}/library/sections`,
         {
           headers: {
             "X-Plex-Token": localStorage.getItem("token") as string,
@@ -348,7 +358,7 @@ export class ServerApi {
   static async search({ query }: { query: string }) {
     return await axios
       .get<{ MediaContainer: { SearchResult: Plex.SearchResult[] } }>(
-        `${PLEX.server}/library/search?${qs.stringify({
+        `${localStorage.getItem("server")}/library/search?${qs.stringify({
           query,
           includeCollections: 1,
           includeExtras: 1,
@@ -380,7 +390,7 @@ export class ServerApi {
   }) {
     return await axios
       .get<{ MediaContainer: Plex.LibraryDetails }>(
-        `${PLEX.server}/library/sections/${key}${include ? `?${qs.stringify(includes)}` : ""}`,
+        `${localStorage.getItem("server")}/library/sections/${key}${include ? `?${qs.stringify(includes)}` : ""}`,
         {
           headers: {
             "X-Plex-Token": localStorage.getItem("token") as string,
@@ -413,7 +423,7 @@ export class ServerApi {
           Metadata: Plex.Metadata[];
         };
       }>(
-        `${PLEX.server}/library/sections/${key}/${directory}${include ? `?${qs.stringify(includes)}` : ""}`,
+        `${localStorage.getItem("server")}/library/sections/${key}/${directory}${include ? `?${qs.stringify(includes)}` : ""}`,
         {
           headers: {
             "X-Plex-Token": localStorage.getItem("token") as string,
@@ -512,7 +522,7 @@ export class ServerApi {
   }) {
     return await axios
       .get(
-        `${PLEX.server}/video/:/transcode/universal/decision?${qs.stringify(streamprops({ id, limitation }))}}`,
+        `${localStorage.getItem("server")}/video/:/transcode/universal/decision?${qs.stringify(streamprops({ id, limitation }))}}`,
         {
           headers: {
             "X-Plex-Token": localStorage.getItem("token") as string,
@@ -531,7 +541,7 @@ export class ServerApi {
   static async ping() {
     return await axios
       .get(
-        `${PLEX.server}/video/:/transcode/universal/ping?${qs.stringify({ ...xprops() })}}`,
+        `${localStorage.getItem("server")}/video/:/transcode/universal/ping?${qs.stringify({ ...xprops() })}}`,
         {
           headers: {
             "X-Plex-Token": localStorage.getItem("token") as string,
@@ -549,12 +559,15 @@ export class ServerApi {
   }
   static async preferences() {
     return await axios
-      .get<{ MediaContainer: Plex.ServerPreferences }>(`${PLEX.server}/`, {
-        headers: {
-          "X-Plex-Token": localStorage.getItem("token") as string,
-          accept: "application/json",
+      .get<{ MediaContainer: Plex.ServerPreferences }>(
+        `${localStorage.getItem("server")}/`,
+        {
+          headers: {
+            "X-Plex-Token": localStorage.getItem("token") as string,
+            accept: "application/json",
+          },
         },
-      })
+      )
       .then((res) => {
         return res.data?.MediaContainer ?? null;
       })
@@ -566,7 +579,7 @@ export class ServerApi {
   static async queue({ uri }: { uri: string }) {
     return await axios
       .post<{ MediaContainer: { Metadata: Plex.Metadata[] } }>(
-        `${PLEX.server}/playQueues?${qs.stringify({
+        `${localStorage.getItem("server")}/playQueues?${qs.stringify({
           type: "video",
           uri,
           continuous: 1,
@@ -601,7 +614,7 @@ export class ServerApi {
   }) {
     return await axios
       .get<Plex.TimelineUpdateResult>(
-        `${PLEX.server}/:/timeline?${qs.stringify({
+        `${localStorage.getItem("server")}/:/timeline?${qs.stringify({
           ratingKey: id,
           key: `/library/metadata/${id}/`,
           duration: duration,
@@ -629,12 +642,14 @@ export class ServerApi {
   static async continue({ dirs }: { dirs: string[] }) {
     return await axios
       .get<{ MediaContainer: { Hub: Plex.Hub[] } }>(
-        `${PLEX.server}/hubs/continueWatching?${qs.stringify({
-          contentDirectoryID: dirs.join(","),
-          includeMeta: 1,
-          excludeFields: "summary",
-          ...xprops(),
-        })}`,
+        `${localStorage.getItem("server")}/hubs/continueWatching?${qs.stringify(
+          {
+            contentDirectoryID: dirs.join(","),
+            includeMeta: 1,
+            excludeFields: "summary",
+            ...xprops(),
+          },
+        )}`,
         {
           headers: {
             "X-Plex-Token": localStorage.getItem("token") as string,
@@ -653,7 +668,7 @@ export class ServerApi {
   static async promoted({ dir, dirs }: { dir: string; dirs: string[] }) {
     return await axios
       .get<{ MediaContainer: { Hub: Plex.Hub[] } }>(
-        `${PLEX.server}/hubs/promoted?${qs.stringify({
+        `${localStorage.getItem("server")}/hubs/promoted?${qs.stringify({
           contentDirectoryID: dir,
           pinnedContentDirectoryID: dirs.join(","),
           includeMeta: 1,
@@ -683,7 +698,7 @@ export class ServerApi {
   static async hubs({ id }: { id: string }) {
     return await axios
       .get<{ MediaContainer: { Hub: Plex.Hub[] } }>(
-        `${PLEX.server}/hubs/sections/${id}?${qs.stringify({
+        `${localStorage.getItem("server")}/hubs/sections/${id}?${qs.stringify({
           includeMeta: 1,
           excludeFields: "summary",
           includeExternalMetadata: 1,
@@ -712,10 +727,12 @@ export class ServerApi {
   static async audio({ part, stream }: { part: string; stream: string }) {
     return await axios
       .put(
-        `${PLEX.server}/library/parts/${part}?${qs.stringify({
-          audioStreamID: stream,
-          ...xprops(),
-        })}`,
+        `${localStorage.getItem("server")}/library/parts/${part}?${qs.stringify(
+          {
+            audioStreamID: stream,
+            ...xprops(),
+          },
+        )}`,
         {
           headers: {
             "X-Plex-Token": localStorage.getItem("token") as string,
@@ -734,10 +751,12 @@ export class ServerApi {
   static async subtitle({ part, stream }: { part: string; stream: string }) {
     return await axios
       .put(
-        `${PLEX.server}/library/parts/${part}?${qs.stringify({
-          subtitleStreamID: stream,
-          ...xprops(),
-        })}`,
+        `${localStorage.getItem("server")}/library/parts/${part}?${qs.stringify(
+          {
+            subtitleStreamID: stream,
+            ...xprops(),
+          },
+        )}`,
         {
           headers: {
             "X-Plex-Token": localStorage.getItem("token") as string,

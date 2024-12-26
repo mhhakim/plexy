@@ -43,7 +43,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // TODO: handle error
           });
       } else {
-        console.log("here 1");
         Api.token({ uuid, pin: pinId })
           .then(async (res) => {
             // should have the token here
@@ -53,68 +52,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               return;
             }
 
-            // validate token
-            const validation = await ServerApi.validate({
-              token: res.data.authToken,
-            });
-
-            console.log("validation", validation);
-
-            if (validation?.status === 200) {
-              localStorage.setItem("token", res.data.authToken);
-              localStorage.setItem("auth-token", res.data.authToken);
-              setToken(res.data.authToken);
-              Api.servers().then((res) => {
-                if (!res.data || res.data.connections.length === 0) return;
-                localStorage.setItem("server", res.data.connections[0].uri);
-                window.location.href = "/";
-                return;
-              });
-              return;
-            }
-
-            const identity = await ServerApi.identity({
-              token: res.data.authToken,
-            });
-
-            console.log(identity);
-
-            if (!identity || !identity.data.MediaContainer) {
-              // TODO: handle error
-              return;
-            }
-
-            const parser = new XMLParser({
-              attributeNamePrefix: "",
-              textNodeName: "value",
-              ignoreAttributes: false,
-              parseAttributeValue: true,
-            });
-
-            const resources = await Api.resources({
-              token: res.data.authToken,
-            });
-
-            console.log(resources);
-
-            const servers = parser.parse(resources.data);
-            const target = _.find(servers.MediaContainer.Device, {
-              clientIdentifier: identity.data.MediaContainer.machineIdentifier,
-            });
-
-            console.log(target);
-
-            if (!target) {
-              console.log("here");
-              // TODO: handle error
-              return;
-            }
-
-            localStorage.setItem("token", target.accessToken);
+            localStorage.setItem("token", res.data.authToken);
             localStorage.setItem("auth-token", res.data.authToken);
-            Api.servers().then((res) => {
-              if (!res.data || res.data.connections.length === 0) return;
-              localStorage.setItem("server", res.data.connections[0].uri);
+            Api.servers().then((res2) => {
+              if (
+                !res2.data ||
+                res2.data.length === 0 ||
+                !res2.data[0].connections ||
+                res2.data[0].connections.length === 0
+              )
+                return;
+              localStorage.setItem("server", res2.data[0].connections[0].uri);
+              setToken(res.data.authToken);
               window.location.href = "/";
               return;
             });
@@ -125,7 +74,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           });
       }
     } else {
-      setToken(stored);
+      Api.servers()
+        .then((res2) => {
+          if (
+            !res2.data ||
+            res2.data.length === 0 ||
+            !res2.data[0].connections ||
+            res2.data[0].connections.length === 0
+          )
+            return;
+          localStorage.setItem("server", res2.data[0].connections[0].uri);
+          setToken(stored);
+          return;
+        })
+        .catch((err) => {
+          if (err.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            console.log(err.response.data);
+            console.log(err.response.status);
+            console.log(err.response.headers);
+            if (err.response.status === 401) {
+              localStorage.removeItem("token");
+              window.location.href = "/";
+              return;
+            }
+          } else if (err.request) {
+            // The request was made but no response was received
+            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+            // http.ClientRequest in node.js
+            console.log(err.request);
+          }
+          console.error(err);
+          // TODO: handle other errors
+        });
     }
   }, []);
 

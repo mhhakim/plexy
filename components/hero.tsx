@@ -16,7 +16,7 @@ export const Hero: FC<{ item: Plex.Metadata }> = ({ item }) => {
       <div
         className="w-full flex flex-col items-start justify-center z-0 pt-[40vh] pb-60"
         style={{
-          background: `linear-gradient(0, hsl(var(--background)), rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.1)), url(${PLEX.server}${item.art}?X-Plex-Token=${localStorage.getItem("token")}) center center / cover no-repeat`,
+          background: `linear-gradient(0, hsl(var(--background)), rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.1)), url(${localStorage.getItem("server")}${item.art}?X-Plex-Token=${localStorage.getItem("token")}) center center / cover no-repeat`,
         }}
       >
         <div className="ml-20 mr-20 flex flex-col gap-4">

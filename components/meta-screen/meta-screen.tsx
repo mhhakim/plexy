@@ -97,7 +97,7 @@ export const MetaScreen: FC = () => {
     if (!extras?.[0] || !extras?.[0]?.Media?.[0]?.Part?.[0]?.key) return;
 
     setPreview(
-      `${PLEX.server}${
+      `${localStorage.getItem("server")}${
         extras?.[0]?.Media?.[0]?.Part?.[0]?.key
       }&X-Plex-Token=${token}`,
     );
@@ -308,14 +308,16 @@ export const MetaScreen: FC = () => {
                   ) : (
                     <img
                       className="w-full"
-                      src={`${PLEX.server}/photo/:/transcode?${qs.stringify({
-                        width: 300 * 4,
-                        height: 170 * 4,
-                        url: `${metadata.data.art}?X-Plex-Token=${token}`,
-                        minSize: 1,
-                        upscale: 1,
-                        "X-Plex-Token": token,
-                      })}`}
+                      src={`${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
+                        {
+                          width: 300 * 4,
+                          height: 170 * 4,
+                          url: `${metadata.data.art}?X-Plex-Token=${token}`,
+                          minSize: 1,
+                          upscale: 1,
+                          "X-Plex-Token": token,
+                        },
+                      )}`}
                       alt="preview image"
                     />
                   )}
@@ -370,14 +372,16 @@ export const MetaScreen: FC = () => {
                   <div className="flex flex-row gap-6 items-center justify-start">
                     <img
                       className="hidden [@media(min-width:1200px)]:block rounded w-[300px] h-[450px] object-cover"
-                      src={`${PLEX.server}/photo/:/transcode?${qs.stringify({
-                        width: 300,
-                        height: 450,
-                        url: `${metadata.data.type === "episode" ? metadata.data.parentThumb || metadata.data.thumb : metadata.data.thumb}?X-Plex-Token=${token}`,
-                        minSize: 1,
-                        upscale: 1,
-                        "X-Plex-Token": token,
-                      })}`}
+                      src={`${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
+                        {
+                          width: 300,
+                          height: 450,
+                          url: `${metadata.data.type === "episode" ? metadata.data.parentThumb || metadata.data.thumb : metadata.data.thumb}?X-Plex-Token=${token}`,
+                          minSize: 1,
+                          upscale: 1,
+                          "X-Plex-Token": token,
+                        },
+                      )}`}
                       alt="element poster"
                     />
                     <div className="flex flex-col gap-6">
@@ -565,7 +569,7 @@ export const MetaScreen: FC = () => {
                           >
                             <img
                               className="w-full"
-                              src={`${PLEX.server}/photo/:/transcode?${qs.stringify(
+                              src={`${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
                                 {
                                   width: 300,
                                   height: 450,
@@ -623,7 +627,7 @@ export const MetaScreen: FC = () => {
                               count={episodes.count}
                               item={{
                                 ...item,
-                                image: `${PLEX.server}/photo/:/transcode?${qs.stringify(
+                                image: `${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
                                   {
                                     width: 16 * 20,
                                     height: 9 * 20,
@@ -664,7 +668,7 @@ export const MetaScreen: FC = () => {
                               item={{
                                 ...item,
                                 contentRating: item.contentRating ?? "",
-                                image: `${PLEX.server}/photo/:/transcode?${qs.stringify(
+                                image: `${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
                                   {
                                     width: 300 * 2,
                                     height: 170 * 2,

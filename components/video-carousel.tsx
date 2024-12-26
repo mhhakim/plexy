@@ -46,22 +46,26 @@ export const VideoCarousel: FC<RecommendationShelf & { shuffle?: boolean }> = ({
             ...item,
             image:
               item.type === "episode"
-                ? `${PLEX.server}/photo/:/transcode?${qs.stringify({
-                    width: 300 * 2,
-                    height: 170 * 2,
-                    url: `${item.thumb}?X-Plex-Token=${token}`,
-                    minSize: 1,
-                    upscale: 1,
-                    "X-Plex-Token": token,
-                  })}`
-                : `${PLEX.server}/photo/:/transcode?${qs.stringify({
-                    width: 300 * 2,
-                    height: 170 * 2,
-                    url: `${item.art}?X-Plex-Token=${token}`,
-                    minSize: 1,
-                    upscale: 1,
-                    "X-Plex-Token": token,
-                  })}`,
+                ? `${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
+                    {
+                      width: 300 * 2,
+                      height: 170 * 2,
+                      url: `${item.thumb}?X-Plex-Token=${token}`,
+                      minSize: 1,
+                      upscale: 1,
+                      "X-Plex-Token": token,
+                    },
+                  )}`
+                : `${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
+                    {
+                      width: 300 * 2,
+                      height: 170 * 2,
+                      url: `${item.art}?X-Plex-Token=${token}`,
+                      minSize: 1,
+                      upscale: 1,
+                      "X-Plex-Token": token,
+                    },
+                  )}`,
           }))}
         />
       )}

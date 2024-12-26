@@ -91,18 +91,20 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
   const [url, setUrl] = useState<string>("");
 
   const loaded = () =>
-    `${PLEX.server}/video/:/transcode/universal/start.mpd?${qs.stringify({
-      ...streamprops({
-        id: watch ?? "",
-        limitation: {
-          ...(quality.bitrate && {
-            maxVideoBitrate: quality
-              ? quality.bitrate
-              : parseInt(localStorage.getItem("quality") ?? "10000"),
-          }),
-        },
-      }),
-    })}`;
+    `${localStorage.getItem("server")}/video/:/transcode/universal/start.mpd?${qs.stringify(
+      {
+        ...streamprops({
+          id: watch ?? "",
+          limitation: {
+            ...(quality.bitrate && {
+              maxVideoBitrate: quality
+                ? quality.bitrate
+                : parseInt(localStorage.getItem("quality") ?? "10000"),
+            }),
+          },
+        }),
+      },
+    )}`;
 
   const loadMetadata = async (id: string) => {
     await ServerApi.decision({
@@ -272,22 +274,16 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
     };
   }, [container, watch]);
 
-  // const videoOptions = useMemo(
-  //   () =>
-  //     metadata?.Media && metadata.Media.length > 0
-  //       ? getCurrentVideoLevels(metadata.Media[0].videoResolution).filter(
-  //           (opt) => opt.bitrate,
-  //         )
-  //       : [],
-  //   [metadata?.Media],
-  // );
-  // Disabled for the moment since it is not working
-  const videoOptions: {
-    title: string;
-    bitrate?: number;
-    extra: string;
-    original?: boolean;
-  }[] = [];
+  // Currently it seems there is a bug trying to change the video option
+  const videoOptions = useMemo(
+    () =>
+      metadata?.Media && metadata.Media.length > 0
+        ? getCurrentVideoLevels(metadata.Media[0].videoResolution).filter(
+            (opt) => opt.bitrate,
+          )
+        : [],
+    [metadata?.Media],
+  );
   const audioOptions = useMemo(
     () =>
       metadata?.Media && metadata.Media.length > 0
@@ -600,14 +596,16 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                         width={16 * 20}
                         height={9 * 20}
                         className="aspect-video"
-                        src={`${PLEX.server}/photo/:/transcode?${qs.stringify({
-                          width: 16 * 20,
-                          height: 9 * 20,
-                          url: `${playQueue[1].thumb}?X-Plex-Token=${token}`,
-                          minSize: 1,
-                          upscale: 1,
-                          "X-Plex-Token": token,
-                        })}`}
+                        src={`${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
+                          {
+                            width: 16 * 20,
+                            height: 9 * 20,
+                            url: `${playQueue[1].thumb}?X-Plex-Token=${token}`,
+                            minSize: 1,
+                            upscale: 1,
+                            "X-Plex-Token": token,
+                          },
+                        )}`}
                       />
                       <div className="p-4 text-primary">
                         <p className="text-xl line-clamp-1 font-bold">

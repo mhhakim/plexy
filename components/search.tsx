@@ -120,14 +120,16 @@ export const Search = () => {
                   <img
                     width={60}
                     height={90}
-                    src={`${PLEX.server}/photo/:/transcode?${qs.stringify({
-                      width: 60,
-                      height: 90,
-                      url: `${item.thumb}?X-Plex-Token=${token}`,
-                      minSize: 1,
-                      upscale: 1,
-                      "X-Plex-Token": token,
-                    })}`}
+                    src={`${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
+                      {
+                        width: 60,
+                        height: 90,
+                        url: `${item.thumb}?X-Plex-Token=${token}`,
+                        minSize: 1,
+                        upscale: 1,
+                        "X-Plex-Token": token,
+                      },
+                    )}`}
                     alt="search result poster"
                     className="w-[60px] h-[90px] rounded"
                   />

@@ -4,7 +4,6 @@ import { ServerApi } from "@/api";
 import { useEffect, useState } from "react";
 import { Hero } from "@/components/hero";
 import { Slider } from "@/components/slider";
-import { PLEX } from "@/constants";
 import qs from "qs";
 import _ from "lodash";
 
@@ -64,7 +63,7 @@ export default function Home() {
       >
         {continueWatching && (
           <div className="w-[100%] overflow-x-hidden overflow-y-visible">
-            <p className="px-20 font-bold text-3xl tracking-tight">
+            <p className="px-20 font-bold text-xl md:text-2xl xl:text-3xl tracking-tight">
               <span className="px-[5px]">{continueWatching.title}</span>
             </p>
             {continueWatching.Metadata && (
@@ -74,22 +73,26 @@ export default function Home() {
                   contentRating: item.contentRating ?? "",
                   image:
                     item.type === "episode"
-                      ? `${PLEX.server}/photo/:/transcode?${qs.stringify({
-                          width: 300 * 2,
-                          height: 170 * 2,
-                          url: `${item.thumb}?X-Plex-Token=${token}`,
-                          minSize: 1,
-                          upscale: 1,
-                          "X-Plex-Token": token,
-                        })}`
-                      : `${PLEX.server}/photo/:/transcode?${qs.stringify({
-                          width: 300 * 2,
-                          height: 170 * 2,
-                          url: `${item.art}?X-Plex-Token=${token}`,
-                          minSize: 1,
-                          upscale: 1,
-                          "X-Plex-Token": token,
-                        })}`,
+                      ? `${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
+                          {
+                            width: 300 * 2,
+                            height: 170 * 2,
+                            url: `${item.thumb}?X-Plex-Token=${token}`,
+                            minSize: 1,
+                            upscale: 1,
+                            "X-Plex-Token": token,
+                          },
+                        )}`
+                      : `${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
+                          {
+                            width: 300 * 2,
+                            height: 170 * 2,
+                            url: `${item.art}?X-Plex-Token=${token}`,
+                            minSize: 1,
+                            upscale: 1,
+                            "X-Plex-Token": token,
+                          },
+                        )}`,
                 }))}
               />
             )}
@@ -101,7 +104,7 @@ export default function Home() {
               key={`${item.key}-${i}`}
               className="w-[100%] overflow-x-hidden overflow-y-visible"
             >
-              <p className="px-20 font-bold text-3xl tracking-tight">
+              <p className="px-20 font-bold text-xl md:text-2xl xl:text-3xl tracking-tight">
                 <span className="px-[5px]">{item.title}</span>
               </p>
               {item.Metadata && (
@@ -111,22 +114,26 @@ export default function Home() {
                     contentRating: item.contentRating ?? "",
                     image:
                       item.type === "episode"
-                        ? `${PLEX.server}/photo/:/transcode?${qs.stringify({
-                            width: 300 * 2,
-                            height: 170 * 2,
-                            url: `${item.thumb}?X-Plex-Token=${token}`,
-                            minSize: 1,
-                            upscale: 1,
-                            "X-Plex-Token": token,
-                          })}`
-                        : `${PLEX.server}/photo/:/transcode?${qs.stringify({
-                            width: 300 * 2,
-                            height: 170 * 2,
-                            url: `${item.art}?X-Plex-Token=${token}`,
-                            minSize: 1,
-                            upscale: 1,
-                            "X-Plex-Token": token,
-                          })}`,
+                        ? `${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
+                            {
+                              width: 300 * 2,
+                              height: 170 * 2,
+                              url: `${item.thumb}?X-Plex-Token=${token}`,
+                              minSize: 1,
+                              upscale: 1,
+                              "X-Plex-Token": token,
+                            },
+                          )}`
+                        : `${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
+                            {
+                              width: 300 * 2,
+                              height: 170 * 2,
+                              url: `${item.art}?X-Plex-Token=${token}`,
+                              minSize: 1,
+                              upscale: 1,
+                              "X-Plex-Token": token,
+                            },
+                          )}`,
                   }))}
                 />
               )}
