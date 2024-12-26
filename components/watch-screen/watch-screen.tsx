@@ -2,7 +2,6 @@
 
 import { FC, useEffect, useMemo, useRef, useState } from "react";
 import ReactPlayer from "react-player";
-import { PLEX } from "@/constants";
 import { ServerApi, streamprops } from "@/api";
 import qs from "qs";
 import { createPortal } from "react-dom";
@@ -607,6 +606,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                             "X-Plex-Token": token,
                           },
                         )}`}
+                        alt="preview poster"
                       />
                       <div className="p-4 text-primary">
                         <p className="text-xl line-clamp-1 font-bold">

@@ -1,7 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import { RecommendationShelf, ServerApi } from "@/api";
 import _ from "lodash";
-import { PLEX } from "@/constants";
 import qs from "qs";
 import { Slider } from "@/components/slider";
 

@@ -3,10 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useSession } from "@/hooks/use-session";
-import { ServerApi } from "@/api";
 import { Button } from "@/components/ui/button";
 import { FC, ReactNode } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { Search } from "@/components/search";

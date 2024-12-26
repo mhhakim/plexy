@@ -83,7 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
 
           // Create an array of promises for each connection
-          const promises = res2.data[0].connections.map((connection, i) => {
+          const promises = res2.data[0].connections.map((connection) => {
             return new Promise((resolve, reject) => {
               axios
                 .get<{ MediaContainer: { Directory: Plex.LibarySection[] } }>(

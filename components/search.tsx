@@ -11,7 +11,6 @@ import { SearchIcon, X } from "lucide-react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { ServerApi } from "@/api";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { PLEX } from "@/constants";
 import qs from "qs";
 import { usePathname, useRouter } from "next/navigation";
 
