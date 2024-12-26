@@ -2,7 +2,10 @@ import { FC } from "react";
 import { Slider } from "@/components/slider";
 import qs from "qs";
 
-export const HubSlider: FC<{ hub: Plex.Hub }> = ({ hub }) => {
+export const HubSlider: FC<{ hub: Plex.Hub; onUpdate: () => void }> = ({
+  hub,
+  onUpdate,
+}) => {
   const token = localStorage.getItem("token");
 
   return (
@@ -12,6 +15,7 @@ export const HubSlider: FC<{ hub: Plex.Hub }> = ({ hub }) => {
       </p>
       {hub.Metadata && (
         <Slider
+          onUpdate={onUpdate}
           items={hub.Metadata.map((item) => ({
             ...item,
             contentRating: item.contentRating ?? "",

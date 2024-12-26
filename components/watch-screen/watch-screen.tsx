@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useEffect, useMemo, useRef, useState } from "react";
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactPlayer from "react-player";
 import { ServerApi, streamprops } from "@/api";
 import qs from "qs";
@@ -273,6 +273,22 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
     };
   }, [container, watch]);
 
+  const back = useCallback(() => {
+    if (!player.current || !watch) return;
+    ServerApi.timeline({
+      id: parseInt(watch),
+      duration: Math.floor(player.current.getDuration()) * 1000,
+      state: "stopped",
+      time: Math.floor(player.current.getCurrentTime()) * 1000,
+    })
+      .then(() => {
+        router.back();
+      })
+      .catch(() => {
+        router.back();
+      });
+  }, [router, watch]);
+
   // Currently it seems there is a bug trying to change the video option
   const videoOptions = useMemo(
     () =>
@@ -462,11 +478,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
           <div
             className={`sticky top-0 w-full flex flex-col gap-6 p-6 bg-background/80 ${showControls || !playing ? "" : "-translate-y-full"} transition`}
           >
-            <button
-              onClick={() => {
-                router.back();
-              }}
-            >
+            <button onClick={() => back()}>
               <ArrowLeft className="w-8 h-8 text-muted-foreground hover:scale-125 hover:text-primary transition duration-75" />
             </button>
           </div>

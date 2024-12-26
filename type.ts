@@ -17,6 +17,8 @@ export interface VideoItemInterface
     | "summary"
     | "viewOffset"
     | "parentTitle"
+    | "OnDeck"
+    | "Children"
   > {
   image: string;
 }

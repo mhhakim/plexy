@@ -11,6 +11,16 @@ export const Hub: FC<{ library: Plex.LibraryDetails; id: string }> = ({
   const [featured, setFeatured] = useState<Plex.Metadata | null>(null);
   const [hubs, setHubs] = useState<Plex.Hub[]>([]);
 
+  const updateHubs = () => {
+    ServerApi.hubs({
+      id: id,
+    }).then((res) => {
+      if (!res) return;
+      if (res.length === 0) return;
+      setHubs(res.filter((hub) => hub.Metadata && hub.Metadata.length > 0));
+    });
+  };
+
   useEffect(() => {
     setFeatured(null);
     setHubs([]);
@@ -38,7 +48,11 @@ export const Hub: FC<{ library: Plex.LibraryDetails; id: string }> = ({
         className={`flex flex-col items-start justify-start w-full z-10 ${featured ? "-mt-20" : ""}`}
       >
         {hubs.map((item, i) => (
-          <HubSlider key={`${item.key}-${i}`} hub={item} />
+          <HubSlider
+            key={`${item.key}-${i}`}
+            hub={item}
+            onUpdate={() => updateHubs()}
+          />
         ))}
       </div>
     </div>

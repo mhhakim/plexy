@@ -17,7 +17,7 @@ export const SeasonView: FC<{ season: Plex.Child }> = ({ season }) => {
     >
       <img
         loading="lazy"
-        className="w-full"
+        className="w-full object-cover h-full"
         src={`${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
           {
             width: 300,
@@ -31,13 +31,15 @@ export const SeasonView: FC<{ season: Plex.Child }> = ({ season }) => {
         alt=""
       />
       <div
-        className="absolute inset-0 p-4"
+        className="absolute inset-0 w-full"
         style={{
           background:
-            "linear-gradient(0, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.75))",
+            "linear-gradient(0, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1))",
         }}
       >
-        <p className="font-bold text-xl">{season.title}</p>
+        <p className="font-bold text-xl absolute w-full bottom-0 p-4 truncate">
+          {season.title}
+        </p>
       </div>
     </button>
   );

@@ -772,4 +772,26 @@ export class ServerApi {
         return false;
       });
   }
+  static async scrobble({ key }: { key: string }) {
+    return await axios
+      .get(
+        `${localStorage.getItem("server")}/:/scrobble?${qs.stringify({ identifier: "com.plexapp.plugins.library", key, ...xprops() })}`,
+      )
+      .then((res) => res.status === 200)
+      .catch((err) => {
+        console.error(err);
+        return false;
+      });
+  }
+  static async unscrobble({ key }: { key: string }) {
+    return await axios
+      .get(
+        `${localStorage.getItem("server")}/:/unscrobble?${qs.stringify({ key, identifier: "com.plexapp.plugins.library", ...xprops() })}`,
+      )
+      .then((res) => res.status === 200)
+      .catch((err) => {
+        console.error(err);
+        return false;
+      });
+  }
 }

@@ -547,7 +547,9 @@ export const MetaScreen: FC = () => {
                   </div>
                   {metadata.data.type === "show" && (
                     <div className="flex flex-col gap-6">
-                      <p className="text-2xl font-bold">Seasons</p>
+                      <p className="text-2xl font-bold">
+                        {metadata.data.Children?.Metadata.length} Seasons
+                      </p>
                       <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                         {metadata.data.Children?.Metadata.map((season, i) => (
                           <SeasonView season={season} key={i} />
