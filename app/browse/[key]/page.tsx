@@ -1,10 +1,9 @@
 "use client";
 
 import { ServerApi } from "@/api";
-import { Movie } from "@/app/browse/[key]/movie";
-import { Show } from "@/app/browse/[key]/show";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import { Hub } from "@/app/browse/[key]/hub";
 
 export default function Page() {
   const params = useParams<{ key: string }>();
@@ -20,11 +19,11 @@ export default function Page() {
   }
 
   if (library.data.Type[0].type === "movie") {
-    return <Movie library={library.data} />;
+    return <Hub library={library.data} id={params.key} />;
   }
 
   if (library.data.Type[0].type === "show") {
-    return <Show library={library.data} />;
+    return <Hub library={library.data} id={params.key} />;
   }
 
   return null;

@@ -90,8 +90,8 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
   const [pendingRefresh, setPendingRefresh] = useState(false);
   const [url, setUrl] = useState<string>("");
 
-  const loaded = `${PLEX.server}/video/:/transcode/universal/start.mpd?${qs.stringify(
-    {
+  const loaded = () =>
+    `${PLEX.server}/video/:/transcode/universal/start.mpd?${qs.stringify({
       ...streamprops({
         id: watch ?? "",
         limitation: {
@@ -102,8 +102,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
           }),
         },
       }),
-    },
-  )}`;
+    })}`;
 
   const loadMetadata = async (id: string) => {
     await ServerApi.decision({
@@ -180,12 +179,11 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
       const { terminationCode, terminationText } =
         timelineUpdateData.MediaContainer;
       if (terminationCode) {
-        // TODO: show stopping reason
         setPlaying(false);
       }
     };
 
-    const updateInterval = setInterval(updateTimeline, 5000);
+    const updateInterval = setInterval(updateTimeline, 10000);
 
     return () => {
       clearInterval(updateInterval);
@@ -203,7 +201,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
       if (!watch) return;
 
       await loadMetadata(watch);
-      setUrl(loaded);
+      setUrl(loaded());
       setShowError(false);
     })();
   }, [watch]);
@@ -274,15 +272,22 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
     };
   }, [container, watch]);
 
-  const videoOptions = useMemo(
-    () =>
-      metadata?.Media && metadata.Media.length > 0
-        ? getCurrentVideoLevels(metadata.Media[0].videoResolution).filter(
-            (opt) => opt.bitrate,
-          )
-        : [],
-    [metadata?.Media],
-  );
+  // const videoOptions = useMemo(
+  //   () =>
+  //     metadata?.Media && metadata.Media.length > 0
+  //       ? getCurrentVideoLevels(metadata.Media[0].videoResolution).filter(
+  //           (opt) => opt.bitrate,
+  //         )
+  //       : [],
+  //   [metadata?.Media],
+  // );
+  // Disabled for the moment since it is not working
+  const videoOptions: {
+    title: string;
+    bitrate?: number;
+    extra: string;
+    original?: boolean;
+  }[] = [];
   const audioOptions = useMemo(
     () =>
       metadata?.Media && metadata.Media.length > 0
@@ -414,6 +419,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                 config={{
                   file: {
                     forceDisableHls: true,
+                    forceDASH: true,
                     dashVersion: "4.7.0",
                     attributes: {
                       controlsList: "nodownload",
@@ -540,7 +546,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
             </div>
             <div
               aria-label="controls"
-              className="flex flex-row gap-2 items-center"
+              className="flex flex-row gap-4 items-center"
             >
               <button
                 onClick={() => {
@@ -569,7 +575,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
               {playQueue && playQueue[1] && (
                 <TooltipProvider delayDuration={100}>
                   <Tooltip>
-                    <TooltipTrigger>
+                    <TooltipTrigger asChild>
                       <button
                         onClick={() => {
                           if (!playQueue) return;
@@ -587,56 +593,38 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                         <SkipForward className="w-8 h-8 text-muted-foreground hover:scale-125 hover:text-primary transition duration-75" />
                       </button>
                     </TooltipTrigger>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (!playQueue) return;
-                        const next = playQueue[1];
-                        if (next) {
-                          router.replace(
-                            `${pathname}?watch=${next.ratingKey}`,
-                            {
-                              scroll: false,
-                            },
-                          );
-                        }
-                      }}
+                    <TooltipContent
+                      className={`p-0 m-4 ${showControls ? "" : "hidden"} flex flex-row bg-background max-w-[600px] max-h-[${9 * 20}px]`}
                     >
-                      <TooltipContent
-                        className={`p-0 m-4 ${showControls ? "" : "hidden"} flex flex-row bg-background max-w-[600px] max-h-[${9 * 20}px]`}
-                      >
-                        <img
-                          width={16 * 20}
-                          height={9 * 20}
-                          className="aspect-video"
-                          src={`${PLEX.server}/photo/:/transcode?${qs.stringify(
-                            {
-                              width: 16 * 20,
-                              height: 9 * 20,
-                              url: `${playQueue[1].thumb}?X-Plex-Token=${token}`,
-                              minSize: 1,
-                              upscale: 1,
-                              "X-Plex-Token": token,
-                            },
-                          )}`}
-                        />
-                        <div className="p-4 text-primary">
-                          <p className="text-xl line-clamp-1 font-bold">
-                            {playQueue[1].title}
-                          </p>
-                          <p className="text-normal font-bold text-muted-foreground">
-                            S
-                            {playQueue[1].parentIndex
-                              ?.toString()
-                              .padStart(2, "0")}
-                            E{playQueue[1].index?.toString().padStart(2, "0")}
-                          </p>
-                          <p className="text-md line-clamp-6">
-                            {playQueue[1].summary}
-                          </p>
-                        </div>
-                      </TooltipContent>
-                    </button>
+                      <img
+                        width={16 * 20}
+                        height={9 * 20}
+                        className="aspect-video"
+                        src={`${PLEX.server}/photo/:/transcode?${qs.stringify({
+                          width: 16 * 20,
+                          height: 9 * 20,
+                          url: `${playQueue[1].thumb}?X-Plex-Token=${token}`,
+                          minSize: 1,
+                          upscale: 1,
+                          "X-Plex-Token": token,
+                        })}`}
+                      />
+                      <div className="p-4 text-primary">
+                        <p className="text-xl line-clamp-1 font-bold">
+                          {playQueue[1].title}
+                        </p>
+                        <p className="text-normal font-bold text-muted-foreground">
+                          S
+                          {playQueue[1].parentIndex
+                            ?.toString()
+                            .padStart(2, "0")}
+                          E{playQueue[1].index?.toString().padStart(2, "0")}
+                        </p>
+                        <p className="text-md line-clamp-6">
+                          {playQueue[1].summary}
+                        </p>
+                      </div>
+                    </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               )}
@@ -691,7 +679,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                           }
                           setUrl("");
                           setTimeout(() => {
-                            setUrl(loaded);
+                            setUrl(loaded());
                           }, 500);
                         }}
                       >
@@ -750,7 +738,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                           }
                           setUrl("");
                           setTimeout(() => {
-                            setUrl(loaded);
+                            setUrl(loaded());
                           }, 500);
                         }}
                       >
@@ -808,7 +796,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                           }
                           setUrl("");
                           setTimeout(() => {
-                            setUrl(loaded);
+                            setUrl(loaded());
                           }, 500);
                         }}
                       >

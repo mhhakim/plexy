@@ -6,11 +6,9 @@ import { Api, ServerApi } from "@/api";
 import { PLEX } from "@/constants";
 import _ from "lodash";
 import { XMLParser } from "fast-xml-parser";
-import { usePathname } from "next/navigation";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | undefined>();
-  const pathname = usePathname();
 
   useEffect(() => {
     let pin = localStorage.getItem("pin");
@@ -66,7 +64,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               localStorage.setItem("token", res.data.authToken);
               localStorage.setItem("auth-token", res.data.authToken);
               setToken(res.data.authToken);
-              window.location.href = "/";
+              Api.servers().then((res) => {
+                if (!res.data || res.data.connections.length === 0) return;
+                localStorage.setItem("server", res.data.connections[0].uri);
+                window.location.href = "/";
+                return;
+              });
               return;
             }
 
@@ -109,7 +112,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             localStorage.setItem("token", target.accessToken);
             localStorage.setItem("auth-token", res.data.authToken);
-            window.location.href = "/";
+            Api.servers().then((res) => {
+              if (!res.data || res.data.connections.length === 0) return;
+              localStorage.setItem("server", res.data.connections[0].uri);
+              window.location.href = "/";
+              return;
+            });
           })
           .catch((err) => {
             console.error(err);

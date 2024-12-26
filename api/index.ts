@@ -151,6 +151,49 @@ export class Api {
   static async resources({ token }: { token: string }) {
     return axios.get(`https://plex.tv/api/resources?X-Plex-Token=${token}`);
   }
+  static async servers() {
+    return axios.get<{
+      name: string;
+      product: string;
+      productVersion: string;
+      platform: string;
+      platformVersion: string;
+      device: string;
+      clientIdentifier: string;
+      createdAt: string;
+      lastSeenAt: string;
+      provides: string;
+      ownerId: any;
+      sourceTitle: any;
+      publicAddress: string;
+      accessToken: string;
+      owned: boolean;
+      home: boolean;
+      synced: boolean;
+      relay: boolean;
+      presence: boolean;
+      httpsRequired: boolean;
+      publicAddressMatches: boolean;
+      dnsRebindingProtection: boolean;
+      natLoopbackSupported: boolean;
+      connections: {
+        protocol: string;
+        address: string;
+        port: number;
+        uri: string;
+        local: boolean;
+        relay: boolean;
+        IPv6: boolean;
+      }[];
+    }>(
+      `https://clients.plex.tv/api/v2/resources?${qs.stringify({
+        includeHttps: 1,
+        includeRelay: 0,
+        includeIPv6: 0,
+        ...xprops(),
+      })}`,
+    );
+  }
   static async user({ token, uuid }: { token: string; uuid: string }) {
     return axios.get<Plex.UserData>(
       `https://plex.tv/api/v2/user?X-Plex-Token=${token}&X-Plex-Product=${PLEX.application}&X-Plex-Client-Identifier=${uuid}`,
@@ -615,6 +658,35 @@ export class ServerApi {
           pinnedContentDirectoryID: dirs.join(","),
           includeMeta: 1,
           excludeFields: "summary",
+          count: 12,
+          includeStations: 1,
+          includeLibraryPlaylists: 1,
+          includeRecentChannels: 1,
+          excludeContinueWatching: 1,
+          ...xprops(),
+        })}`,
+        {
+          headers: {
+            "X-Plex-Token": localStorage.getItem("token") as string,
+            accept: "application/json",
+          },
+        },
+      )
+      .then((res) => {
+        return res.data?.MediaContainer?.Hub ?? null;
+      })
+      .catch((err) => {
+        console.log(err);
+        return null;
+      });
+  }
+  static async hubs({ id }: { id: string }) {
+    return await axios
+      .get<{ MediaContainer: { Hub: Plex.Hub[] } }>(
+        `${PLEX.server}/hubs/sections/${id}?${qs.stringify({
+          includeMeta: 1,
+          excludeFields: "summary",
+          includeExternalMetadata: 1,
           count: 12,
           includeStations: 1,
           includeLibraryPlaylists: 1,

@@ -423,8 +423,10 @@ export const MetaScreen: FC = () => {
                           size="lg"
                           onClick={() => {
                             if (metadata.data?.type === "movie") {
+                              console.log(metadata.data);
+
                               router.push(
-                                `${pathname}?watch=${metadata.data.ratingKey}`,
+                                `${pathname}?watch=${metadata.data.ratingKey}${metadata.data.viewOffset ? `&t=${metadata.data.viewOffset}` : ""}`,
                                 { scroll: false },
                               );
                               return;
