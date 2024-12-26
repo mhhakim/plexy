@@ -6,18 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="1fe09ec0-188b-4e83-b5dc-c24c5f216ee0" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/api/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/browse/[key]/hub.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/browse/[key]/hub.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/hub-slider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/hub-slider.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/meta-screen/meta-screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/meta-screen/meta-screen.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/meta-screen/season-view.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/meta-screen/season-view.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/slider/slider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/slider/slider.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/video-carousel.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/watch-screen/watch-screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/watch-screen/watch-screen.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/type.ts" beforeDir="false" afterPath="$PROJECT_DIR$/type.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

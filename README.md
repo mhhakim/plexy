@@ -1,4 +1,21 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Plexy UI
+
+This project is an alternative web ui for plex app. It tries to reflect a similar style as Netflix. I started the project after looking at the [PerPlexed](https://github.com/Ipmake/PerPlexed) project, which without it this project would not be possible.
+
+So the major differences between this new one I'm working on and PerPlexed are:
+1. Using **NextJS app router** instead of **React Router Dom**
+2. Using **Shadcn component library** instead of **MUI**
+3. Changed a bit of the ui screens and navigation between pages
+4. You don't need to set the plex server uri (should make it so that you can connect to your server remotely)
+5. Ability to **Mark as Watched** & **Mark as Unwatched**
+
+I'm currently working on implementing:
+1. The calls for **Mark as Watched** & **Mark as Unwatched** needs to be finished (the option is not available everywhere)
+2. The link & page for whatever section (all the header title of the sliders are currently not clickable)
+
+![Plexy UI](https://i.imgur.com/7vOadQ4.png)
+
+The application is deployed on vercel and can be viewed for here https://plexy-eta.vercel.app/
 
 ## Getting Started
 
@@ -16,21 +33,3 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
