@@ -20,7 +20,7 @@ export const Hero: FC<{ item: Plex.Metadata }> = ({ item }) => {
       >
         <div className="ml-20 mr-20 flex flex-col gap-4">
           <div className="flex flex-row items-center justify-start gap-2">
-            <Image src="/plexicon.png" alt="plex icon" width={35} height={35} />
+            <img src="/plexicon.png" alt="plex icon" width={35} height={35} />
             <p className="text-plex text-2xl font-bold drop-shadow-md uppercase tracking-wider">
               {item.type}
             </p>
