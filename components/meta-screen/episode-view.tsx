@@ -1,8 +1,8 @@
 import { FC } from "react";
 import { durationToText } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
-import { PlayIcon } from "@/components/icons/play-icon";
 import { usePathname, useRouter } from "next/navigation";
+import { Play } from "lucide-react";
 
 export const EpisodeView: FC<{
   item: Plex.Metadata & { image: string };
@@ -40,11 +40,10 @@ export const EpisodeView: FC<{
                 ? Math.floor((item.viewOffset / item.duration) * 100)
                 : 100
             }
-            // color="bg-plex"
           />
         )}
         <div className="absolute inset-0 flex justify-center items-center opacity-0 group-hover:opacity-100 transition">
-          <PlayIcon />
+          <Play fill="currentColor" />
         </div>
       </div>
       <div className="w-full">

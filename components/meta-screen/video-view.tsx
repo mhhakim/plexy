@@ -2,9 +2,8 @@ import { FC, useMemo } from "react";
 import { durationToText } from "@/lib/utils";
 import { usePathname, useRouter } from "next/navigation";
 import { VideoItemInterface } from "@/type";
-import { PlayIcon } from "@/components/icons/play-icon";
 
-export const VideoItem: FC<{ item: VideoItemInterface }> = ({ item }) => {
+export const VideoView: FC<{ item: VideoItemInterface }> = ({ item }) => {
   const router = useRouter();
   const pathname = usePathname();
 

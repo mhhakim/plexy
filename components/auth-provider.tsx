@@ -2,10 +2,8 @@
 
 import { ReactNode, useEffect, useState } from "react";
 import { uuidv4 } from "@/lib/utils";
-import { Api, ServerApi } from "@/api";
+import { Api } from "@/api";
 import { PLEX } from "@/constants";
-import _ from "lodash";
-import { XMLParser } from "fast-xml-parser";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | undefined>();

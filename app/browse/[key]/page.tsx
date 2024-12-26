@@ -18,11 +18,10 @@ export default function Page() {
     return null;
   }
 
-  if (library.data.Type[0].type === "movie") {
-    return <Hub library={library.data} id={params.key} />;
-  }
-
-  if (library.data.Type[0].type === "show") {
+  if (
+    library.data.Type[0].type === "show" ||
+    library.data.Type[0].type === "movie"
+  ) {
     return <Hub library={library.data} id={params.key} />;
   }
 

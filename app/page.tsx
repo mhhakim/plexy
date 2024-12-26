@@ -3,9 +3,8 @@
 import { ServerApi } from "@/api";
 import { useEffect, useState } from "react";
 import { Hero } from "@/components/hero";
-import { Slider } from "@/components/slider";
-import qs from "qs";
 import _ from "lodash";
+import { HubSlider } from "@/components/hub-slider";
 
 export default function Home() {
   const [item, setItem] = useState<Plex.Metadata | null>(null);
@@ -53,91 +52,16 @@ export default function Home() {
     return null;
   }
 
-  const token = localStorage.getItem("token");
-
   return (
     <div className="w-full flex flex-col items-start justify-start">
       {item ? <Hero item={item} /> : <div className="h-16" />}
       <div
         className={`flex flex-col items-start justify-start w-full z-10 ${item ? "-mt-20" : ""}`}
       >
-        {continueWatching && (
-          <div className="w-[100%] overflow-x-hidden overflow-y-visible">
-            <p className="px-20 font-bold text-xl md:text-2xl xl:text-3xl tracking-tight">
-              <span className="px-[5px]">{continueWatching.title}</span>
-            </p>
-            {continueWatching.Metadata && (
-              <Slider
-                items={continueWatching.Metadata.map((item) => ({
-                  ...item,
-                  contentRating: item.contentRating ?? "",
-                  image:
-                    item.type === "episode"
-                      ? `${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
-                          {
-                            width: 300 * 2,
-                            height: 170 * 2,
-                            url: `${item.thumb}?X-Plex-Token=${token}`,
-                            minSize: 1,
-                            upscale: 1,
-                            "X-Plex-Token": token,
-                          },
-                        )}`
-                      : `${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
-                          {
-                            width: 300 * 2,
-                            height: 170 * 2,
-                            url: `${item.art}?X-Plex-Token=${token}`,
-                            minSize: 1,
-                            upscale: 1,
-                            "X-Plex-Token": token,
-                          },
-                        )}`,
-                }))}
-              />
-            )}
-          </div>
-        )}
+        {continueWatching && <HubSlider hub={continueWatching} />}
         {promoted &&
           promoted.map((item, i) => (
-            <div
-              key={`${item.key}-${i}`}
-              className="w-[100%] overflow-x-hidden overflow-y-visible"
-            >
-              <p className="px-20 font-bold text-xl md:text-2xl xl:text-3xl tracking-tight">
-                <span className="px-[5px]">{item.title}</span>
-              </p>
-              {item.Metadata && (
-                <Slider
-                  items={item.Metadata.map((item) => ({
-                    ...item,
-                    contentRating: item.contentRating ?? "",
-                    image:
-                      item.type === "episode"
-                        ? `${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
-                            {
-                              width: 300 * 2,
-                              height: 170 * 2,
-                              url: `${item.thumb}?X-Plex-Token=${token}`,
-                              minSize: 1,
-                              upscale: 1,
-                              "X-Plex-Token": token,
-                            },
-                          )}`
-                        : `${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
-                            {
-                              width: 300 * 2,
-                              height: 170 * 2,
-                              url: `${item.art}?X-Plex-Token=${token}`,
-                              minSize: 1,
-                              upscale: 1,
-                              "X-Plex-Token": token,
-                            },
-                          )}`,
-                  }))}
-                />
-              )}
-            </div>
+            <HubSlider key={`${item.key}-${i}`} hub={item} />
           ))}
       </div>
     </div>

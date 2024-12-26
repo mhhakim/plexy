@@ -4,29 +4,21 @@ import { FC, ReactNode, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { ServerApi } from "@/api";
-import { PLEX } from "@/constants";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import ReactPlayer from "react-player";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import qs from "qs";
 import { Button } from "@/components/ui/button";
-import { CircleCheck, Volume2, VolumeX, X } from "lucide-react";
+import { CircleCheck, Play, Volume2, VolumeX, X } from "lucide-react";
 import Image from "next/image";
 import { durationToText } from "@/lib/utils";
 import { create } from "zustand";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { EpisodeView } from "@/components/meta-screen/episode-view";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { PlayIcon } from "@/components/icons/play-icon";
-import { VideoItem } from "@/components/video-item";
+import { VideoView } from "@/components/meta-screen/video-view";
 import Link from "next/link";
+import { SeasonView } from "@/components/meta-screen/season-view";
 
 interface PreviewPlayerState {
   MetaScreenPlayerMuted: boolean;
@@ -427,8 +419,6 @@ export const MetaScreen: FC = () => {
                           size="lg"
                           onClick={() => {
                             if (metadata.data?.type === "movie") {
-                              console.log(metadata.data);
-
                               router.push(
                                 `${pathname}?watch=${metadata.data.ratingKey}${metadata.data.viewOffset ? `&t=${metadata.data.viewOffset}` : ""}`,
                                 { scroll: false },
@@ -485,7 +475,7 @@ export const MetaScreen: FC = () => {
                             }
                           }}
                         >
-                          <PlayIcon /> Play{" "}
+                          <Play fill="currentColor" /> Play{" "}
                           {(metadata.data.type === "show" ||
                             metadata.data?.type === "season") &&
                             metadata.data.OnDeck &&
@@ -557,42 +547,7 @@ export const MetaScreen: FC = () => {
                       <p className="text-2xl font-bold">Seasons</p>
                       <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                         {metadata.data.Children?.Metadata.map((season, i) => (
-                          <button
-                            key={i}
-                            className="relative text-left"
-                            onClick={() => {
-                              router.push(
-                                `${pathname}?mid=${season.ratingKey}`,
-                                { scroll: false },
-                              );
-                            }}
-                          >
-                            <img
-                              className="w-full"
-                              src={`${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
-                                {
-                                  width: 300,
-                                  height: 450,
-                                  url: `${season.thumb}?X-Plex-Token=${token}`,
-                                  minSize: 1,
-                                  upscale: 1,
-                                  "X-Plex-Token": token,
-                                },
-                              )}`}
-                              alt=""
-                            />
-                            <div
-                              className="absolute inset-0 p-4"
-                              style={{
-                                background:
-                                  "linear-gradient(0, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.75))",
-                              }}
-                            >
-                              <p className="font-bold text-xl">
-                                {season.title}
-                              </p>
-                            </div>
-                          </button>
+                          <SeasonView season={season} key={i} />
                         ))}
                       </div>
                     </div>
@@ -663,7 +618,7 @@ export const MetaScreen: FC = () => {
                         <p className="font-bold text-2xl">{hub.title}</p>
                         <div className="grid gap-4 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                           {hub.Metadata.slice(0, 15).map((item, i) => (
-                            <VideoItem
+                            <VideoView
                               key={i}
                               item={{
                                 ...item,

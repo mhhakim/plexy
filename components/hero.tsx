@@ -1,7 +1,6 @@
 "use client";
 
 import { FC } from "react";
-import { PLEX } from "@/constants";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Info } from "lucide-react";
