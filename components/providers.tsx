@@ -6,10 +6,10 @@ import { AuthProvider } from "@/components/auth-provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SessionProvider } from "@/hooks/use-session";
 import { uuid, uuidv4 } from "@/lib/utils";
-import { MetaScreen } from "@/components/meta-screen/meta-screen";
+import { MetaScreen } from "@/components/screens/meta-screen";
 import { useSearchParams } from "next/navigation";
-import { WatchScreen } from "@/components/watch-screen/watch-screen";
-import { Library } from "@/components/library";
+import { WatchScreen } from "@/components/screens/watch-screen";
+import { LibraryScreen } from "@/components/screens/library-screen";
 
 const client = new QueryClient();
 
@@ -43,7 +43,7 @@ export default function Providers({ children }: { children: ReactNode }) {
             <Suspense>
               <MetaScreen />
               <WatchScreen watch={watch ?? undefined} />
-              <Library
+              <LibraryScreen
                 contentDirectoryID={contentDirectoryID ?? undefined}
                 title={libtitle ?? undefined}
                 keypath={key ?? undefined}

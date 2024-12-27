@@ -58,8 +58,13 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
     },
+    namedGroups: ["other"],
   },
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("tailwindcss-animate"),
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("tailwindcss-named-groups"),
+  ],
 };
 export default config;

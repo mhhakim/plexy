@@ -10,14 +10,14 @@ export const SeasonView: FC<{ season: Plex.Child }> = ({ season }) => {
 
   return (
     <button
-      className="relative text-left"
+      className="relative text-left hover:outline outline-plex rounded bg-secondary/40"
       onClick={() => {
         router.push(`${pathname}?mid=${season.ratingKey}`, { scroll: false });
       }}
     >
       <img
         loading="lazy"
-        className="w-full object-cover h-full"
+        className="w-full object-cover aspect-[9/14] top-0"
         src={`${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
           {
             width: 300,
@@ -28,19 +28,11 @@ export const SeasonView: FC<{ season: Plex.Child }> = ({ season }) => {
             "X-Plex-Token": token,
           },
         )}`}
-        alt=""
+        alt="season poster"
       />
-      <div
-        className="absolute inset-0 w-full"
-        style={{
-          background:
-            "linear-gradient(0, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1))",
-        }}
-      >
-        <p className="font-bold text-xl absolute w-full bottom-0 p-4 truncate">
-          {season.title}
-        </p>
-      </div>
+      <p className="font-bold w-full text-muted-foreground p-4 truncate">
+        {season.title}
+      </p>
     </button>
   );
 };

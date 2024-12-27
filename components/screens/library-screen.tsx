@@ -1,17 +1,17 @@
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
-import { VideoView } from "@/components/meta-screen/video-view";
+import { VideoView } from "@/components/cards/video-view";
 import qs from "qs";
-import { xprops } from "@/api/index";
+import { xprops } from "@/api";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export const Library: FC<{
+export const LibraryScreen: FC<{
   keypath: string | undefined;
   title: string | undefined;
   contentDirectoryID: string | undefined;
@@ -69,7 +69,7 @@ export const Library: FC<{
     <Dialog
       open={!!key}
       onOpenChange={(open) => {
-        if (!open) router.replace(pathname, { scroll: false });
+        if (!open) router.back();
       }}
     >
       <DialogContent className="w-full p-0 max-w-[min(1500px,calc(100%-2rem))] h-full max-h-[calc(100%-2rem)] overflow-hidden">

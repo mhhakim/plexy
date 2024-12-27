@@ -2,6 +2,7 @@ import { FC } from "react";
 import { Slider } from "@/components/slider";
 import qs from "qs";
 import { usePathname, useRouter } from "next/navigation";
+import { ChevronRight } from "lucide-react";
 
 export const HubSlider: FC<{
   hub: Plex.Hub;
@@ -16,7 +17,7 @@ export const HubSlider: FC<{
     <div className="w-[100%] overflow-x-hidden overflow-y-visible">
       <button
         type="button"
-        className="text-left"
+        className="text-left flex flex-row items-center mx-20 group w-full gap-2"
         onClick={() => {
           router.push(
             `${pathname}?${qs.stringify({ key: hub.key, libtitle: hub.title, ...(id ? { contentDirectoryID: id } : {}) })}`,
@@ -26,9 +27,12 @@ export const HubSlider: FC<{
           );
         }}
       >
-        <p className="px-20 font-bold text-xl md:text-2xl xl:text-3xl tracking-tight">
+        <p className="font-bold text-xl md:text-2xl tracking-tight">
           <span className="px-[5px]">{hub.title}</span>
         </p>
+        <div className="group-hover:opacity-100 group-hover:translate-x-0 opacity-0 transition duration-150 -translate-x-full">
+          <ChevronRight className="h-6 w-6 text-plex" />
+        </div>
       </button>
       {hub.Metadata && (
         <Slider

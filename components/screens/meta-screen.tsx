@@ -9,16 +9,23 @@ import ReactPlayer from "react-player";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import qs from "qs";
 import { Button } from "@/components/ui/button";
-import { CircleCheck, Play, Volume2, VolumeX, X } from "lucide-react";
+import {
+  ChevronRight,
+  CircleCheck,
+  Play,
+  Volume2,
+  VolumeX,
+  X,
+} from "lucide-react";
 import Image from "next/image";
 import { durationToText } from "@/lib/utils";
 import { create } from "zustand";
 import { Skeleton } from "@/components/ui/skeleton";
-import { EpisodeView } from "@/components/meta-screen/episode-view";
+import { EpisodeView } from "@/components/cards/episode-view";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { VideoView } from "@/components/meta-screen/video-view";
+import { VideoView } from "@/components/cards/video-view";
 import Link from "next/link";
-import { SeasonView } from "@/components/meta-screen/season-view";
+import { SeasonView } from "@/components/cards/season-view";
 
 interface PreviewPlayerState {
   MetaScreenPlayerMuted: boolean;
@@ -207,13 +214,13 @@ export const MetaScreen: FC = () => {
   const title = useMemo(() => {
     if (!metadata.data) return "";
 
-    if (metadata.data.type === "season" && metadata.data.parentTitle) {
-      return (
-        <Link href={`${pathname}?mid=${metadata.data.parentRatingKey}`}>
-          <p className="font-bold text-5xl">{metadata.data.parentTitle}</p>
-        </Link>
-      );
-    }
+    // if (metadata.data.type === "season" && metadata.data.parentTitle) {
+    //   return (
+    //     <Link href={`${pathname}?mid=${metadata.data.parentRatingKey}`}>
+    //       <p className="font-bold text-5xl">{metadata.data.parentTitle}</p>
+    //     </Link>
+    //   );
+    // }
 
     if (metadata.data.type === "episode" && metadata.data.grandparentTitle) {
       return (
@@ -246,7 +253,11 @@ export const MetaScreen: FC = () => {
         ? `${metadata.data?.childCount} Seasons`
         : "";
     if (metadata.data.type === "season" && metadata.data.parentTitle) {
-      season = metadata.data.title;
+      season = (
+        <Link href={`${pathname}?mid=${metadata.data.parentRatingKey}`}>
+          {metadata.data.parentTitle}
+        </Link>
+      );
     } else if (metadata.data.type === "episode" && metadata.data.parentTitle) {
       season = (
         <Link href={`${pathname}?mid=${metadata.data.parentRatingKey}`}>
@@ -622,7 +633,7 @@ export const MetaScreen: FC = () => {
                       >
                         <button
                           type="button"
-                          className="text-left"
+                          className="text-left group w-full flex flex-row items-center gap-2"
                           onClick={() => {
                             console.log(hub);
                             router.push(
@@ -634,6 +645,9 @@ export const MetaScreen: FC = () => {
                           }}
                         >
                           <p className="font-bold text-2xl">{hub.title}</p>
+                          <div className="group-hover:opacity-100 group-hover:translate-x-0 opacity-0 transition duration-150 -translate-x-full">
+                            <ChevronRight className="h-6 w-6 text-plex" />
+                          </div>
                         </button>
                         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                           {hub.Metadata.slice(0, 15).map((item, i) => (

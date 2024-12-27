@@ -157,8 +157,15 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
       }, 5000);
     };
 
+    const exit = () => {
+      clearTimeout(timeout);
+      setShowControls(false);
+    };
+
+    document.addEventListener("mouseleave", exit);
     document.addEventListener("mousemove", move);
     return () => {
+      document.removeEventListener("mouseleave", exit);
       document.removeEventListener("mousemove", move);
     };
   }, []);
@@ -908,7 +915,9 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                   router.replace(
                     `${pathname}?watch=${watch}&t=${Math.floor(progress) * 1000}`,
                   );
-                  window.location.reload();
+                  setTimeout(() => {
+                    window.location.reload();
+                  }, 100);
                   setPendingRefresh(false);
                 }, 2500);
               }}

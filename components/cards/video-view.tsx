@@ -77,7 +77,7 @@ export const VideoView: FC<{ item: VideoItemInterface }> = ({ item }) => {
 
   return (
     <button
-      className="group rounded w-full h-full flex flex-col"
+      className="group rounded w-full h-full flex flex-col hover:outline outline-plex"
       type="button"
       onClick={(e) => {
         e.preventDefault();
@@ -94,16 +94,17 @@ export const VideoView: FC<{ item: VideoItemInterface }> = ({ item }) => {
           background: `url(${item.image}) center center / cover no-repeat`,
         }}
       >
-        {(item.viewOffset || (item.viewCount && item.viewCount >= 1)) && (
-          <Progress
-            className="absolute rounded-t-none rounded-b bottom-0 left-0 h-[4px]"
-            value={
-              item.viewOffset
-                ? Math.floor((item.viewOffset / item.duration) * 100)
-                : 100
-            }
-          />
-        )}
+        {(item.type === "episode" || item.type === "movie") &&
+          (item.viewOffset || (item.viewCount && item.viewCount >= 1)) && (
+            <Progress
+              className="absolute rounded-t-none rounded-b bottom-0 left-0 h-[4px]"
+              value={
+                item.viewOffset
+                  ? Math.floor((item.viewOffset / item.duration) * 100)
+                  : 100
+              }
+            />
+          )}
       </div>
       <div className="bg-secondary/40 rounded-b w-full p-4 text-left text-muted-foreground font-semibold flex-1 flex flex-col gap-1.5">
         <p className="uppercase text-sm text-plex font-semibold">

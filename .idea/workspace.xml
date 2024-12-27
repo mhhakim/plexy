@@ -7,7 +7,16 @@
     <list default="true" id="1fe09ec0-188b-4e83-b5dc-c24c5f216ee0" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/hub-slider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/hub-slider.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/meta-screen/meta-screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/meta-screen/meta-screen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/library.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/screens/library-screen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/meta-screen/episode-view.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/cards/episode-view.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/meta-screen/meta-screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/screens/meta-screen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/meta-screen/season-view.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/cards/season-view.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/meta-screen/video-view.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/cards/video-view.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/providers.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/providers.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/watch-screen/watch-screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/screens/watch-screen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tailwind.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/tailwind.config.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,12 +61,24 @@
       <recent name="$PROJECT_DIR$" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/components/screens" />
+      <recent name="$PROJECT_DIR$/components" />
       <recent name="$PROJECT_DIR$/public" />
       <recent name="$PROJECT_DIR$/components/meta-screen" />
       <recent name="$PROJECT_DIR$/app" />
-      <recent name="$PROJECT_DIR$/components" />
-      <recent name="$PROJECT_DIR$/app/auth" />
     </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="dev" type="js.build_tools.npm" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="dev" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -79,6 +100,7 @@
       <workItem from="1734667303506" duration="11261000" />
       <workItem from="1734678854301" duration="149394000" />
       <workItem from="1735102219763" duration="41175000" />
+      <workItem from="1735324641570" duration="8424000" />
     </task>
     <servers />
   </component>
