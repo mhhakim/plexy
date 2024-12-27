@@ -22,17 +22,6 @@ import {
 } from "@/components/ui/context-menu";
 import { ServerApi } from "@/api";
 import { Progress } from "@/components/ui/progress";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 export const Slider: FC<{
   items: VideoItemInterface[];
