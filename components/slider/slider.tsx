@@ -21,6 +21,18 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { ServerApi } from "@/api";
+import { Progress } from "@/components/ui/progress";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export const Slider: FC<{
   items: VideoItemInterface[];
@@ -192,6 +204,19 @@ export const Slider: FC<{
                         </p>
                       </div>
                     </div>
+                    {(item.viewOffset ||
+                      (item.viewCount && item.viewCount >= 1)) && (
+                      <Progress
+                        className="absolute rounded-t-none rounded-b bottom-0 left-0 h-[4px]"
+                        value={
+                          item.viewOffset
+                            ? Math.floor(
+                                (item.viewOffset / item.duration) * 100,
+                              )
+                            : 100
+                        }
+                      />
+                    )}
                   </button>
                 </ContextMenuTrigger>
                 <ContextMenuContent className="w-64">
