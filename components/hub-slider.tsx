@@ -16,6 +16,7 @@ export const HubSlider: FC<{
     <div className="w-[100%] overflow-x-hidden overflow-y-visible">
       <button
         type="button"
+        className="text-left"
         onClick={() => {
           router.push(
             `${pathname}?${qs.stringify({ key: hub.key, libtitle: hub.title, ...(id ? { contentDirectoryID: id } : {}) })}`,

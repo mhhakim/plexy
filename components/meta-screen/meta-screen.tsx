@@ -620,7 +620,21 @@ export const MetaScreen: FC = () => {
                         key={`${hub.title}-${i}`}
                         className="flex flex-col gap-6"
                       >
-                        <p className="font-bold text-2xl">{hub.title}</p>
+                        <button
+                          type="button"
+                          className="text-left"
+                          onClick={() => {
+                            console.log(hub);
+                            router.push(
+                              `${pathname}?${qs.stringify({ key: hub.key, libtitle: hub.title })}`,
+                              {
+                                scroll: false,
+                              },
+                            );
+                          }}
+                        >
+                          <p className="font-bold text-2xl">{hub.title}</p>
+                        </button>
                         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                           {hub.Metadata.slice(0, 15).map((item, i) => (
                             <VideoView
