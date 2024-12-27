@@ -57,6 +57,7 @@ export const Hub: FC<{ library: Plex.LibraryDetails; id: string }> = ({
         {hubs.map((item, i) => (
           <HubSlider
             key={`${item.key}-${i}`}
+            id={id}
             hub={item}
             onUpdate={() => updateHubs()}
           />

@@ -169,6 +169,9 @@ export const Slider: FC<{
                       <div className="absolute bottom-0 px-4 py-2 w-full max-w-full text-left">
                         <p className="font-bold truncate sm:text-md text-sm text-plex flex flex-row items-center gap-2 uppercase">
                           {item.type}
+                          {(item.type === "season" ||
+                            item.type === "episode") &&
+                            ` ${item.index}`}
                         </p>
                         <p className="font-bold truncate lg:text-lg">
                           {(item.type === "season"
@@ -178,11 +181,6 @@ export const Slider: FC<{
                         {item.type === "episode" && item.grandparentTitle && (
                           <p className="font-bold text-sm text-muted-foreground line-clamp-1">
                             {item.grandparentTitle}
-                          </p>
-                        )}
-                        {item.type === "season" && item.parentTitle && (
-                          <p className="font-bold text-sm text-muted-foreground line-clamp-1">
-                            {item.title}
                           </p>
                         )}
                         <p className="w-full max-w-full truncate text-sm text-muted-foreground flex flex-row items-center gap-2">

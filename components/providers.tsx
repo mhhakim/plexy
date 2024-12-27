@@ -9,12 +9,16 @@ import { uuid, uuidv4 } from "@/lib/utils";
 import { MetaScreen } from "@/components/meta-screen/meta-screen";
 import { useSearchParams } from "next/navigation";
 import { WatchScreen } from "@/components/watch-screen/watch-screen";
+import { Library } from "@/components/library";
 
 const client = new QueryClient();
 
 export default function Providers({ children }: { children: ReactNode }) {
   const searchParams = useSearchParams();
   const watch = searchParams.get("watch");
+  const key = searchParams.get("key");
+  const libtitle = searchParams.get("libtitle");
+  const contentDirectoryID = searchParams.get("contentDirectoryID");
 
   useEffect(() => {
     if (!localStorage.getItem("clientId")) {
@@ -39,6 +43,11 @@ export default function Providers({ children }: { children: ReactNode }) {
             <Suspense>
               <MetaScreen />
               <WatchScreen watch={watch ?? undefined} />
+              <Library
+                contentDirectoryID={contentDirectoryID ?? undefined}
+                title={libtitle ?? undefined}
+                keypath={key ?? undefined}
+              />
             </Suspense>
             {children}
           </SessionProvider>

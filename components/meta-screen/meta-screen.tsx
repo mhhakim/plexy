@@ -621,7 +621,7 @@ export const MetaScreen: FC = () => {
                         className="flex flex-col gap-6"
                       >
                         <p className="font-bold text-2xl">{hub.title}</p>
-                        <div className="grid gap-4 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                           {hub.Metadata.slice(0, 15).map((item, i) => (
                             <VideoView
                               key={i}
