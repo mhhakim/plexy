@@ -6,6 +6,7 @@ import { Hero } from "@/components/hero";
 import _ from "lodash";
 import { HubSlider } from "@/components/hub-slider";
 import { useLibraries } from "@/components/auth-provider";
+import { useSearchParams } from "next/navigation";
 
 export default function Home() {
   const [item, setItem] = useState<Plex.Metadata | null>(null);
@@ -65,6 +66,11 @@ export default function Home() {
       setPromoted(promo);
       setIsLoading(false);
     })();
+
+    window.addEventListener("popstate", updateContinueWatching);
+    return () => {
+      window.removeEventListener("popstate", updateContinueWatching);
+    };
   }, []);
 
   if (isLoading) {

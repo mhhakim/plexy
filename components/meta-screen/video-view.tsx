@@ -2,6 +2,7 @@ import { FC, useMemo } from "react";
 import { durationToText } from "@/lib/utils";
 import { usePathname, useRouter } from "next/navigation";
 import { VideoItemInterface } from "@/type";
+import { Progress } from "@/components/ui/progress";
 
 export const VideoView: FC<{ item: VideoItemInterface }> = ({ item }) => {
   const router = useRouter();
@@ -58,6 +59,16 @@ export const VideoView: FC<{ item: VideoItemInterface }> = ({ item }) => {
             {item.title}
           </p>
         </div>
+        {(item.viewOffset || (item.viewCount && item.viewCount >= 1)) && (
+          <Progress
+            className="absolute rounded-t-none rounded-b bottom-0 left-0 h-[4px]"
+            value={
+              item.viewOffset
+                ? Math.floor((item.viewOffset / item.duration) * 100)
+                : 100
+            }
+          />
+        )}
       </div>
       <div className="bg-secondary/40 rounded-b w-full p-4 text-left text-muted-foreground font-semibold flex-1 flex flex-col gap-4">
         <p className="w-full max-w-full font-semibold t-sm truncate text-md text-muted-foreground flex flex-row items-center gap-2">

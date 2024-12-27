@@ -24,7 +24,7 @@ export const Hub: FC<{ library: Plex.LibraryDetails; id: string }> = ({
   useEffect(() => {
     setFeatured(null);
     setHubs([]);
-    console.log(id);
+
     ServerApi.random({ dir: id }).then((res) => {
       if (!res) return;
       setFeatured(res);
@@ -38,6 +38,13 @@ export const Hub: FC<{ library: Plex.LibraryDetails; id: string }> = ({
       setHubs(res.filter((hub) => hub.Metadata && hub.Metadata.length > 0));
     });
   }, [id]);
+
+  useEffect(() => {
+    window.addEventListener("popstate", updateHubs);
+    return () => {
+      window.removeEventListener("popstate", updateHubs);
+    };
+  }, []);
 
   if (!featured) return;
 

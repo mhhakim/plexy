@@ -79,7 +79,7 @@ export const Slider: FC<{
                 : "";
             const mid = item.ratingKey.toString();
 
-            const hanldePlay = () => {
+            const handlePlay = () => {
               if (item.type === "movie") {
                 router.push(
                   `${pathname}?watch=${item.ratingKey}${item.viewOffset ? `&t=${item.viewOffset}` : ""}`,
@@ -142,7 +142,13 @@ export const Slider: FC<{
                     type="button"
                     onClick={(e) => {
                       e.preventDefault();
-                      router.push(`${pathname}?mid=${mid}`, { scroll: false });
+                      if (item.type === "episode" || item.type === "movie") {
+                        handlePlay();
+                      } else {
+                        router.push(`${pathname}?mid=${mid}`, {
+                          scroll: false,
+                        });
+                      }
                     }}
                   >
                     <div
@@ -217,7 +223,7 @@ export const Slider: FC<{
                   <ContextMenuItem className="flex flex-row gap-2" asChild>
                     <button
                       type="button"
-                      onClick={hanldePlay}
+                      onClick={handlePlay}
                       className="w-full"
                     >
                       <Play fill="currentColor" className="w-4 h-4" />
