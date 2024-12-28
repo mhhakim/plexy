@@ -52,7 +52,7 @@ export const Hub: FC<{ library: Plex.LibraryDetails; id: string }> = ({
     <div className="w-full flex flex-col items-start justify-start">
       <Hero item={featured} />
       <div
-        className={`flex flex-col items-start justify-start w-full z-10 ${featured ? "-mt-20" : ""}`}
+        className={`flex flex-col items-start justify-start w-full z-10 -mt-20`}
       >
         {hubs.map((item, i) => (
           <HubSlider

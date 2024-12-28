@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 const PADDINGS = 110;
 
 export const useSliding = (countElements: number) => {
-  const elementRef = useRef<HTMLButtonElement>(null);
+  const elementRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [totalInViewport, setTotalInViewport] = useState(0);
   const [viewed, setViewed] = useState(0);

@@ -14,7 +14,7 @@ export const HubSlider: FC<{
   const token = localStorage.getItem("token");
 
   return (
-    <div className="w-[100%] overflow-x-hidden overflow-y-visible">
+    <div className="w-[100%] overflow-x-hidden overflow-y-clip">
       <button
         type="button"
         className="text-left flex flex-row items-center mx-20 group w-full gap-2"

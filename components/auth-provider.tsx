@@ -152,6 +152,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
           console.error(err);
           // TODO: handle other errors
+
+          localStorage.removeItem("token");
+          window.location.href = "/";
+          return;
         });
     }
   }, []);

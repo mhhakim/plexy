@@ -115,6 +115,7 @@ export const Slider: FC<{
                     : item.Children?.Metadata.find(
                         (s) => s.title !== "Specials",
                       );
+                console.log(season, item);
                 if (!season) return;
 
                 ServerApi.children({
@@ -133,29 +134,23 @@ export const Slider: FC<{
             return (
               <ContextMenu key={i}>
                 <ContextMenuTrigger asChild>
-                  <button
+                  <div
                     className={
-                      "item group overflow-y-visible overflow-x-hidden rounded relative"
+                      "item group overflow-x-hidden rounded relative h-full bg-[rgb(21,21,23)] flex flex-col"
                     }
                     {...{ "data-first": isFirst(i), "data-last": isLast(i) }}
                     ref={elementRef}
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      if (item.type === "episode" || item.type === "movie") {
-                        handlePlay();
-                      } else {
-                        router.push(`${pathname}?mid=${mid}`, {
-                          scroll: false,
-                        });
-                      }
-                    }}
                   >
-                    <div
+                    <button
                       style={{
-                        background: `linear-gradient(0, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.5)), url(${item.image}) center center / cover no-repeat`,
+                        background: `url(${item.image}) center center / cover no-repeat`,
                       }}
-                      className="relative w-full h-full flex flex-col aspect-video"
+                      className="relative aspect-video w-full flex flex-col"
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handlePlay();
+                      }}
                     >
                       {watched && (
                         <div className="absolute top-0 px-4 pt-4 w-full max-w-full flex flex-row items-center justify-end gap-2">
@@ -166,52 +161,61 @@ export const Slider: FC<{
                         </div>
                       )}
                       <div className="flex-1"></div>
-                      <div className="absolute bottom-0 px-4 py-2 w-full max-w-full text-left">
-                        <p className="font-bold truncate sm:text-md text-sm text-plex flex flex-row items-center gap-2 uppercase">
-                          {item.type}
-                          {(item.type === "season" ||
-                            item.type === "episode") &&
-                            ` ${item.index}`}
-                        </p>
-                        <p className="font-bold truncate lg:text-lg">
-                          {(item.type === "season"
-                            ? item.parentTitle
-                            : item.title) ?? item.title}
-                        </p>
-                        {item.type === "episode" && item.grandparentTitle && (
-                          <p className="font-bold text-sm text-muted-foreground line-clamp-1">
-                            {item.grandparentTitle}
-                          </p>
+                      {(item.type === "episode" || item.type === "movie") &&
+                        (item.viewOffset ||
+                          (item.viewCount && item.viewCount >= 1)) && (
+                          <Progress
+                            className="absolute rounded-t-none rounded-b bottom-0 left-0 h-[4px]"
+                            value={
+                              item.viewOffset
+                                ? Math.floor(
+                                    (item.viewOffset / item.duration) * 100,
+                                  )
+                                : 100
+                            }
+                          />
                         )}
-                        <p className="w-full max-w-full truncate text-sm text-muted-foreground flex flex-row items-center gap-2">
-                          {(episodes || seasons) && (
-                            <span className="font-bold">
-                              {seasons || episodes}
-                            </span>
-                          )}
-                          {duration && (
-                            <span className="font-bold">{duration}</span>
-                          )}
-                          <span className="flex-1" />
-                          <span className="text-xs font-bold">{item.year}</span>
+                    </button>
+                    <button
+                      className="p-4 w-full max-w-full flex-1 text-left flex flex-col gap-0.5"
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        router.push(`${pathname}?mid=${mid}`, {
+                          scroll: false,
+                        });
+                      }}
+                    >
+                      <p className="font-bold truncate sm:text-md text-sm text-plex flex flex-row items-center gap-2 uppercase">
+                        {item.type}
+                        {(item.type === "season" || item.type === "episode") &&
+                          ` ${item.index}`}
+                      </p>
+                      <p className="font-bold line-clamp-1 lg:text-lg">
+                        {(item.type === "season"
+                          ? item.parentTitle
+                          : item.title) ?? item.title}
+                      </p>
+                      {item.type === "episode" && item.grandparentTitle && (
+                        <p className="font-bold text-sm text-muted-foreground line-clamp-1">
+                          {item.grandparentTitle}
                         </p>
-                      </div>
-                    </div>
-                    {(item.type === "episode" || item.type === "movie") &&
-                      (item.viewOffset ||
-                        (item.viewCount && item.viewCount >= 1)) && (
-                        <Progress
-                          className="absolute rounded-t-none rounded-b bottom-0 left-0 h-[4px]"
-                          value={
-                            item.viewOffset
-                              ? Math.floor(
-                                  (item.viewOffset / item.duration) * 100,
-                                )
-                              : 100
-                          }
-                        />
                       )}
-                  </button>
+                      <div className="flex-1"></div>
+                      <p className="w-full max-w-full truncate text-sm text-muted-foreground flex flex-row items-center gap-2">
+                        {(episodes || seasons) && (
+                          <span className="font-bold">
+                            {seasons || episodes}
+                          </span>
+                        )}
+                        {duration && (
+                          <span className="font-bold">{duration}</span>
+                        )}
+                        <span className="flex-1" />
+                        <span className="text-xs font-bold">{item.year}</span>
+                      </p>
+                    </button>
+                  </div>
                 </ContextMenuTrigger>
                 <ContextMenuContent className="w-64">
                   <ContextMenuLabel className="truncate w-full overflow-hidden">
@@ -284,21 +288,29 @@ export const Slider: FC<{
       </div>
       {hasPrev && (
         <button
-          className={`slide-button slide-button--prev`}
+          className={`slide-button slide-button--prev group`}
           onClick={handlePrev}
         >
           <span>
-            <ChevronDown size={50} color={"#ffffff"} />
+            <ChevronDown
+              size={50}
+              color={"#ffffff"}
+              className="group-hover:scale-125 transition duration-200"
+            />
           </span>
         </button>
       )}
       {hasNext && (
         <button
-          className={`slide-button slide-button--next`}
+          className={`slide-button slide-button--next group`}
           onClick={handleNext}
         >
           <span>
-            <ChevronDown size={50} color={"#ffffff"} />
+            <ChevronDown
+              size={50}
+              color={"#ffffff"}
+              className="group-hover:scale-125 transition duration-200"
+            />
           </span>
         </button>
       )}
