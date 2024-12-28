@@ -241,10 +241,18 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
         player.current.seekTo(player.current.getCurrentTime() + 10);
       }
       if (e.key === "ArrowUp" && player.current) {
-        setVolume((state) => Math.min(state + 5, 100));
+        setVolume((state) => {
+          const value = Math.min(state + 5, 100);
+          localStorage.setItem("volume", value.toString());
+          return value;
+        });
       }
       if (e.key === "ArrowDown" && player.current) {
-        setVolume((state) => Math.max(state - 5, 0));
+        setVolume((state) => {
+          const value = Math.max(state - 5, 0);
+          localStorage.setItem("volume", value.toString());
+          return value;
+        });
       }
       if (e.key === "," && player.current) {
         player.current.seekTo(player.current.getCurrentTime() - 0.04);
@@ -492,6 +500,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
           <div className="flex-1" />
           <div
             className={`flex flex-row p-6 justify-end z-50 ${showSkip ? "" : "hidden"} transition`}
+            autoFocus
           >
             <Button
               type="button"
@@ -513,6 +522,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
           </div>
           <div
             className={`flex flex-row p-6 justify-end z-50 ${showCredit ? "" : "hidden"} transition`}
+            autoFocus
           >
             <Button
               type="button"

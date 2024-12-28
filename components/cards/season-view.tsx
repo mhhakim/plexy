@@ -30,9 +30,12 @@ export const SeasonView: FC<{ season: Plex.Child }> = ({ season }) => {
         )}`}
         alt="season poster"
       />
-      <p className="font-bold w-full text-muted-foreground p-4 truncate">
-        {season.title}
-      </p>
+      <div className="p-4">
+        <p className="font-bold w-full truncate">{season.title}</p>
+        <p className="font-bold w-full text-muted-foreground truncate">
+          {season.leafCount} Episodes
+        </p>
+      </div>
     </button>
   );
 };

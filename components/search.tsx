@@ -63,7 +63,9 @@ export const Search = () => {
       const valid = res.filter(
         (item) =>
           item.Metadata &&
-          (item.Metadata.type === "movie" || item.Metadata.type === "show"),
+          (item.Metadata.type === "movie" ||
+            item.Metadata.type === "show" ||
+            item.Metadata.type === "episode"),
       );
       const ordered = valid.toSorted((a, b) => b.score - a.score);
       const mapped = ordered.map((item) => item.Metadata);
@@ -124,7 +126,7 @@ export const Search = () => {
                       {
                         width: 60,
                         height: 90,
-                        url: `${item.thumb}?X-Plex-Token=${token}`,
+                        url: `${(item.type === "episode" ? item.parentThumb : item.thumb) || item.thumb}?X-Plex-Token=${token}`,
                         minSize: 1,
                         upscale: 1,
                         "X-Plex-Token": token,
@@ -135,9 +137,31 @@ export const Search = () => {
                   />
                   <div>
                     <p className="line-clamp-1 font-bold">{item.title}</p>
-                    <p className="line-clamp-1 text-muted-foreground font-semibold">
-                      {item.type}
-                    </p>
+                    {item.type === "episode" && (
+                      <>
+                        <p className="line-clamp-1 text-muted-foreground font-bold text-sm">
+                          {item.grandparentTitle}
+                        </p>
+                        {item.parentIndex !== undefined &&
+                        item.index !== undefined ? (
+                          <p className="line-clamp-1 font-bold text-sm text-muted-foreground">
+                            S{item.parentIndex.toString().padStart(2, "0")}
+                            {" • "}
+                            {item.index.toString().padStart(2, "0")}
+                            {" • "}Episode
+                          </p>
+                        ) : (
+                          <p className="line-clamp-1 font-bold text-sm text-muted-foreground">
+                            episode
+                          </p>
+                        )}
+                      </>
+                    )}
+                    {item.type !== "episode" && (
+                      <p className="line-clamp-1 font-bold capitalize text-sm text-muted-foreground">
+                        {item.type}
+                      </p>
+                    )}
                   </div>
                 </button>
               ))}

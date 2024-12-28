@@ -275,6 +275,25 @@ export class ServerApi {
         return null;
       });
   }
+  static async genre({ dir, id }: { dir: string; id: string }) {
+    return await axios
+      .get<{ MediaContainer: { Metadata: Plex.Metadata[] } }>(
+        `${localStorage.getItem("server")}/library/sections/${dir}/genre/${id}`,
+        {
+          headers: {
+            "X-Plex-Token": localStorage.getItem("token") as string,
+            accept: "application/json",
+          },
+        },
+      )
+      .then((res) => {
+        return res?.data?.MediaContainer?.Metadata ?? null;
+      })
+      .catch((err) => {
+        console.log(err);
+        return null;
+      });
+  }
   static async similar({ id }: { id?: string | null }) {
     if (!id) return [];
     return await axios
