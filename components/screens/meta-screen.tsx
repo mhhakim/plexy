@@ -237,14 +237,13 @@ export const MetaScreen: FC = () => {
         ? `${metadata.data?.childCount} Seasons`
         : "";
     if (metadata.data.type === "season" && metadata.data.parentTitle) {
-      season = (
-        <Link href={`${pathname}?mid=${metadata.data.parentRatingKey}`}>
-          {metadata.data.parentTitle}
-        </Link>
-      );
+      season = "";
     } else if (metadata.data.type === "episode" && metadata.data.parentTitle) {
       season = (
-        <Link href={`${pathname}?mid=${metadata.data.parentRatingKey}`}>
+        <Link
+          href={`${pathname}?mid=${metadata.data.parentRatingKey}`}
+          className="hover:text-primary"
+        >
           {metadata.data.parentTitle}
         </Link>
       );
@@ -388,13 +387,26 @@ export const MetaScreen: FC = () => {
                           </p>
                         </div>
                         {title}
-                        {metadata.data.type === "episode" &&
-                          metadata.data.grandparentTitle && (
-                            <p className="font-bold text-xl">
-                              {metadata.data.title}
-                            </p>
+                        <div className="font-bold text-muted-foreground max-w-4xl flex flex-col gap-2">
+                          {metadata.data.type === "episode" && (
+                            <Link
+                              href={`${pathname}?mid=${metadata.data.grandparentRatingKey}`}
+                            >
+                              <p className="font-bold [@media(min-width:1200px)]:line-clamp-2 hover:text-primary">
+                                {metadata.data.grandparentTitle}
+                              </p>
+                            </Link>
                           )}
-                        {subtitle}
+                          {metadata.data.type === "season" && (
+                            <Link
+                              href={`${pathname}?mid=${metadata.data.parentRatingKey}`}
+                              className="hover:text-primary"
+                            >
+                              {metadata.data.parentTitle}
+                            </Link>
+                          )}
+                          {subtitle}
+                        </div>
                         {(metadata.data?.contentRating ||
                           metadata.data.year ||
                           duration) && (
