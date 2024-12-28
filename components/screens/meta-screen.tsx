@@ -214,22 +214,6 @@ export const MetaScreen: FC = () => {
   const title = useMemo(() => {
     if (!metadata.data) return "";
 
-    // if (metadata.data.type === "season" && metadata.data.parentTitle) {
-    //   return (
-    //     <Link href={`${pathname}?mid=${metadata.data.parentRatingKey}`}>
-    //       <p className="font-bold text-5xl">{metadata.data.parentTitle}</p>
-    //     </Link>
-    //   );
-    // }
-
-    if (metadata.data.type === "episode" && metadata.data.grandparentTitle) {
-      return (
-        <Link href={`${pathname}?mid=${metadata.data.grandparentRatingKey}`}>
-          <p className="font-bold text-5xl">{metadata.data.grandparentTitle}</p>
-        </Link>
-      );
-    }
-
     return <p className="font-bold text-5xl">{metadata.data.title}</p>;
   }, [metadata.data, pathname]);
 
