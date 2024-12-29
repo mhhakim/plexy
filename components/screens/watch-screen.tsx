@@ -88,6 +88,14 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
   const [showControls, setShowControls] = useState(true);
   const [pendingRefresh, setPendingRefresh] = useState(false);
   const [url, setUrl] = useState<string>("");
+  const [nextUrl, setNextUrl] = useState<string>("");
+
+  useEffect(() => {
+    if (!url && !!nextUrl) {
+      setUrl(nextUrl);
+      setNextUrl("");
+    }
+  }, [url, nextUrl]);
 
   const loaded = () =>
     `${localStorage.getItem("server")}/video/:/transcode/universal/start.mpd?${qs.stringify(
@@ -363,132 +371,125 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
           <div
             className={`absolute inset-0 ${showControls ? "" : "cursor-none"}`}
           >
-            {!metadata || !url ? (
-              <div className="absolute inset-0 flex flex-row items-center justify-center">
-                <LoaderCircle className="w-20 h-20 animate-spin text-plex" />
-              </div>
-            ) : (
-              <ReactPlayer
-                ref={player}
-                playing={playing}
-                volume={volume / 100}
-                onClick={(e: MouseEvent) => {
-                  e.preventDefault();
+            <ReactPlayer
+              ref={player}
+              playing={playing}
+              volume={volume / 100}
+              onClick={(e: MouseEvent) => {
+                e.preventDefault();
 
-                  switch (e.detail) {
-                    case 1:
-                      setPlaying((state) => !state);
-                      break;
-                    case 2:
-                      if (!document.fullscreenElement) {
-                        document.documentElement.requestFullscreen();
-                        setPlaying(true);
-                      } else {
-                        document.exitFullscreen();
-                      }
-                      break;
-                    default:
-                      break;
-                  }
-                }}
-                onReady={() => {
-                  if (!player.current) return;
-                  setReady(true);
-                  setShowError(false);
-
-                  if (seekToAfterLoad.current !== null) {
-                    player.current.seekTo(seekToAfterLoad.current);
-                    seekToAfterLoad.current = null;
-                  }
-
-                  if (!searchParams.has("t")) return;
-                  const t = parseInt(searchParams.get("t") ?? "0");
-
-                  if (lastAppliedTime.current === t) {
-                    return;
-                  }
-
-                  player.current.seekTo(t / 1000);
-                  lastAppliedTime.current = t;
-                }}
-                onProgress={(progress) => {
-                  setProgress(progress.playedSeconds);
-                  setBuffered(progress.loadedSeconds);
-                }}
-                onPause={() => {
-                  setPlaying(false);
-                }}
-                onPlay={() => {
-                  setPlaying(true);
-                }}
-                onBuffer={() => {
-                  setBuffering(true);
-                }}
-                onBufferEnd={() => {
-                  setBuffering(false);
-                }}
-                onError={(err) => {
-                  console.log("Player error:");
-                  console.error(err);
-                  if (err?.error?.message) {
-                    if (
-                      (err.error.message.includes("/header") ||
-                        err.error.message.includes(".m4s")) &&
-                      err.error.message.includes("is not available")
-                    ) {
-                      setShowError(true);
+                switch (e.detail) {
+                  case 1:
+                    setPlaying((state) => !state);
+                    break;
+                  case 2:
+                    if (!document.fullscreenElement) {
+                      document.documentElement.requestFullscreen();
+                      setPlaying(true);
+                    } else {
+                      document.exitFullscreen();
                     }
-                  }
+                    break;
+                  default:
+                    break;
+                }
+              }}
+              onReady={() => {
+                if (!player.current) return;
+                setReady(true);
+                setShowError(false);
 
-                  setPlaying(false);
-                }}
-                config={{
-                  file: {
-                    forceDisableHls: true,
-                    forceDASH: true,
-                    dashVersion: "4.7.0",
-                    attributes: {
-                      controlsList: "nodownload",
-                      disablePictureInPicture: true,
-                      disableRemotePlayback: true,
-                      autoplay: true,
-                    },
+                if (seekToAfterLoad.current !== null) {
+                  player.current.seekTo(seekToAfterLoad.current);
+                  seekToAfterLoad.current = null;
+                }
+
+                if (!searchParams.has("t")) return;
+                const t = parseInt(searchParams.get("t") ?? "0");
+
+                if (lastAppliedTime.current === t) {
+                  return;
+                }
+
+                player.current.seekTo(t / 1000);
+                lastAppliedTime.current = t;
+              }}
+              onProgress={(progress) => {
+                setProgress(progress.playedSeconds);
+                setBuffered(progress.loadedSeconds);
+              }}
+              onPause={() => {
+                setPlaying(false);
+              }}
+              onPlay={() => {
+                setPlaying(true);
+              }}
+              onBuffer={() => {
+                setBuffering(true);
+              }}
+              onBufferEnd={() => {
+                setBuffering(false);
+              }}
+              onError={(err) => {
+                console.error(err);
+                if (err?.error?.message) {
+                  if (
+                    (err.error.message.includes("/header") ||
+                      err.error.message.includes(".m4s")) &&
+                    err.error.message.includes("is not available")
+                  ) {
+                    setShowError(true);
+                  }
+                }
+
+                setPlaying(false);
+              }}
+              config={{
+                file: {
+                  forceDisableHls: true,
+                  forceDASH: true,
+                  dashVersion: "4.7.0",
+                  attributes: {
+                    controlsList: "nodownload",
+                    disablePictureInPicture: true,
+                    disableRemotePlayback: true,
+                    autoplay: true,
                   },
-                }}
-                onEnded={() => {
-                  if (!playQueue) return console.log("No play queue");
+                },
+              }}
+              onEnded={() => {
+                if (!playQueue) return console.log("No play queue");
 
-                  if (metadata.type !== "episode") {
-                    router.push(
-                      `/browse/${metadata.librarySectionID}?${qs.stringify({
-                        mid: metadata.ratingKey,
-                      })}`,
-                      { scroll: false },
-                    );
-                    return;
-                  }
+                if (metadata.type !== "episode") {
+                  router.push(
+                    `/browse/${metadata.librarySectionID}?${qs.stringify({
+                      mid: metadata.ratingKey,
+                    })}`,
+                    { scroll: false },
+                  );
+                  return;
+                }
 
-                  const next = playQueue[1];
-                  if (!next) {
-                    router.push(
-                      `/browse/${metadata.librarySectionID}?${qs.stringify({
-                        mid: metadata.grandparentRatingKey,
-                        pid: metadata.parentRatingKey,
-                        iid: metadata.ratingKey,
-                      })}`,
-                      { scroll: false },
-                    );
-                  }
+                const next = playQueue[1];
+                if (!next) {
+                  router.push(
+                    `/browse/${metadata.librarySectionID}?${qs.stringify({
+                      mid: metadata.grandparentRatingKey,
+                      pid: metadata.parentRatingKey,
+                      iid: metadata.ratingKey,
+                    })}`,
+                    { scroll: false },
+                  );
+                }
 
-                  router.replace(`${pathname}?watch=${next.ratingKey}`, {
-                    scroll: false,
-                  });
-                }}
-                url={url}
-                width="100%"
-                height="100%"
-              />
-            )}
+                router.replace(`${pathname}?watch=${next.ratingKey}`, {
+                  scroll: false,
+                });
+              }}
+              url={url}
+              width="100%"
+              height="100%"
+            />
           </div>
           <div
             className={`sticky top-0 w-full flex flex-col gap-6 p-6 bg-background/80 ${showControls || !playing ? "" : "-translate-y-full"} transition`}
@@ -664,70 +665,69 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                   <VisuallyHidden>
                     <DialogTitle>Playback Settings</DialogTitle>
                   </VisuallyHidden>
-                  {/*{videoOptions.length > 0 && (*/}
-                  {/*  <>*/}
-                  {/*    <Label>Video</Label>*/}
-                  {/*    <Select*/}
-                  {/*      value={quality.bitrate?.toString()}*/}
-                  {/*      defaultValue={quality.bitrate?.toString()}*/}
-                  {/*      onValueChange={async (bitrate) => {*/}
-                  {/*        await loadMetadata(watch);*/}
-                  {/*        await ServerApi.decision({*/}
-                  {/*          id: watch,*/}
-                  {/*          limitation: {*/}
-                  {/*            maxVideoBitrate: parseInt(bitrate),*/}
-                  {/*            autoAdjustQuality: quality.auto,*/}
-                  {/*          },*/}
-                  {/*        });*/}
+                  {videoOptions.length > 0 && (
+                    <>
+                      <Label>Video</Label>
+                      <Select
+                        value={quality.bitrate?.toString()}
+                        defaultValue={quality.bitrate?.toString()}
+                        onValueChange={async (bitrate) => {
+                          const selected = videoOptions.find(
+                            (q) => q.bitrate?.toString() === bitrate,
+                          )!;
 
-                  {/*        const selected = videoOptions.find(*/}
-                  {/*          (q) => q.bitrate?.toString() === bitrate,*/}
-                  {/*        )!;*/}
-                  {/*        setQuality({*/}
-                  {/*          bitrate: selected.original*/}
-                  {/*            ? undefined*/}
-                  {/*            : selected.bitrate,*/}
-                  {/*          auto: undefined,*/}
-                  {/*        });*/}
+                          await loadMetadata(watch);
+                          await ServerApi.decision({
+                            id: watch,
+                            limitation: {
+                              maxVideoBitrate: selected.bitrate,
+                              autoAdjustQuality: quality.auto,
+                            },
+                          });
 
-                  {/*        if (selected.original) {*/}
-                  {/*          localStorage.removeItem("quality");*/}
-                  {/*        } else if (selected.bitrate) {*/}
-                  {/*          localStorage.setItem(*/}
-                  {/*            "quality",*/}
-                  {/*            selected.bitrate.toString(),*/}
-                  {/*          );*/}
-                  {/*        }*/}
+                          setQuality({
+                            bitrate: selected.original
+                              ? undefined
+                              : selected.bitrate,
+                            auto: undefined,
+                          });
 
-                  {/*        const progress =*/}
-                  {/*          player.current?.getCurrentTime() ?? 0;*/}
+                          if (selected.original) {
+                            localStorage.removeItem("quality");
+                          } else if (selected.bitrate) {
+                            localStorage.setItem(
+                              "quality",
+                              selected.bitrate.toString(),
+                            );
+                          }
 
-                  {/*        if (!seekToAfterLoad.current) {*/}
-                  {/*          seekToAfterLoad.current = progress;*/}
-                  {/*        }*/}
-                  {/*        setUrl("");*/}
-                  {/*        setTimeout(() => {*/}
-                  {/*          setUrl(loaded());*/}
-                  {/*        }, 500);*/}
-                  {/*      }}*/}
-                  {/*    >*/}
-                  {/*      <SelectTrigger className="w-full">*/}
-                  {/*        <SelectValue placeholder="Choose a video quality" />*/}
-                  {/*      </SelectTrigger>*/}
-                  {/*      <SelectContent>*/}
-                  {/*        {videoOptions.map((option) => (*/}
-                  {/*          <SelectItem*/}
-                  {/*            value={option.bitrate!.toString()}*/}
-                  {/*            key={option.bitrate!}*/}
-                  {/*          >*/}
-                  {/*            {option.title}{" "}*/}
-                  {/*            <span className="font-bold">{option.extra}</span>*/}
-                  {/*          </SelectItem>*/}
-                  {/*        ))}*/}
-                  {/*      </SelectContent>*/}
-                  {/*    </Select>*/}
-                  {/*  </>*/}
-                  {/*)}*/}
+                          const progress =
+                            player.current?.getCurrentTime() ?? 0;
+
+                          if (!seekToAfterLoad.current) {
+                            seekToAfterLoad.current = progress;
+                          }
+                          setUrl("");
+                          setNextUrl(loaded());
+                        }}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Choose a video quality" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {videoOptions.map((option) => (
+                            <SelectItem
+                              value={option.bitrate!.toString()}
+                              key={option.bitrate!}
+                            >
+                              {option.title}{" "}
+                              <span className="font-bold">{option.extra}</span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </>
+                  )}
                   {audioOptions.length > 0 && (
                     <>
                       <Label>Audio</Label>
@@ -765,9 +765,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                             seekToAfterLoad.current = progress;
                           }
                           setUrl("");
-                          setTimeout(() => {
-                            setUrl(loaded());
-                          }, 500);
+                          setNextUrl(loaded());
                         }}
                       >
                         <SelectTrigger className="w-full">
@@ -822,10 +820,9 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                           if (!seekToAfterLoad.current) {
                             seekToAfterLoad.current = progress;
                           }
+
                           setUrl("");
-                          setTimeout(() => {
-                            setUrl(loaded());
-                          }, 500);
+                          setNextUrl(loaded());
                         }}
                       >
                         <SelectTrigger className="w-full">
@@ -922,13 +919,20 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
               onClick={() => {
                 setPendingRefresh(true);
                 setTimeout(() => {
+                  let t: string | number | null = searchParams.get("t");
+                  if (t === null || parseInt(t) === 0) {
+                    t = Math.floor(progress) * 1000;
+                  }
                   router.replace(
-                    `${pathname}?watch=${watch}&t=${Math.floor(progress) * 1000}`,
+                    `${pathname}?watch=${watch}${t ? `&t=${t}` : ""}`,
+                    {
+                      scroll: false,
+                    },
                   );
                   setTimeout(() => {
                     window.location.reload();
-                  }, 100);
-                  setPendingRefresh(false);
+                    setPendingRefresh(false);
+                  }, 250);
                 }, 2500);
               }}
               disabled={pendingRefresh}
