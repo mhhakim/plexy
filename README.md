@@ -11,7 +11,7 @@ So the major differences between this new one I'm working on and PerPlexed are:
 
 I'm currently working on implementing:
 1. The calls for **Mark as Watched** & **Mark as Unwatched** needs to be finished (the option is not available everywhere)
-2. The link & page for whatever section (all the header title of the sliders are currently not clickable)
+2. Other features are not implemented yet
 
 ![Plexy UI](https://i.imgur.com/7vOadQ4.png)
 
