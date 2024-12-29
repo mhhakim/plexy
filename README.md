@@ -31,4 +31,4 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## WIP
 
-This project was started recently and is a WIP (work in progress), thus you might find but in the application or interfaces that are not polished. If you find anything let me know via a github issue.
+This project was started recently and is a WIP (work in progress), thus you might find but in the application or interfaces that are not polished. If you find anything let me know via a GitHub issue.
