@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1fe09ec0-188b-4e83-b5dc-c24c5f216ee0" name="Changes" comment="feat: update meta screen" />
+    <list default="true" id="1fe09ec0-188b-4e83-b5dc-c24c5f216ee0" name="Changes" comment="feat: update meta screen">
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -91,7 +93,7 @@
       <workItem from="1735102219763" duration="41175000" />
       <workItem from="1735324641570" duration="21602000" />
       <workItem from="1735404670283" duration="26321000" />
-      <workItem from="1735449286564" duration="2501000" />
+      <workItem from="1735449286564" duration="2865000" />
     </task>
     <task id="LOCAL-00001" summary="feat: update meta screen">
       <option name="closed" value="true" />
