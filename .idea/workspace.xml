@@ -6,7 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="1fe09ec0-188b-4e83-b5dc-c24c5f216ee0" name="Changes" comment="feat: update meta screen">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/screens/watch-screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/screens/watch-screen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/api/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/page.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,7 +30,7 @@
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "feat/video-quality",
+    "git-widget-placeholder": "fix/hero-loading",
     "last_opened_file_path": "/Users/rico/Documents/Personal/plexy-ui/app/browse/[key]/all",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.standard": "true",
