@@ -5,19 +5,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1fe09ec0-188b-4e83-b5dc-c24c5f216ee0" name="Changes" comment="feat: update meta screen">
+      <change afterPath="$PROJECT_DIR$/app/browse/[key]/collections/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/browse/[key]/library/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/cards/collection-view.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/api/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/browse/[key]/hub.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/browse/[key]/hub.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/slider.scss" beforeDir="false" afterPath="$PROJECT_DIR$/app/slider.scss" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/auth-provider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/auth-provider.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/hub-slider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/hub-slider.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/browse/[key]/hub.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/browse/[key]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/browse/[key]/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/cards/season-view.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/cards/season-view.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/cards/video-view.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/cards/video-view.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/providers.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/providers.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/screens/library-screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/screens/library-screen.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/slider/slider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/slider/slider.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/slider/use-sliding.ts" beforeDir="false" afterPath="$PROJECT_DIR$/components/slider/use-sliding.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hooks/use-is-size.ts" beforeDir="false" afterPath="$PROJECT_DIR$/hooks/use-is-size.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ui/toggle.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/ui/toggle.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,7 +43,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "/Users/rico/Documents/Personal/plexy-ui/public",
+    "last_opened_file_path": "/Users/rico/Documents/Personal/plexy-ui/app/browse/[key]/all",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.standard": "true",
     "node.js.detected.package.tslint": "true",
@@ -57,9 +59,11 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/app/browse/[key]/all" />
+      <recent name="$PROJECT_DIR$/components/cards" />
+      <recent name="$PROJECT_DIR$/app/browse/[key]" />
       <recent name="$PROJECT_DIR$/public" />
       <recent name="$PROJECT_DIR$/app" />
-      <recent name="$PROJECT_DIR$" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/components/screens" />
@@ -102,7 +106,7 @@
       <workItem from="1734678854301" duration="149394000" />
       <workItem from="1735102219763" duration="41175000" />
       <workItem from="1735324641570" duration="21602000" />
-      <workItem from="1735404670283" duration="7277000" />
+      <workItem from="1735404670283" duration="24910000" />
     </task>
     <task id="LOCAL-00001" summary="feat: update meta screen">
       <option name="closed" value="true" />

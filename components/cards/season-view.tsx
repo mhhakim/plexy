@@ -10,7 +10,7 @@ export const SeasonView: FC<{ season: Plex.Child }> = ({ season }) => {
 
   return (
     <button
-      className="relative text-left hover:outline outline-plex rounded bg-secondary/40"
+      className="relative text-left hover:outline outline-plex overflow-hidden rounded bg-secondary/40"
       onClick={() => {
         router.push(`${pathname}?mid=${season.ratingKey}`, { scroll: false });
       }}

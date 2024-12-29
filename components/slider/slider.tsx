@@ -135,9 +135,7 @@ export const Slider: FC<{
               <ContextMenu key={i}>
                 <ContextMenuTrigger asChild>
                   <div
-                    className={
-                      "item group overflow-x-hidden rounded relative h-full bg-[rgb(21,21,23)] flex flex-col"
-                    }
+                    className="item group overflow-x-hidden rounded relative h-full bg-[rgb(21,21,23)] flex flex-col"
                     {...{ "data-first": isFirst(i), "data-last": isLast(i) }}
                     ref={elementRef}
                   >

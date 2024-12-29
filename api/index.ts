@@ -1,5 +1,5 @@
 import { PLEX } from "@/constants";
-import axios from "axios";
+import axios, { Canceler } from "axios";
 import _ from "lodash";
 import qs from "qs";
 
@@ -737,6 +737,95 @@ export class ServerApi {
       )
       .then((res) => {
         return res.data?.MediaContainer?.Hub ?? null;
+      })
+      .catch((err) => {
+        console.log(err);
+        return null;
+      });
+  }
+  static async all({
+    id,
+    start,
+    size,
+    canceler,
+  }: {
+    id: string;
+    start: number;
+    size: number;
+    canceler: (c: Canceler) => void;
+  }) {
+    return await axios
+      .get<{
+        MediaContainer: { Metadata: Plex.Metadata[]; totalSize: number };
+      }>(
+        `${localStorage.getItem("server")}/library/sections/${id}/all?${qs.stringify(
+          {
+            includeMeta: 1,
+            includeExternalMetadata: 1,
+            includeLibraryPlaylists: 1,
+            includeRecentChannels: 1,
+            includeCollections: 1,
+            excludeContinueWatching: 1,
+            includeAdvanced: 1,
+            sort: "titleSort",
+            "X-Plex-Container-Start": start,
+            "X-Plex-Container-Size": size,
+            ...includes,
+            ...xprops(),
+          },
+        )}`,
+        {
+          headers: {
+            "X-Plex-Token": localStorage.getItem("token") as string,
+            accept: "application/json",
+          },
+          cancelToken: new axios.CancelToken(canceler),
+        },
+      )
+      .then((res) => {
+        if (
+          res.data?.MediaContainer?.totalSize &&
+          res.data?.MediaContainer?.Metadata
+        ) {
+          return {
+            results: res.data.MediaContainer.Metadata,
+            total: res.data.MediaContainer.totalSize,
+          };
+        }
+        return null;
+      })
+      .catch((err) => {
+        console.log(err);
+        return null;
+      });
+  }
+  static async collections({ id }: { id: string }) {
+    return await axios
+      .get<{ MediaContainer: { Metadata: Plex.Metadata[] } }>(
+        `${localStorage.getItem("server")}/library/sections/${id}/collections?${qs.stringify(
+          {
+            includeMeta: 1,
+            excludeFields: "summary",
+            includeExternalMetadata: 1,
+            count: 20,
+            includeLibraryPlaylists: 1,
+            includeRecentChannels: 1,
+            includeCollections: 1,
+            excludeContinueWatching: 1,
+            includeAdvanced: 1,
+            ...includes,
+            ...xprops(),
+          },
+        )}`,
+        {
+          headers: {
+            "X-Plex-Token": localStorage.getItem("token") as string,
+            accept: "application/json",
+          },
+        },
+      )
+      .then((res) => {
+        return res.data?.MediaContainer?.Metadata ?? null;
       })
       .catch((err) => {
         console.log(err);

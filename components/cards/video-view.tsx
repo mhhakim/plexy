@@ -1,4 +1,4 @@
-import { FC, useMemo } from "react";
+import { FC, forwardRef, RefObject, useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { VideoItemInterface } from "@/type";
 import { Progress } from "@/components/ui/progress";
@@ -13,7 +13,12 @@ import {
 } from "@/components/ui/context-menu";
 import { Circle, CircleCheck, Info, Pencil, Play } from "lucide-react";
 
-export const VideoView: FC<{ item: VideoItemInterface }> = ({ item }) => {
+export const VideoView = forwardRef<
+  HTMLButtonElement,
+  {
+    item: VideoItemInterface;
+  }
+>(({ item }, ref) => {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -88,6 +93,7 @@ export const VideoView: FC<{ item: VideoItemInterface }> = ({ item }) => {
     <ContextMenu>
       <ContextMenuTrigger asChild>
         <button
+          ref={ref}
           className="group rounded w-full h-full flex flex-col hover:outline outline-plex"
           type="button"
           onClick={(e) => {
@@ -214,4 +220,4 @@ export const VideoView: FC<{ item: VideoItemInterface }> = ({ item }) => {
       </ContextMenuContent>
     </ContextMenu>
   );
-};
+});

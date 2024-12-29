@@ -15,7 +15,8 @@ export const LibraryScreen: FC<{
   keypath: string | undefined;
   title: string | undefined;
   contentDirectoryID: string | undefined;
-}> = ({ keypath: key, title, contentDirectoryID }) => {
+  full: boolean;
+}> = ({ keypath: key, title, contentDirectoryID, full }) => {
   const router = useRouter();
   const pathname = usePathname();
   const [metadata, setMetadata] = useState<Plex.Metadata[]>([]);
@@ -52,7 +53,11 @@ export const LibraryScreen: FC<{
           setMetadata([]);
           return;
         }
-        setMetadata(res.data.MediaContainer.Metadata.slice(0, 50));
+        if (full) {
+          setMetadata(res.data.MediaContainer.Metadata);
+        } else {
+          setMetadata(res.data.MediaContainer.Metadata.slice(0, 50));
+        }
       })
       .catch((err) => {
         console.error(err);

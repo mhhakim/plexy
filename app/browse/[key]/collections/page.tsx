@@ -1,12 +1,12 @@
 "use client";
 
-import { ServerApi } from "@/api";
-import { useParams, usePathname, useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import { ServerApi } from "@/api";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useEffect, useState } from "react";
-import { Hero } from "@/components/hero";
-import { HubSlider } from "@/components/hub-slider";
+import { CollectionView } from "@/components/cards/collection-view";
+import qs from "qs";
 
 type SelectedType = "recommended" | "collections" | "library";
 
@@ -19,43 +19,20 @@ export default function Page() {
       return await ServerApi.details({ key: params.key, include: true });
     },
   });
-  const [featured, setFeatured] = useState<Plex.Metadata | null>(null);
-  const [hubs, setHubs] = useState<Plex.Hub[]>([]);
 
-  const updateHubs = () => {
-    ServerApi.hubs({
-      id: params.key,
-    }).then((res) => {
-      if (!res) return;
-      if (res.length === 0) return;
-      setHubs(res.filter((hub) => hub.Metadata && hub.Metadata.length > 0));
-    });
-  };
+  const [collections, setCollections] = useState<Plex.Metadata[]>([]);
 
   useEffect(() => {
-    setFeatured(null);
-    setHubs([]);
+    setCollections([]);
 
-    ServerApi.random({ dir: params.key }).then((res) => {
-      if (!res) return;
-      setFeatured(res);
-    });
-
-    ServerApi.hubs({
+    ServerApi.collections({
       id: params.key,
     }).then((res) => {
       if (!res) return;
       if (res.length === 0) return;
-      setHubs(res.filter((hub) => hub.Metadata && hub.Metadata.length > 0));
+      setCollections(res);
     });
   }, [params.key]);
-
-  useEffect(() => {
-    window.addEventListener("popstate", updateHubs);
-    return () => {
-      window.removeEventListener("popstate", updateHubs);
-    };
-  }, []);
 
   if (!library.data) {
     return null;
@@ -64,30 +41,42 @@ export default function Page() {
   const type = library.data.Type[0].type;
 
   if (type === "show" || type === "movie") {
+    const token = localStorage.getItem("token");
     return (
       <>
-        <div className="w-full flex flex-col items-start justify-start">
-          {featured && <Hero item={featured} />}
-          <div
-            className={`flex flex-col items-start justify-start w-full z-10 ${featured ? "-mt-20" : "mt-36"}`}
-          >
-            {hubs.map((item, i) => (
-              <HubSlider
-                key={`${item.key}-${i}`}
-                id={params.key}
-                hub={item}
-                onUpdate={() => updateHubs()}
-              />
-            ))}
+        <div className="w-full absolute top-16">
+          <div className="max-w-screen-2xl p-20 mx-auto flex flex-col gap-10">
+            <p className="font-bold text-5xl">Collections</p>
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+              {collections.map((item, i) => (
+                <CollectionView
+                  key={i}
+                  collection={{
+                    ...item,
+                    contentRating: item.contentRating ?? "",
+                    image: `${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
+                      {
+                        width: 300 * 2,
+                        height: 170 * 2,
+                        url: `${item.thumb}?X-Plex-Token=${token}`,
+                        minSize: 1,
+                        upscale: 1,
+                        "X-Plex-Token": token,
+                      },
+                    )}`,
+                  }}
+                />
+              ))}
+            </div>
           </div>
         </div>
         <div className="absolute right-0 top-16 p-4">
           <ToggleGroup
             type="single"
-            value="recommended"
+            value="collections"
             onValueChange={(value: SelectedType) => {
-              if (value === "collections") {
-                router.push(`/browse/${params.key}/collections`);
+              if (value === "recommended") {
+                router.push(`/browse/${params.key}`);
               } else if (value === "library") {
                 router.push(`/browse/${params.key}/library`);
               }
