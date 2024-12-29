@@ -120,12 +120,16 @@ export const streamprops = ({
     subtitles: "burn",
     "Accept-Language": "en",
     ...xprops(),
-    ...(limitation.autoAdjustQuality && {
-      autoAdjustQuality: limitation.autoAdjustQuality ? 1 : 0,
-    }),
-    ...(limitation.maxVideoBitrate && {
-      maxVideoBitrate: limitation.maxVideoBitrate,
-    }),
+    ...(limitation.autoAdjustQuality
+      ? {
+          autoAdjustQuality: limitation.autoAdjustQuality ? 1 : 0,
+        }
+      : {}),
+    ...(limitation.maxVideoBitrate
+      ? {
+          maxVideoBitrate: limitation.maxVideoBitrate,
+        }
+      : {}),
   };
 };
 
@@ -541,7 +545,14 @@ export class ServerApi {
   }) {
     return await axios
       .get(
-        `${localStorage.getItem("server")}/video/:/transcode/universal/decision?${qs.stringify(streamprops({ id, limitation }))}}`,
+        `${localStorage.getItem("server")}/video/:/transcode/universal/decision?${qs.stringify(
+          {
+            ...streamprops({
+              id,
+              limitation,
+            }),
+          },
+        )}`,
         {
           headers: {
             "X-Plex-Token": localStorage.getItem("token") as string,
