@@ -89,6 +89,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
   const [pendingRefresh, setPendingRefresh] = useState(false);
   const [url, setUrl] = useState<string>("");
   const [nextUrl, setNextUrl] = useState<string>("");
+  const [isLoadingMetadata, setIsLoadingMetadata] = useState<boolean>(false);
 
   useEffect(() => {
     if (!url && !!nextUrl) {
@@ -114,6 +115,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
     )}`;
 
   const loadMetadata = async (id: string) => {
+    setIsLoadingMetadata(true);
     await ServerApi.decision({
       id,
       limitation: {
@@ -153,6 +155,8 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
         setPlayQueue(queue);
       });
     }
+
+    setIsLoadingMetadata(false);
   };
 
   useEffect(() => {
@@ -436,7 +440,8 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                   if (
                     (err.error.message.includes("/header") ||
                       err.error.message.includes(".m4s")) &&
-                    err.error.message.includes("is not available")
+                    err.error.message.includes("is not available") &&
+                    !isLoadingMetadata
                   ) {
                     setShowError(true);
                   }
@@ -677,6 +682,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                           )!;
 
                           await loadMetadata(watch);
+                          setIsLoadingMetadata(true);
                           await ServerApi.decision({
                             id: watch,
                             limitation: {
@@ -684,6 +690,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                               autoAdjustQuality: quality.auto,
                             },
                           });
+                          setIsLoadingMetadata(false);
 
                           setQuality({
                             bitrate: selected.original

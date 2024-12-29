@@ -6,8 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="1fe09ec0-188b-4e83-b5dc-c24c5f216ee0" name="Changes" comment="feat: update meta screen">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/api/index.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/screens/watch-screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/screens/watch-screen.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -96,7 +94,7 @@
       <workItem from="1735102219763" duration="41175000" />
       <workItem from="1735324641570" duration="21602000" />
       <workItem from="1735404670283" duration="26321000" />
-      <workItem from="1735449286564" duration="13983000" />
+      <workItem from="1735449286564" duration="14849000" />
     </task>
     <task id="LOCAL-00001" summary="feat: update meta screen">
       <option name="closed" value="true" />
