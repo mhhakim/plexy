@@ -664,70 +664,70 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                   <VisuallyHidden>
                     <DialogTitle>Playback Settings</DialogTitle>
                   </VisuallyHidden>
-                  {videoOptions.length > 0 && (
-                    <>
-                      <Label>Video</Label>
-                      <Select
-                        value={quality.bitrate?.toString()}
-                        defaultValue={quality.bitrate?.toString()}
-                        onValueChange={async (bitrate) => {
-                          await loadMetadata(watch);
-                          await ServerApi.decision({
-                            id: watch,
-                            limitation: {
-                              maxVideoBitrate: parseInt(bitrate),
-                              autoAdjustQuality: quality.auto,
-                            },
-                          });
+                  {/*{videoOptions.length > 0 && (*/}
+                  {/*  <>*/}
+                  {/*    <Label>Video</Label>*/}
+                  {/*    <Select*/}
+                  {/*      value={quality.bitrate?.toString()}*/}
+                  {/*      defaultValue={quality.bitrate?.toString()}*/}
+                  {/*      onValueChange={async (bitrate) => {*/}
+                  {/*        await loadMetadata(watch);*/}
+                  {/*        await ServerApi.decision({*/}
+                  {/*          id: watch,*/}
+                  {/*          limitation: {*/}
+                  {/*            maxVideoBitrate: parseInt(bitrate),*/}
+                  {/*            autoAdjustQuality: quality.auto,*/}
+                  {/*          },*/}
+                  {/*        });*/}
 
-                          const selected = videoOptions.find(
-                            (q) => q.bitrate?.toString() === bitrate,
-                          )!;
-                          setQuality({
-                            bitrate: selected.original
-                              ? undefined
-                              : selected.bitrate,
-                            auto: undefined,
-                          });
+                  {/*        const selected = videoOptions.find(*/}
+                  {/*          (q) => q.bitrate?.toString() === bitrate,*/}
+                  {/*        )!;*/}
+                  {/*        setQuality({*/}
+                  {/*          bitrate: selected.original*/}
+                  {/*            ? undefined*/}
+                  {/*            : selected.bitrate,*/}
+                  {/*          auto: undefined,*/}
+                  {/*        });*/}
 
-                          if (selected.original) {
-                            localStorage.removeItem("quality");
-                          } else if (selected.bitrate) {
-                            localStorage.setItem(
-                              "quality",
-                              selected.bitrate.toString(),
-                            );
-                          }
+                  {/*        if (selected.original) {*/}
+                  {/*          localStorage.removeItem("quality");*/}
+                  {/*        } else if (selected.bitrate) {*/}
+                  {/*          localStorage.setItem(*/}
+                  {/*            "quality",*/}
+                  {/*            selected.bitrate.toString(),*/}
+                  {/*          );*/}
+                  {/*        }*/}
 
-                          const progress =
-                            player.current?.getCurrentTime() ?? 0;
+                  {/*        const progress =*/}
+                  {/*          player.current?.getCurrentTime() ?? 0;*/}
 
-                          if (!seekToAfterLoad.current) {
-                            seekToAfterLoad.current = progress;
-                          }
-                          setUrl("");
-                          setTimeout(() => {
-                            setUrl(loaded());
-                          }, 500);
-                        }}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Choose a video quality" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {videoOptions.map((option) => (
-                            <SelectItem
-                              value={option.bitrate!.toString()}
-                              key={option.bitrate!}
-                            >
-                              {option.title}{" "}
-                              <span className="font-bold">{option.extra}</span>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </>
-                  )}
+                  {/*        if (!seekToAfterLoad.current) {*/}
+                  {/*          seekToAfterLoad.current = progress;*/}
+                  {/*        }*/}
+                  {/*        setUrl("");*/}
+                  {/*        setTimeout(() => {*/}
+                  {/*          setUrl(loaded());*/}
+                  {/*        }, 500);*/}
+                  {/*      }}*/}
+                  {/*    >*/}
+                  {/*      <SelectTrigger className="w-full">*/}
+                  {/*        <SelectValue placeholder="Choose a video quality" />*/}
+                  {/*      </SelectTrigger>*/}
+                  {/*      <SelectContent>*/}
+                  {/*        {videoOptions.map((option) => (*/}
+                  {/*          <SelectItem*/}
+                  {/*            value={option.bitrate!.toString()}*/}
+                  {/*            key={option.bitrate!}*/}
+                  {/*          >*/}
+                  {/*            {option.title}{" "}*/}
+                  {/*            <span className="font-bold">{option.extra}</span>*/}
+                  {/*          </SelectItem>*/}
+                  {/*        ))}*/}
+                  {/*      </SelectContent>*/}
+                  {/*    </Select>*/}
+                  {/*  </>*/}
+                  {/*)}*/}
                   {audioOptions.length > 0 && (
                     <>
                       <Label>Audio</Label>
