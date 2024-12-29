@@ -6,7 +6,6 @@ import { Hero } from "@/components/hero";
 import _ from "lodash";
 import { HubSlider } from "@/components/hub-slider";
 import { useLibraries } from "@/components/auth-provider";
-import { useSearchParams } from "next/navigation";
 
 export default function Home() {
   const [item, setItem] = useState<Plex.Metadata | null>(null);
@@ -43,10 +42,9 @@ export default function Home() {
   useEffect(() => {
     setIsLoading(true);
     const dirs = libraries.map((a) => a.key);
-    const randomDir = _.sample(dirs);
     (async () => {
-      if (randomDir) {
-        const item = await ServerApi.random({ dir: randomDir });
+      if (dirs.length > 0) {
+        const item = await ServerApi.random({ dir: dirs });
         setItem(item);
       }
       ServerApi.continue({ dirs }).then((res) => {
