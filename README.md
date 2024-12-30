@@ -19,6 +19,8 @@ The application is deployed on vercel and can be viewed for here https://plexy-e
 
 ## Getting Started
 
+### Development
+
 ```bash
 pnpm install
 ```
@@ -28,6 +30,21 @@ pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+### Docker
+
+You can run the application using Docker:
+
+```bash
+# Clone the project
+git clone https://github.com/ricoloic/plexy.git
+
+# Build the image
+docker compose up -d #If using compose v1 use docker-compose up -d
+
+```
+
+The application will be available at [http://localhost:3000](http://localhost:3000).
 
 ## WIP
 
