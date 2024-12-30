@@ -17,7 +17,7 @@ const includes = {
   includeStations: 1,
 };
 
-export const version = () => {
+const version = () => {
   const userAgent = navigator.userAgent;
   let browserVersion = "Unknown";
 
@@ -47,7 +47,7 @@ export const version = () => {
   return browserVersion;
 };
 
-export const browser = () => {
+const browser = () => {
   const userAgent = navigator.userAgent;
   let browserName = "Unknown";
 
@@ -111,7 +111,6 @@ export const streamprops = ({
     protocol: "dash",
     fastSeek: 1,
     directPlay: 0,
-    hasMDE: 1,
     directStream: 1,
     subtitleSize: 100,
     audioBoost: 200,
@@ -153,23 +152,52 @@ export class Api {
       `https://plex.tv/api/v2/pins/${props.pin}?X-Plex-Client-Identifier=${props.uuid}`,
     );
   }
+  static async resources({ token }: { token: string }) {
+    return axios.get(`https://plex.tv/api/resources?X-Plex-Token=${token}`);
+  }
   static async servers() {
-    return axios.get<Plex.Resource[]>(
+    return axios.get<
+      {
+        name: string;
+        product: string;
+        productVersion: string;
+        platform: string;
+        platformVersion: string;
+        device: string;
+        clientIdentifier: string;
+        createdAt: string;
+        lastSeenAt: string;
+        provides: string;
+        ownerId: any;
+        sourceTitle: any;
+        publicAddress: string;
+        accessToken: string;
+        owned: boolean;
+        home: boolean;
+        synced: boolean;
+        relay: boolean;
+        presence: boolean;
+        httpsRequired: boolean;
+        publicAddressMatches: boolean;
+        dnsRebindingProtection: boolean;
+        natLoopbackSupported: boolean;
+        connections: {
+          protocol: string;
+          address: string;
+          port: number;
+          uri: string;
+          local: boolean;
+          relay: boolean;
+          IPv6: boolean;
+        }[];
+      }[]
+    >(
       `https://clients.plex.tv/api/v2/resources?${qs.stringify({
         includeHttps: 1,
         includeRelay: 1,
         includeIPv6: 1,
         ...xprops(),
       })}`,
-    );
-  }
-  static async accepted() {
-    return axios.get<Plex.Accepted[]>(
-      `https://clients.plex.tv/api/v2/shared_servers/received/accepted?${qs.stringify(
-        {
-          ...xprops(),
-        },
-      )}`,
     );
   }
   static async user({ token, uuid }: { token: string; uuid: string }) {
