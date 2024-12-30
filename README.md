@@ -2,7 +2,7 @@
 
 Plexy is an alternative web UI for the Plex app, designed to provide a user experience similar to Netflix. This project was inspired by [PerPlexed](https://github.com/Ipmake/PerPlexed), without which Plexy would not have been possible.
 
-![plexy demo gif](https://raw.githubusercontent.com/ricoloic/plexy/main/demo.gif)
+![plexy demo image](https://raw.githubusercontent.com/ricoloic/plexy/main/demo.png)
 
 ## Getting Started
 
