@@ -1,17 +1,29 @@
-FROM node:20-bookworm-slim as builder
+ARG NODE_VERSION=20
 
-WORKDIR /app
+FROM node:${NODE_VERSION}-alpine AS base
 
-COPY package*.json ./
-COPY pnpm-lock.yaml ./
-
-# Install the app dependencies
 RUN npm install -g pnpm
-RUN pnpm install
+
+WORKDIR /usr/src/app
+
+FROM base AS build
+
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 
 COPY . .
-
 RUN pnpm run build
+
+FROM base AS final
+
+WORKDIR /usr/src/app
+
+ENV NODE_ENV=production
+
+COPY package.json .
+
+COPY --from=build /usr/src/app/node_modules ./node_modules
+COPY --from=build /usr/src/app/. ./.
 
 EXPOSE 3000
 
