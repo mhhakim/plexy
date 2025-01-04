@@ -8,7 +8,8 @@ export const HubSlider: FC<{
   hub: Plex.Hub;
   onUpdate: () => void;
   id?: string | undefined;
-}> = ({ id = undefined, hub, onUpdate }) => {
+  onDeck?: boolean;
+}> = ({ id = undefined, hub, onUpdate, onDeck = false }) => {
   const router = useRouter();
   const pathname = usePathname();
   const token = localStorage.getItem("token");
@@ -36,6 +37,7 @@ export const HubSlider: FC<{
       </button>
       {hub.Metadata && (
         <Slider
+          onDeck={onDeck}
           onUpdate={onUpdate}
           items={hub.Metadata.map((item) => ({
             ...item,

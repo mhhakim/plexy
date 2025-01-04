@@ -35,6 +35,10 @@ export const useSliding = (countElements: number) => {
     -viewed * (Math.ceil(elementRef.current?.clientWidth ?? 0) + 10) < 0;
   const hasNext = viewed + totalInViewport < countElements;
 
+  const reset = () => {
+    setViewed(0);
+  };
+
   return {
     handlePrev,
     handleNext,
@@ -43,5 +47,6 @@ export const useSliding = (countElements: number) => {
     hasPrev,
     hasNext,
     elementRef,
+    reset,
   };
 };

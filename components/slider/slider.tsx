@@ -26,7 +26,8 @@ import { Progress } from "@/components/ui/progress";
 export const Slider: FC<{
   items: VideoItemInterface[];
   onUpdate: (item: VideoItemInterface) => void;
-}> = ({ items, onUpdate }) => {
+  onDeck?: boolean;
+}> = ({ items, onUpdate, onDeck = false }) => {
   const {
     handlePrev,
     handleNext,
@@ -35,6 +36,7 @@ export const Slider: FC<{
     hasNext,
     hasPrev,
     elementRef,
+    reset,
   } = useSliding(items.length);
   const { isTiny, isMobile, isTablet, isDesktop } = useIsSize();
   const router = useRouter();
@@ -237,7 +239,10 @@ export const Slider: FC<{
                       className="w-full"
                       onClick={() => {
                         ServerApi.scrobble({ key: mid }).then((success) => {
-                          if (success) onUpdate(item);
+                          if (success) {
+                            onUpdate(item);
+                            reset();
+                          }
                         });
                       }}
                     >
@@ -251,7 +256,10 @@ export const Slider: FC<{
                       className="w-full"
                       onClick={() => {
                         ServerApi.unscrobble({ key: mid }).then((success) => {
-                          if (success) onUpdate(item);
+                          if (success) {
+                            onUpdate(item);
+                            reset();
+                          }
                         });
                       }}
                     >
