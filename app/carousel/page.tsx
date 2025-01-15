@@ -1,11 +1,9 @@
 "use client";
 
 import { ServerApi } from "@/api";
-import { useParams, usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
-import { Hero } from "@/components/hero";
 import { HubSlider } from "@/components/hub-slider";
 import { useLibraries } from "@/components/auth-provider";
 
@@ -28,12 +26,26 @@ const CarouselItemHover: FC<{
   open: boolean;
   top: number;
   left: number;
+  right: number;
   width: number;
   height: number;
   item: VideoItemInterface;
   onLeave: () => void;
   duration: number;
-}> = ({ open, item, onLeave, duration, width, height, top, left }) => {
+  isFirst: boolean;
+  isLast: boolean;
+}> = ({
+  open,
+  item,
+  onLeave,
+  duration,
+  width,
+  height,
+  top,
+  left,
+  isFirst,
+  isLast,
+}) => {
   const hoverRef = useRef<HTMLDivElement>(null);
   const [current, setCurrent] = useState({
     width,
@@ -46,32 +58,35 @@ const CarouselItemHover: FC<{
   useEffect(() => {
     if (!hoverRef.current) return;
 
-    // let timer: NodeJS.Timeout;
-
-    const leave = () => {
-      // timer = setTimeout(() => {
-      onLeave();
-      // }, duration);
-    };
-    const enter = () => {
-      // clearTimeout(timer);
-    };
-
-    hoverRef.current.addEventListener("mouseleave", leave);
-    hoverRef.current.addEventListener("mouseenter", enter);
+    hoverRef.current.addEventListener("mouseleave", onLeave);
     return () => {
-      hoverRef.current?.removeEventListener("mouseleave", leave);
-      hoverRef.current?.removeEventListener("mouseenter", enter);
+      hoverRef.current?.removeEventListener("mouseleave", onLeave);
     };
   }, [hoverRef.current]);
 
   useEffect(() => {
+    const getLeft = () => {
+      if (isFirst && isLast) {
+        return left - width * 0.15;
+      }
+
+      if (isFirst) {
+        return left;
+      }
+
+      if (isLast) {
+        return left - width * 0.3;
+      }
+
+      return left - width * 0.15;
+    };
+
     const target = open
       ? {
           width: width * 1.3,
           height: height * 1.3,
           top: top - height * 0.15,
-          left: left - width * 0.15,
+          left: getLeft(),
           visible: true,
         }
       : { width, height, top, left, visible: false };
@@ -109,6 +124,8 @@ const CarouselItemHover: FC<{
   }, [open, width, height, top, left]);
 
   if (!current.visible) return null;
+
+  console.log(isLast);
 
   return createPortal(
     <div
@@ -154,7 +171,9 @@ const CarouselItem: FC<{
   size: number;
   item: VideoItemInterface;
   mr: number;
-}> = ({ size, item, mr }) => {
+  isFirst: boolean;
+  isLast: boolean;
+}> = ({ size, item, mr, isFirst, isLast }) => {
   const router = useRouter();
   const pathname = usePathname();
   const itemRef = useRef<HTMLDivElement>(null);
@@ -162,6 +181,7 @@ const CarouselItem: FC<{
   const [origin, setOrigin] = useState({
     top: 0,
     left: 0,
+    right: 0,
     width: 0,
     height: 0,
   });
@@ -178,7 +198,8 @@ const CarouselItem: FC<{
         const height = itemRef.current.offsetHeight;
         const top = itemRef.current.getBoundingClientRect().top;
         const left = itemRef.current.getBoundingClientRect().left;
-        setOrigin({ top, left, width, height });
+        const right = itemRef.current.getBoundingClientRect().right;
+        setOrigin({ top, left, right, width, height });
       }
 
       timer = setTimeout(() => {
@@ -225,13 +246,14 @@ const CarouselItem: FC<{
           open={hover}
           item={item}
           left={origin.left}
+          right={origin.right}
           top={origin.top}
           width={origin.width}
           height={origin.height}
           duration={d}
-          onLeave={() => {
-            setHover(false);
-          }}
+          onLeave={() => setHover(false)}
+          isFirst={isFirst}
+          isLast={isLast}
         />
       )}
       <button
@@ -474,7 +496,7 @@ const Carousel: FC<{ items: VideoItemInterface[]; px: number; mr: number }> = ({
       >
         {size === 0
           ? null
-          : items.map((item) => (
+          : items.map((item, index) => (
               // IMPORTANT: The carousel item width must be the same as the size state
               // This is to ensure that the carousel functions correctly
               <CarouselItem
@@ -482,6 +504,8 @@ const Carousel: FC<{ items: VideoItemInterface[]; px: number; mr: number }> = ({
                 item={item}
                 size={size}
                 mr={mr}
+                isFirst={currentIndex === index}
+                isLast={currentIndex + numberOfItemsVisible - 1 === index}
               />
             ))}
       </div>
