@@ -82,7 +82,7 @@ const CarouselItemHover: FC<{
 
     const animate = () => {
       const now = performance.now();
-      const t = Math.min((now - startTime) / d, 1); // normalize time to range [0, 1]
+      const t = Math.min((now - startTime) / (target.visible ? d : d / 3), 1); // normalize time to range [0, 1]
 
       setCurrent((prev) => ({
         width: lerp(prev.width, target.width, t),
@@ -108,19 +108,43 @@ const CarouselItemHover: FC<{
     };
   }, [open, width, height, top, left]);
 
+  if (!current.visible) return null;
+
   return createPortal(
     <div
       ref={hoverRef}
-      className="absolute z-50 bg-red-600"
+      className="absolute z-50 bg-red-600 rounded overflow-hidden"
       style={{
         top: current.top,
         left: current.left,
         width: current.width,
         height: current.height,
-        display: current.visible ? "block" : "none",
       }}
     >
-      {item.title}
+      <button
+        style={{
+          background: `url(${item.image}) center center / cover no-repeat`,
+        }}
+        className="relative aspect-video w-full flex flex-col"
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          console.log("play");
+        }}
+      >
+        <div className="flex-1"></div>
+        {(item.type === "episode" || item.type === "movie") &&
+          (item.viewOffset || (item.viewCount && item.viewCount >= 1)) && (
+            <Progress
+              className="absolute rounded-t-none rounded-b bottom-0 left-0 h-[4px]"
+              value={
+                item.viewOffset
+                  ? Math.floor((item.viewOffset / item.duration) * 100)
+                  : 100
+              }
+            />
+          )}
+      </button>
     </div>,
     document.body,
   );
@@ -141,7 +165,7 @@ const CarouselItem: FC<{
     width: 0,
     height: 0,
   });
-  const d = 300;
+  const d = 350;
 
   useEffect(() => {
     if (!itemRef.current) return;
@@ -324,9 +348,17 @@ const Carousel: FC<{ items: VideoItemInterface[]; px: number; mr: number }> = ({
     onscroll();
 
     const scrollbase = () => onscroll();
+    const wheelscroll = (event: WheelEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+    };
 
+    containerRef.current.addEventListener("wheel", wheelscroll, {
+      passive: false,
+    });
     containerRef.current.addEventListener("scroll", scrollbase);
     return () => {
+      containerRef.current?.removeEventListener("wheel", wheelscroll);
       containerRef.current?.removeEventListener("scroll", scrollbase);
     };
   }, [size]);
@@ -354,17 +386,30 @@ const Carousel: FC<{ items: VideoItemInterface[]; px: number; mr: number }> = ({
       } else {
         updatedSize = calcSize(7);
       }
+
       setSize(updatedSize);
+      return updatedSize;
     };
 
     sizechange();
 
-    window.addEventListener("resize", sizechange);
+    const onresize = (event: UIEvent) => {
+      const updatedSize = sizechange();
+      if (containerRef.current) {
+        const updatedNumberOfItemsVisible = Math.floor(
+          (containerRef.current.offsetWidth - px * 2 + mr) / updatedSize,
+        );
+        setNumberOfItemsVisible(updatedNumberOfItemsVisible);
+        containerRef.current.scroll(currentIndex * updatedSize, 0);
+      }
+    };
+
+    window.addEventListener("resize", onresize, { passive: true });
 
     return () => {
-      window.removeEventListener("resize", sizechange);
+      window.removeEventListener("resize", onresize);
     };
-  }, []);
+  }, [currentIndex]);
 
   const handlePrevious = () => {
     if (!containerRef.current) return;
