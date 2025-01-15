@@ -83,7 +83,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
 
           // Create an array of promises for each connection
-          const promises = res2.data[0].connections.map((connection) => {
+          const controllers = res2.data[0].connections.map(
+            () => new AbortController(),
+          );
+          const promises = res2.data[0].connections.map((connection, index) => {
             return new Promise((resolve, reject) => {
               axios
                 .get<{ MediaContainer: { Directory: Plex.LibarySection[] } }>(
@@ -93,6 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                       "X-Plex-Token": localStorage.getItem("token") as string,
                       accept: "application/json",
                     },
+                    signal: controllers[index].signal,
                   },
                 )
                 .then(({ data }) => {
@@ -119,10 +123,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           });
 
           // Use Promise.race to stop as soon as we find a valid server
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-expect-error
           const result: { data: Plex.LibarySection[]; uri: string } =
             await Promise.race(promises);
+
+          // Abort remaining requests
+          controllers.forEach((controller) => controller.abort());
 
           if (result) {
             localStorage.setItem("server", result.uri);

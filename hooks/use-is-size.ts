@@ -14,7 +14,6 @@ const useIsSize = () => {
   const [isTiny, setIsTiny] = useState<boolean | undefined>(undefined);
 
   useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${TABLET_BREAKPOINT - 1}px)`);
     const onChange = () => {
       setIsGiant(window.innerWidth < GIANT_BREAKPOINT);
       setIsDesktop(window.innerWidth < DESKTOP_BREAKPOINT);
@@ -22,13 +21,15 @@ const useIsSize = () => {
       setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
       setIsTiny(window.innerWidth < TINY_BREAKPOINT);
     };
-    mql.addEventListener("change", onChange);
-    setIsGiant(window.innerWidth < GIANT_BREAKPOINT);
-    setIsDesktop(window.innerWidth < DESKTOP_BREAKPOINT);
-    setIsTablet(window.innerWidth < TABLET_BREAKPOINT);
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
-    setIsTiny(window.innerWidth < TINY_BREAKPOINT);
-    return () => mql.removeEventListener("change", onChange);
+
+    // Set initial state
+    onChange();
+
+    // Add event listener
+    window.addEventListener("resize", onChange);
+
+    // Cleanup event listener on unmount
+    return () => window.removeEventListener("resize", onChange);
   }, []);
 
   return {

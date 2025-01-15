@@ -3,7 +3,6 @@
 import { ServerApi } from "@/api";
 import { useEffect, useState } from "react";
 import { Hero } from "@/components/hero";
-import _ from "lodash";
 import { HubSlider } from "@/components/hub-slider";
 import { useLibraries } from "@/components/auth-provider";
 

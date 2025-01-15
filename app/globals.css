@@ -6,6 +6,16 @@
     .text-balance {
         text-wrap: balance;
     }
+
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .no-scrollbar {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
 }
 
 @layer base {
@@ -90,6 +100,12 @@
 .ui-video-seek-slider .track .main .connect {
     background-color: hsl(var(--plex-accent));
 }
+
 .ui-video-seek-slider .thumb .handler {
     background-color: hsl(var(--plex-accent));
+}
+
+.carousel-button:hover svg {
+    transition: scale;
+    scale: 1.25;
 }
