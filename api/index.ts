@@ -15,6 +15,10 @@ const includes = {
   includeReviews: 1,
   includePreferences: 1,
   includeStations: 1,
+  includeAdvanced: 1,
+  includeMarkerCounts: 1,
+  includeAugmentations: 1,
+  includeRelated: 1,
 };
 
 const version = () => {
@@ -748,7 +752,7 @@ export class ServerApi {
           count: 20,
           includeLibraryPlaylists: 1,
           includeRecentChannels: 1,
-          excludeContinueWatching: 1,
+          includeCollections: 1,
           ...includes,
           ...xprops(),
         })}`,
@@ -790,7 +794,6 @@ export class ServerApi {
             includeRecentChannels: 1,
             includeCollections: 1,
             excludeContinueWatching: 1,
-            includeAdvanced: 1,
             sort: "titleSort",
             "X-Plex-Container-Start": start,
             "X-Plex-Container-Size": size,
@@ -836,7 +839,6 @@ export class ServerApi {
             includeRecentChannels: 1,
             includeCollections: 1,
             excludeContinueWatching: 1,
-            includeAdvanced: 1,
             ...includes,
             ...xprops(),
           },

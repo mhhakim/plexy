@@ -46,7 +46,7 @@ export const Hero: FC<{ item: Plex.Metadata }> = ({ item }) => {
           <div className="flex flex-row gap-2">
             {metadata.data && (
               <Button
-                variant="plex"
+                variant="default"
                 onClick={() => {
                   if (metadata.data?.type === "movie") {
                     router.push(

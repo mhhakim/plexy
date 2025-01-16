@@ -10,6 +10,7 @@ import { MetaScreen } from "@/components/screens/meta-screen";
 import { useSearchParams } from "next/navigation";
 import { WatchScreen } from "@/components/screens/watch-screen";
 import { LibraryScreen } from "@/components/screens/library-screen";
+import { CarouselWrapper } from "@/components/carousel/carousel";
 
 const client = new QueryClient();
 
@@ -41,17 +42,19 @@ export default function Providers({ children }: { children: ReactNode }) {
       <QueryClientProvider client={client}>
         <AuthProvider>
           <SessionProvider>
-            <Suspense>
-              <MetaScreen />
-              <WatchScreen watch={watch ?? undefined} />
-              <LibraryScreen
-                contentDirectoryID={contentDirectoryID ?? undefined}
-                title={libtitle ?? undefined}
-                keypath={key ?? undefined}
-                full={!!(full && full === "true")}
-              />
-            </Suspense>
-            {children}
+            <CarouselWrapper>
+              <Suspense>
+                <MetaScreen />
+                <WatchScreen watch={watch ?? undefined} />
+                <LibraryScreen
+                  contentDirectoryID={contentDirectoryID ?? undefined}
+                  title={libtitle ?? undefined}
+                  keypath={key ?? undefined}
+                  full={!!(full && full === "true")}
+                />
+              </Suspense>
+              {children}
+            </CarouselWrapper>
           </SessionProvider>
         </AuthProvider>
       </QueryClientProvider>

@@ -461,6 +461,15 @@ declare namespace Plex {
   }
 
   export interface HubMetadata {
+    grandparentThumb?: string;
+    parentThumb?: string;
+    viewedLeafCount?: number;
+    grandparentTitle?: string;
+    parentTitle?: string;
+    index?: number;
+    parentIndex?: number;
+    leafCount?: number;
+    childCount?: number;
     ratingKey: string;
     key: string;
     guid: string;
@@ -478,9 +487,18 @@ declare namespace Plex {
     art: string;
     duration: number;
     originallyAvailableAt: string;
+    grandparentArt?: string;
     addedAt: number;
     updatedAt: number;
     audienceRatingImage: string;
+    viewOffset?: number;
+    OnDeck?: {
+      Metadata: Metadata;
+    };
+    Children?: {
+      size: number;
+      Metadata: Child[];
+    };
     Media: {
       id: number;
       duration: number;

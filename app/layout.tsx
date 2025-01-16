@@ -25,7 +25,9 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/plexicon.png" />
       </head>
-      <body className={`${quicksand.className} antialiased bg-background`}>
+      <body
+        className={`${quicksand.className} antialiased bg-background pb-20`}
+      >
         <Suspense>
           <Providers>
             <Appbar />

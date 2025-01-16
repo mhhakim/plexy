@@ -1,4 +1,15 @@
-import { FC, ReactNode, useEffect, useRef, useState } from "react";
+import {
+  createContext,
+  Dispatch,
+  FC,
+  ReactNode,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   DESKTOP_BREAKPOINT,
   GIANT_BREAKPOINT,
@@ -9,10 +20,100 @@ import {
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const Carousel: FC<{ items: ReactNode; px: number; mr: number }> = ({
-  items,
-  px,
-  mr,
+const CarouselWrapperContext = createContext(
+  {} as {
+    openIndex: string | null;
+    setOpenIndex: Dispatch<SetStateAction<string | null>>;
+  },
+);
+
+export const CarouselWrapper: FC<{ children: ReactNode }> = ({ children }) => {
+  const [openIndex, setOpenIndex] = useState<string | null>(null);
+
+  return (
+    <CarouselWrapperContext.Provider value={{ openIndex, setOpenIndex }}>
+      {children}
+    </CarouselWrapperContext.Provider>
+  );
+};
+
+export const CarouselContext = createContext(
+  {} as {
+    size: number;
+    firstIndex: number;
+    lastIndex: number;
+    spacing: number;
+    scale: number;
+    openIndex: string | null;
+    setOpenIndex: Dispatch<SetStateAction<string | null>>;
+  },
+);
+
+const CarouselProvider: FC<{
+  children: ReactNode;
+  size: number;
+  firstIndex: number;
+  lastIndex: number;
+  spacing: number;
+  scale: number;
+}> = ({ children, size, firstIndex, lastIndex, spacing, scale }) => {
+  const { openIndex, setOpenIndex } = useContext(CarouselWrapperContext);
+  return (
+    <CarouselContext.Provider
+      value={{
+        size,
+        firstIndex,
+        lastIndex,
+        spacing,
+        scale,
+        openIndex,
+        setOpenIndex,
+      }}
+    >
+      {children}
+    </CarouselContext.Provider>
+  );
+};
+
+export const useCarouselItem = (index: number, refKey: string) => {
+  const { size, firstIndex, lastIndex, spacing, openIndex, setOpenIndex } =
+    useContext(CarouselContext);
+
+  const isOpen = useMemo(() => openIndex === refKey, [openIndex, refKey]);
+
+  const open = () => {
+    setOpenIndex(refKey);
+  };
+
+  const close = () => {
+    setOpenIndex(null);
+  };
+
+  return {
+    size: size - spacing,
+    firstIndex,
+    lastIndex,
+    isFirst: index === firstIndex,
+    isLast: index === lastIndex,
+    spacing,
+    isOpen,
+    open,
+    close,
+  };
+};
+
+const Carousel: FC<{
+  children: ReactNode;
+  edges?: number;
+  spacing?: number;
+  scale?: number;
+  minimumVisibleItem?: number;
+}> = ({
+  children,
+  edges = 40,
+  spacing = 10,
+  scale = 1.2,
+  minimumVisibleItem = 1,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -34,7 +135,7 @@ const Carousel: FC<{ items: ReactNode; px: number; mr: number }> = ({
       setIsContainerScrollable(container.scrollWidth > container.offsetWidth);
       setIsAtStartOfScroll(container.scrollLeft === 0);
       setNumberOfItemsVisible(
-        Math.floor((container.offsetWidth - px * 2 + mr) / baseSize),
+        Math.floor((container.offsetWidth - edges * 2 + spacing) / baseSize),
       );
 
       const isAtStart = container.scrollLeft === 0;
@@ -45,9 +146,10 @@ const Carousel: FC<{ items: ReactNode; px: number; mr: number }> = ({
       const isAtEnd = Math.min(Math.ceil(scrollDelta), 0) === 0;
       setIsAtEndOfScroll(() => isAtEnd);
 
-      const maxScrollLeft = Math.max(container.scrollLeft - px, 0);
+      const maxScrollLeft = Math.max(container.scrollLeft - edges, 0);
 
-      const itemWidthWithMargin = baseSize - mr + (maxScrollLeft < mr ? 0 : mr);
+      const itemWidthWithMargin =
+        baseSize - spacing + (maxScrollLeft < spacing ? 0 : spacing);
 
       let index = Math.floor(maxScrollLeft / itemWidthWithMargin);
 
@@ -61,43 +163,53 @@ const Carousel: FC<{ items: ReactNode; px: number; mr: number }> = ({
     onscroll();
 
     const scrollbase = () => onscroll();
-    const wheelscroll = (event: WheelEvent) => {
-      event.preventDefault();
-      event.stopPropagation();
-    };
 
-    containerRef.current.addEventListener("wheel", wheelscroll, {
-      passive: false,
-    });
     containerRef.current.addEventListener("scroll", scrollbase);
     return () => {
-      containerRef.current?.removeEventListener("wheel", wheelscroll);
       containerRef.current?.removeEventListener("scroll", scrollbase);
     };
   }, [size]);
 
   useEffect(() => {
+    const wheelscroll = (event: WheelEvent) => {
+      if (Math.abs(event.deltaX) !== 0) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    };
+
+    containerRef.current?.addEventListener("wheel", wheelscroll, {
+      passive: false,
+    });
+    return () => {
+      containerRef.current?.removeEventListener("wheel", wheelscroll);
+    };
+  }, []);
+
+  useEffect(() => {
     const calcSize = (divider: number) => {
       if (!containerRef.current) return 0;
-      return Math.floor((containerRef.current.offsetWidth - px * 2) / divider);
+      return Math.floor(
+        (containerRef.current.offsetWidth - edges * 2) / divider,
+      );
     };
 
     const sizechange = () => {
       let updatedSize = 0;
       if (window.innerWidth < 520) {
-        updatedSize = calcSize(1);
+        updatedSize = calcSize(minimumVisibleItem);
       } else if (window.innerWidth < TINY_BREAKPOINT) {
-        updatedSize = calcSize(2);
+        updatedSize = calcSize(minimumVisibleItem + 1);
       } else if (window.innerWidth < MOBILE_BREAKPOINT) {
-        updatedSize = calcSize(3);
+        updatedSize = calcSize(minimumVisibleItem + 2);
       } else if (window.innerWidth < TABLET_BREAKPOINT) {
-        updatedSize = calcSize(4);
+        updatedSize = calcSize(minimumVisibleItem + 3);
       } else if (window.innerWidth < DESKTOP_BREAKPOINT) {
-        updatedSize = calcSize(5);
+        updatedSize = calcSize(minimumVisibleItem + 4);
       } else if (window.innerWidth < GIANT_BREAKPOINT) {
-        updatedSize = calcSize(6);
+        updatedSize = calcSize(minimumVisibleItem + 5);
       } else {
-        updatedSize = calcSize(7);
+        updatedSize = calcSize(minimumVisibleItem + 6);
       }
 
       setSize(updatedSize);
@@ -110,7 +222,8 @@ const Carousel: FC<{ items: ReactNode; px: number; mr: number }> = ({
       const updatedSize = sizechange();
       if (containerRef.current) {
         const updatedNumberOfItemsVisible = Math.floor(
-          (containerRef.current.offsetWidth - px * 2 + mr) / updatedSize,
+          (containerRef.current.offsetWidth - edges * 2 + spacing) /
+            updatedSize,
         );
         setNumberOfItemsVisible(updatedNumberOfItemsVisible);
         containerRef.current.scroll(currentIndex * updatedSize, 0);
@@ -143,14 +256,14 @@ const Carousel: FC<{ items: ReactNode; px: number; mr: number }> = ({
   };
 
   return (
-    <div className="max-w-screen-4xl w-full relative group mx-auto">
+    <div className="max-w-full w-full relative group mx-auto">
       <button
         className={cn(
           `hidden absolute left-0 top-0 bottom-0 flex-row justify-center items-center carousel-button z-50 bg-gradient-to-r from-background to-transparent`,
           !isContainerScrollable ? "" : "flex",
         )}
         onClick={handlePrevious}
-        style={{ width: `${px}px` }}
+        style={{ width: `${edges}px` }}
         disabled={isAtStartOfScroll}
       >
         <ChevronLeft
@@ -168,7 +281,7 @@ const Carousel: FC<{ items: ReactNode; px: number; mr: number }> = ({
           !isContainerScrollable ? "" : "flex",
         )}
         onClick={handleNext}
-        style={{ width: `${px}px` }}
+        style={{ width: `${edges}px` }}
         disabled={isAtEndOfScroll}
       >
         <ChevronRight
@@ -181,11 +294,23 @@ const Carousel: FC<{ items: ReactNode; px: number; mr: number }> = ({
         />
       </button>
       <div
-        className={`flex flex-row max-w-full overflow-x-auto scroll-smooth no-scrollbar`}
+        className="flex flex-row max-w-full overflow-x-auto scroll-smooth no-scrollbar"
         ref={containerRef}
-        style={{ paddingLeft: `${px}px`, paddingRight: `${px}px` }}
+        style={{
+          paddingLeft: `${edges}px`,
+          paddingRight: `${edges}px`,
+          gap: `${spacing}px`,
+        }}
       >
-        {size === 0 ? null : items}
+        <CarouselProvider
+          size={size}
+          firstIndex={currentIndex}
+          lastIndex={currentIndex + numberOfItemsVisible - 1}
+          spacing={spacing}
+          scale={scale}
+        >
+          {size === 0 ? null : children}
+        </CarouselProvider>
       </div>
     </div>
   );

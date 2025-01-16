@@ -35,6 +35,10 @@ export function getFormatedTime(time: number) {
     .padStart(2, "0")}`;
 }
 
+export function durationToMin(duration: number) {
+  return Math.floor(duration / 1000 / 60);
+}
+
 export function durationToText(duration: number): string {
   const hours = Math.floor(duration / 1000 / 60 / 60);
   const minutes = (duration / 1000 / 60 / 60 - hours) * 60;

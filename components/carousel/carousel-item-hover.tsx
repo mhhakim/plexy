@@ -1,24 +1,23 @@
-import { FC, useEffect, useRef, useState } from "react";
-import { VideoItemInterface } from "@/type";
+import { FC, ReactNode, useContext, useEffect, useRef, useState } from "react";
 import { lerp } from "@/lib/utils";
 import { createPortal } from "react-dom";
-import { Progress } from "@/components/ui/progress";
+import { CarouselContext } from "@/components/carousel";
 
 const CarouselItemHover: FC<{
   open: boolean;
   top: number;
   left: number;
-  right: number;
   width: number;
   height: number;
-  item: VideoItemInterface;
+  children: ReactNode;
   onLeave: () => void;
   duration: number;
   isFirst: boolean;
   isLast: boolean;
+  refKey: string;
 }> = ({
   open,
-  item,
+  children,
   onLeave,
   duration,
   width,
@@ -27,15 +26,21 @@ const CarouselItemHover: FC<{
   left,
   isFirst,
   isLast,
+  refKey,
 }) => {
+  const { scale } = useContext(CarouselContext);
   const hoverRef = useRef<HTMLDivElement>(null);
   const [current, setCurrent] = useState({
     width,
-    height,
-    top,
+    top: top,
     left,
+    scale: 1,
+    opacity: 0,
     visible: open,
   });
+  const [windowScrollTopOnOpen, setWindowScrollTopOnOpen] = useState(
+    window.scrollY,
+  );
 
   useEffect(() => {
     if (!hoverRef.current) return;
@@ -49,29 +54,41 @@ const CarouselItemHover: FC<{
   useEffect(() => {
     const getLeft = () => {
       if (isFirst && isLast) {
-        return left - width * 0.15;
-      }
-
-      if (isFirst) {
         return left;
       }
 
-      if (isLast) {
-        return left - width * 0.3;
+      if (isFirst) {
+        return left + width * (1 + (scale - 1) / 2) - width - 2;
       }
 
-      return left - width * 0.15;
+      if (isLast) {
+        return left - (width * (1 + (scale - 1) / 2) - width) + 2;
+      }
+
+      return left;
     };
+
+    if (open) {
+      setWindowScrollTopOnOpen(window.scrollY);
+    }
 
     const target = open
       ? {
-          width: width * 1.3,
-          height: height * 1.3,
-          top: top - height * 0.15,
+          width: width,
+          scale: scale,
+          top: top,
           left: getLeft(),
+          opacity: 1,
           visible: true,
         }
-      : { width, height, top, left, visible: false };
+      : {
+          width,
+          scale: 1,
+          top: top,
+          left,
+          opacity: 0,
+          visible: false,
+        };
 
     let frameId: number;
     const d = duration; // animation duration in ms
@@ -83,9 +100,10 @@ const CarouselItemHover: FC<{
 
       setCurrent((prev) => ({
         width: lerp(prev.width, target.width, t),
-        height: lerp(prev.height, target.height, t),
+        scale: lerp(prev.scale, target.scale, t),
         top: lerp(prev.top, target.top, t),
         left: lerp(prev.left, target.left, t),
+        opacity: lerp(prev.opacity, target.opacity, t),
         visible: open
           ? target.visible
           : t > 0.96
@@ -99,52 +117,29 @@ const CarouselItemHover: FC<{
     };
 
     frameId = requestAnimationFrame(animate);
-
     return () => {
       cancelAnimationFrame(frameId);
     };
-  }, [open, width, height, top, left]);
+  }, [open, width, top, left]);
 
   if (!current.visible) return null;
-
-  console.log(isLast);
 
   return createPortal(
     <div
       ref={hoverRef}
-      className="absolute z-50 bg-red-600 rounded overflow-hidden"
+      className="absolute z-50 shadow-2xl"
       style={{
-        top: current.top,
+        top: current.top + windowScrollTopOnOpen,
         left: current.left,
         width: current.width,
+        scale: current.scale,
+        opacity: current.opacity,
       }}
     >
-      <button
-        style={{
-          background: `url(${item.image}) center center / cover no-repeat`,
-        }}
-        className="relative aspect-video w-full flex flex-col"
-        type="button"
-        onClick={(e) => {
-          e.preventDefault();
-          console.log("play");
-        }}
-      >
-        <div className="flex-1"></div>
-        {(item.type === "episode" || item.type === "movie") &&
-          (item.viewOffset || (item.viewCount && item.viewCount >= 1)) && (
-            <Progress
-              className="absolute rounded-t-none rounded-b bottom-0 left-0 h-[4px]"
-              value={
-                item.viewOffset
-                  ? Math.floor((item.viewOffset / item.duration) * 100)
-                  : 100
-              }
-            />
-          )}
-      </button>
+      {children}
     </div>,
     document.body,
+    refKey,
   );
 };
 

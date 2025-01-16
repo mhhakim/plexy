@@ -424,7 +424,7 @@ export const MetaScreen: FC = () => {
                       </div>
                       <div className="flex flex-row items-center gap-4">
                         <Button
-                          variant="plex"
+                          variant="default"
                           size="lg"
                           onClick={() => {
                             if (metadata.data?.type === "movie") {
