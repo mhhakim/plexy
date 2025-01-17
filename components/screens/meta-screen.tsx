@@ -239,12 +239,17 @@ export const MetaScreen: FC = () => {
       season = "";
     } else if (metadata.data.type === "episode" && metadata.data.parentTitle) {
       season = (
-        <Link
-          href={`${pathname}?mid=${metadata.data.parentRatingKey}`}
-          className="hover:text-primary"
+        <button
+          type="button"
+          className="w-fit hover:text-primary"
+          onClick={() => {
+            router.push(`${pathname}?mid=${metadata.data?.parentRatingKey}`, {
+              scroll: false,
+            });
+          }}
         >
           {metadata.data.parentTitle}
-        </Link>
+        </button>
       );
     }
 
@@ -388,21 +393,34 @@ export const MetaScreen: FC = () => {
                         {title}
                         <div className="font-bold text-muted-foreground max-w-4xl flex flex-col gap-2">
                           {metadata.data.type === "episode" && (
-                            <Link
-                              href={`${pathname}?mid=${metadata.data.grandparentRatingKey}`}
+                            <button
+                              type="button"
+                              className="w-fit"
+                              onClick={() => {
+                                router.push(
+                                  `${pathname}?mid=${metadata.data?.grandparentRatingKey}`,
+                                  { scroll: false },
+                                );
+                              }}
                             >
-                              <p className="font-bold [@media(min-width:1200px)]:line-clamp-2 hover:text-primary">
+                              <p className="font-bold [@media(min-width:1200px)]:line-clamp-2 hover:text-primary text-left">
                                 {metadata.data.grandparentTitle}
                               </p>
-                            </Link>
+                            </button>
                           )}
                           {metadata.data.type === "season" && (
-                            <Link
-                              href={`${pathname}?mid=${metadata.data.parentRatingKey}`}
-                              className="hover:text-primary"
+                            <button
+                              type="button"
+                              className="w-fit hover:text-primary text-left"
+                              onClick={() => {
+                                router.push(
+                                  `${pathname}?mid=${metadata.data?.parentRatingKey}`,
+                                  { scroll: false },
+                                );
+                              }}
                             >
                               {metadata.data.parentTitle}
-                            </Link>
+                            </button>
                           )}
                           {subtitle}
                         </div>

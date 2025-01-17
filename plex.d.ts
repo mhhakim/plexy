@@ -197,6 +197,8 @@ declare namespace Plex {
     librarySectionTitle: string;
     librarySectionID: number;
     librarySectionKey: string;
+    grandparentArt?: string;
+    grandparentThumb?: string;
     grandparentKey?: string;
     parentKey?: string;
     grandparentTitle?: string;

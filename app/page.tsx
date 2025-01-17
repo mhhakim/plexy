@@ -77,9 +77,7 @@ export default function Home() {
   return (
     <div className="w-full flex flex-col items-start justify-start">
       {item ? <Hero item={item} /> : <div className="h-16" />}
-      <div
-        className={`flex flex-col items-start justify-start w-full z-10 ${item ? "-mt-20" : "mt-16"}`}
-      >
+      <div className="flex flex-col items-start justify-start w-full z-10 lg:-mt-[calc(10vw-4rem)] md:mt-[3rem] -mt-[calc(-10vw-2rem)]">
         {continueWatching && (
           <HubSlider onUpdate={updateContinueWatching} hub={continueWatching} />
         )}

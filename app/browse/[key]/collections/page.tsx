@@ -86,6 +86,7 @@ export default function Page() {
               value="recommended"
               aria-label="Recommended"
               variant="outline"
+              size="sm"
             >
               Recommended
             </ToggleGroupItem>
@@ -100,6 +101,7 @@ export default function Page() {
               value="library"
               aria-label="Library"
               variant="outline"
+              size="sm"
             >
               Library
             </ToggleGroupItem>

@@ -749,7 +749,7 @@ export class ServerApi {
           includeMeta: 1,
           excludeFields: "summary",
           includeExternalMetadata: 1,
-          count: 20,
+          count: 40,
           includeLibraryPlaylists: 1,
           includeRecentChannels: 1,
           includeCollections: 1,
@@ -765,6 +765,45 @@ export class ServerApi {
       )
       .then((res) => {
         return res.data?.MediaContainer?.Hub ?? null;
+      })
+      .catch((err) => {
+        console.log(err);
+        return null;
+      });
+  }
+  static async key(
+    { key, plain = false }: { key: string; plain?: boolean },
+    other: Record<string, number | string> = {},
+  ) {
+    return await axios
+      .get<{ MediaContainer: { Metadata: Plex.HubMetadata[] } }>(
+        `${localStorage.getItem("server")}${key}${key.includes("?") ? "&" : "?"}${qs.stringify(
+          {
+            ...(plain
+              ? {}
+              : {
+                  includeMeta: 1,
+                  excludeFields: "summary",
+                  includeExternalMetadata: 1,
+                  count: 40,
+                  includeLibraryPlaylists: 1,
+                  includeRecentChannels: 1,
+                  includeCollections: 1,
+                  ...includes,
+                }),
+            ...xprops(),
+            ...other,
+          },
+        )}`,
+        {
+          headers: {
+            "X-Plex-Token": localStorage.getItem("token") as string,
+            accept: "application/json",
+          },
+        },
+      )
+      .then((res) => {
+        return res.data?.MediaContainer?.Metadata ?? null;
       })
       .catch((err) => {
         console.log(err);
@@ -906,10 +945,15 @@ export class ServerApi {
         return false;
       });
   }
+  /**
+   * mark as watch
+   * @param key
+   */
   static async scrobble({ key }: { key: string }) {
     return await axios
       .get(
         `${localStorage.getItem("server")}/:/scrobble?${qs.stringify({ identifier: "com.plexapp.plugins.library", key, ...xprops() })}`,
+        { headers: { accept: "application/json, text/plain, */*" } },
       )
       .then((res) => res.status === 200)
       .catch((err) => {
@@ -917,10 +961,27 @@ export class ServerApi {
         return false;
       });
   }
+  /**
+   * mark as unwatch
+   * @param key
+   */
   static async unscrobble({ key }: { key: string }) {
     return await axios
       .get(
         `${localStorage.getItem("server")}/:/unscrobble?${qs.stringify({ key, identifier: "com.plexapp.plugins.library", ...xprops() })}`,
+        { headers: { accept: "application/json, text/plain, */*" } },
+      )
+      .then((res) => res.status === 200)
+      .catch((err) => {
+        console.error(err);
+        return false;
+      });
+  }
+  static async discoverMetadata({ guid }: { guid: string }) {
+    return await axios
+      .get(
+        `https://discover.provider.plex.tv/library/metadata/${guid}/userState?${qs.stringify({ ...xprops() })}`,
+        { headers: { accept: "application/json, text/plain, */*" } },
       )
       .then((res) => res.status === 200)
       .catch((err) => {

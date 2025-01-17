@@ -499,8 +499,8 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
           <div
             className={`sticky top-0 w-full flex flex-col gap-6 p-6 bg-background/80 ${showControls || !playing ? "" : "-translate-y-full"} transition`}
           >
-            <button onClick={() => back()}>
-              <ArrowLeft className="w-8 h-8 text-muted-foreground hover:scale-125 hover:text-primary transition duration-75" />
+            <button onClick={() => back()} className="group w-fit">
+              <ArrowLeft className="w-8 h-8 text-muted-foreground group-hover:scale-125 hover:text-primary transition duration-75" />
             </button>
           </div>
           <div className="flex-1" />
@@ -595,6 +595,38 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                   />
                 )}
               </button>
+              <div className="flex group items-center gap-4">
+                <button
+                  onClick={() => {
+                    let updatedVolume = 100;
+                    if (volume > 0) updatedVolume = 0;
+                    localStorage.setItem("volume", updatedVolume.toString());
+                    setVolume(updatedVolume);
+                  }}
+                >
+                  {volume === 0 ? (
+                    <VolumeX className="w-8 h-8 text-muted-foreground group-hover:scale-125 hover:text-primary transition duration-75" />
+                  ) : volume < 45 ? (
+                    <Volume1 className="w-8 h-8 text-muted-foreground group-hover:scale-125 hover:text-primary transition duration-75" />
+                  ) : (
+                    <Volume2 className="w-8 h-8 text-muted-foreground group-hover:scale-125 hover:text-primary transition duration-75" />
+                  )}
+                </button>
+                <div className="group-hover:block hidden">
+                  <Slider
+                    className="w-[200px]"
+                    value={[volume]}
+                    defaultValue={[volume]}
+                    max={100}
+                    min={0}
+                    step={1}
+                    onValueChange={(value) => {
+                      localStorage.setItem("volume", value[0].toString());
+                      setVolume(value[0]);
+                    }}
+                  />
+                </div>
+              </div>
               <div className="flex-1" />
               <p className="font-bold select-none">
                 {metadata.type === "movie" && metadata.title}
@@ -851,35 +883,6 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                   )}
                 </DialogContent>
               </Dialog>
-              <Popover
-                open={openVolume && showControls}
-                onOpenChange={(open) => setOpenVolume(open)}
-              >
-                <PopoverTrigger>
-                  {volume === 0 ? (
-                    <VolumeX className="w-8 h-8 text-muted-foreground hover:scale-125 hover:text-primary transition duration-75" />
-                  ) : volume < 45 ? (
-                    <Volume1 className="w-8 h-8 text-muted-foreground hover:scale-125 hover:text-primary transition duration-75" />
-                  ) : (
-                    <Volume2 className="w-8 h-8 text-muted-foreground hover:scale-125 hover:text-primary transition duration-75" />
-                  )}
-                </PopoverTrigger>
-                <PopoverContent className="w-min m-4">
-                  <Slider
-                    className="h-[200px]"
-                    value={[volume]}
-                    defaultValue={[volume]}
-                    max={100}
-                    min={0}
-                    step={1}
-                    onValueChange={(value) => {
-                      localStorage.setItem("volume", value[0].toString());
-                      setVolume(value[0]);
-                    }}
-                    orientation="vertical"
-                  />
-                </PopoverContent>
-              </Popover>
               <button
                 onClick={() => {
                   if (!document.fullscreenElement) {

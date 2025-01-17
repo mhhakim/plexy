@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useEffect, useState } from "react";
 import { Hero } from "@/components/hero";
-import { HubSlider } from "@/components/hub-slider";
+import { HubSlider, isOnDeckHub } from "@/components/hub-slider";
 
 type SelectedType = "recommended" | "collections" | "library";
 
@@ -22,13 +22,17 @@ export default function Page() {
   const [featured, setFeatured] = useState<Plex.Metadata | null>(null);
   const [hubs, setHubs] = useState<Plex.Hub[]>([]);
 
-  const updateHubs = () => {
-    ServerApi.hubs({
-      id: params.key,
-    }).then((res) => {
-      if (!res) return;
-      if (res.length === 0) return;
-      setHubs(res.filter((hub) => hub.Metadata && hub.Metadata.length > 0));
+  const updateHub = (
+    updatedItem: Plex.HubMetadata,
+    itemIndex: number,
+    hubIndex: number,
+  ) => {
+    setHubs((prev) => {
+      const updated = [...prev];
+      if (updated[hubIndex].Metadata) {
+        updated[hubIndex].Metadata[itemIndex] = updatedItem;
+      }
+      return updated;
     });
   };
 
@@ -46,16 +50,27 @@ export default function Page() {
     }).then((res) => {
       if (!res) return;
       if (res.length === 0) return;
+      console.log(res);
       setHubs(res.filter((hub) => hub.Metadata && hub.Metadata.length > 0));
     });
   }, [params.key]);
 
   useEffect(() => {
+    const updateHubs = () => {
+      ServerApi.hubs({
+        id: params.key,
+      }).then((res) => {
+        if (!res) return;
+        if (res.length === 0) return;
+        setHubs(res.filter((hub) => hub.Metadata && hub.Metadata.length > 0));
+      });
+    };
+
     window.addEventListener("popstate", updateHubs);
     return () => {
       window.removeEventListener("popstate", updateHubs);
     };
-  }, []);
+  }, [params.key]);
 
   if (!library.data) {
     return null;
@@ -68,15 +83,15 @@ export default function Page() {
       <>
         <div className="w-full flex flex-col items-start justify-start">
           {featured && <Hero item={featured} />}
-          <div
-            className={`flex flex-col items-start justify-start w-full z-10 ${featured ? "-mt-20" : "mt-36"}`}
-          >
+          <div className="flex flex-col items-start justify-start w-full z-10 lg:-mt-[calc(10vw-4rem)] md:mt-[3rem] -mt-[calc(-10vw-2rem)]">
             {hubs.map((item, i) => (
               <HubSlider
                 key={`${item.key}-${i}`}
                 id={params.key}
                 hub={item}
-                onUpdate={() => updateHubs()}
+                onUpdate={(updatedItem, itemIndex) =>
+                  updateHub(updatedItem, itemIndex, i)
+                }
               />
             ))}
           </div>
@@ -97,6 +112,7 @@ export default function Page() {
               value="recommended"
               aria-label="Recommended"
               variant="outline"
+              size="sm"
             >
               Recommended
             </ToggleGroupItem>
@@ -111,6 +127,7 @@ export default function Page() {
               value="library"
               aria-label="Library"
               variant="outline"
+              size="sm"
             >
               Library
             </ToggleGroupItem>

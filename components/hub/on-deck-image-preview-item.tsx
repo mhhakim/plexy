@@ -8,8 +8,8 @@ export const OnDeckImagePreviewItem: FC<
   Omit<React.ComponentPropsWithoutRef<typeof ElementImagePreviewItem>, "image">
 > = ({ item, className, ...rest }) => {
   const image = useMemo(() => {
-    if (item.type === "movie" || item.type === "episode")
-      return getCoverImage(item.art);
+    if (item.type === "movie") return getCoverImage(item.art);
+    if (item.type === "episode") return getCoverImage(item.thumb ?? item.art);
     return getCoverImage(item.grandparentArt ?? item.art);
   }, [item]);
 

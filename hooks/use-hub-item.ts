@@ -30,7 +30,12 @@ export const getPosterImage = (url: string) => {
   })}`;
 };
 
-export const useHubItem = (item: Plex.HubMetadata) => {
+function extractGuidNumber(inputString: string) {
+  const match = inputString.match(/plex:\/\/\w+\/([a-zA-Z0-9]+)/);
+  return match ? match[1] : null;
+}
+
+export const useHubItem = (item: Plex.HubMetadata | Plex.Metadata) => {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -40,9 +45,11 @@ export const useHubItem = (item: Plex.HubMetadata) => {
     const isShow = item.type === "show";
     const isMovie = item.type === "movie";
 
+    const guid = extractGuidNumber(item.guid);
     const watched =
-      (item.type === "show" && item.leafCount === item.viewedLeafCount) ||
-      (item.type === "movie" && item?.viewCount && item.viewCount > 0);
+      (isShow && item.leafCount === item.viewedLeafCount) ||
+      ((isMovie || isEpisode) && item?.viewCount && item.viewCount > 0);
+
     const seasons =
       item.childCount && item.childCount > 1
         ? `${item.childCount} Seasons`
@@ -84,6 +91,7 @@ export const useHubItem = (item: Plex.HubMetadata) => {
         : 0;
 
     return {
+      guid,
       mid,
       duration,
       episodes,

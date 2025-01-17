@@ -2,7 +2,7 @@ import { FC } from "react";
 import { Progress } from "@/components/ui/progress";
 import { useHubItem } from "@/hooks/use-hub-item";
 import { ClassNameValue } from "tailwind-merge";
-import { cn } from "@/lib/utils";
+import { cn, durationToMin } from "@/lib/utils";
 
 export const ElementImagePreviewItem: FC<{
   item: Plex.HubMetadata;
@@ -21,7 +21,11 @@ export const ElementImagePreviewItem: FC<{
   action = "open",
   progress = true,
 }) => {
-  const { info, play, open } = useHubItem(item);
+  const {
+    info: { isEpisode, isMovie, ...info },
+    play,
+    open,
+  } = useHubItem(item);
   return (
     <button
       style={{ background: `url(${image}) center center / cover no-repeat` }}
@@ -44,9 +48,9 @@ export const ElementImagePreviewItem: FC<{
         </p>
       )}
       <div className="flex-1"></div>
-      {progress && info.progress !== 0 && (
+      {progress && (isEpisode || isMovie) && info.progress !== 0 && (
         <Progress
-          className="absolute rounded-t-none bottom-0 left-0 h-[4px]"
+          className="absolute rounded-t-none bottom-0 left-0 h-[2px]"
           value={info.progress}
         />
       )}
