@@ -10,6 +10,7 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import qs from "qs";
 import { Button } from "@/components/ui/button";
 import {
+  ArrowLeft,
   ChevronRight,
   CircleCheck,
   Play,
@@ -22,9 +23,8 @@ import { create } from "zustand";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EpisodeView } from "@/components/cards/episode-view";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { VideoView } from "@/components/cards/video-view";
-import Link from "next/link";
 import { SeasonView } from "@/components/cards/season-view";
+import { MetadataPreviewItem } from "@/components/cards/metadata-preview-item";
 
 interface PreviewPlayerState {
   MetaScreenPlayerMuted: boolean;
@@ -319,6 +319,16 @@ export const MetaScreen: FC = () => {
                         "linear-gradient(0, hsl(var(--background)), rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.1))",
                     }}
                   />
+                  <div className="absolute top-0 left-0 m-4 flex flex-col gap-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => router.back()}
+                      type="button"
+                    >
+                      <ArrowLeft />
+                    </Button>
+                  </div>
                   <div className="absolute top-0 right-0 m-4 flex flex-col gap-2">
                     <Button
                       variant="outline"
@@ -648,7 +658,6 @@ export const MetaScreen: FC = () => {
                           type="button"
                           className="text-left group w-full flex flex-row items-center gap-2"
                           onClick={() => {
-                            console.log(hub);
                             router.push(
                               `${pathname}?${qs.stringify({ key: hub.key, libtitle: hub.title })}`,
                               {
@@ -664,23 +673,7 @@ export const MetaScreen: FC = () => {
                         </button>
                         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                           {hub.Metadata?.slice(0, 15).map((item, i) => (
-                            <VideoView
-                              key={i}
-                              item={{
-                                ...item,
-                                contentRating: item.contentRating ?? "",
-                                image: `${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
-                                  {
-                                    width: 300 * 2,
-                                    height: 170 * 2,
-                                    url: `${item.art}?X-Plex-Token=${token}`,
-                                    minSize: 1,
-                                    upscale: 1,
-                                    "X-Plex-Token": token,
-                                  },
-                                )}`,
-                              }}
-                            />
+                            <MetadataPreviewItem key={i} item={item} />
                           ))}
                         </div>
                       </div>

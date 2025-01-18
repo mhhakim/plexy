@@ -16,6 +16,7 @@ const config: Config = {
       colors: {
         plex: "hsl(var(--plex-accent))",
         background: "hsl(var(--background))",
+        alternative: "rgb(var(--alternative))",
         foreground: "hsl(var(--foreground))",
         card: {
           DEFAULT: "hsl(var(--card))",

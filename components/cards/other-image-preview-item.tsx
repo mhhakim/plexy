@@ -2,7 +2,7 @@ import { FC, useMemo } from "react";
 import { getPosterImage } from "@/hooks/use-hub-item";
 import { cn } from "@/lib/utils";
 import * as React from "react";
-import { ElementImagePreviewItem } from "@/components/hub/element-image-preview-item";
+import { ElementImagePreviewItem } from "@/components/cards/element-image-preview-item";
 
 export const OtherImagePreviewItem: FC<
   Omit<React.ComponentPropsWithoutRef<typeof ElementImagePreviewItem>, "image">

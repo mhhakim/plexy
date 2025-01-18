@@ -52,7 +52,7 @@ declare namespace Plex {
     voiceSearch: boolean;
   }
 
-  type LibaryType =
+  type LibraryType =
     | "movie"
     | "show"
     | "artist"
@@ -62,7 +62,7 @@ declare namespace Plex {
     | "season"
     | "album";
 
-  interface LibarySection {
+  interface LibrarySection {
     allowSync: boolean;
     art: string;
     composite: string;
@@ -70,7 +70,7 @@ declare namespace Plex {
     refreshing: boolean;
     thumb: string;
     key: string;
-    type: LibaryType;
+    type: LibraryType;
     title: string;
     agent: string;
     scanner: string;
@@ -141,7 +141,7 @@ declare namespace Plex {
 
   interface Type {
     key: string;
-    type: LibaryType;
+    type: LibraryType;
     title: string;
     active: boolean;
     Filter: Filter[];
@@ -191,7 +191,7 @@ declare namespace Plex {
     guid: string;
     slug?: string;
     studio: string;
-    type: LibaryType;
+    type: LibraryType;
     title: string;
     titleSort?: string;
     librarySectionTitle: string;
@@ -477,7 +477,7 @@ declare namespace Plex {
     guid: string;
     slug: string;
     studio: string;
-    type: LibaryType;
+    type: LibraryType;
     title: string;
     summary: string;
     audienceRating: number;
@@ -568,7 +568,7 @@ declare namespace Plex {
     hubKey: string;
     key: string;
     title: string;
-    type: LibaryType;
+    type: LibraryType;
     hubIdentifier: string;
     context: string;
     size: number;

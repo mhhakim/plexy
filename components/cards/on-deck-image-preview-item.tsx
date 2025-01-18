@@ -1,6 +1,6 @@
 import { FC, useMemo } from "react";
 import { getCoverImage } from "@/hooks/use-hub-item";
-import { ElementImagePreviewItem } from "@/components/hub/element-image-preview-item";
+import { ElementImagePreviewItem } from "@/components/cards/element-image-preview-item";
 import * as React from "react";
 import { cn } from "@/lib/utils";
 

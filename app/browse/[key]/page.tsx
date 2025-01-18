@@ -50,7 +50,6 @@ export default function Page() {
     }).then((res) => {
       if (!res) return;
       if (res.length === 0) return;
-      console.log(res);
       setHubs(res.filter((hub) => hub.Metadata && hub.Metadata.length > 0));
     });
   }, [params.key]);

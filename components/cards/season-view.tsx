@@ -10,14 +10,14 @@ export const SeasonView: FC<{ season: Plex.Child }> = ({ season }) => {
 
   return (
     <button
-      className="relative text-left hover:outline outline-plex overflow-hidden rounded bg-secondary/40"
+      className="relative text-left"
       onClick={() => {
         router.push(`${pathname}?mid=${season.ratingKey}`, { scroll: false });
       }}
     >
       <img
         loading="lazy"
-        className="w-full object-cover aspect-[9/14] top-0"
+        className="w-full object-cover aspect-[9/14] top-0 rounded"
         src={`${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
           {
             width: 300,
@@ -30,9 +30,9 @@ export const SeasonView: FC<{ season: Plex.Child }> = ({ season }) => {
         )}`}
         alt="season poster"
       />
-      <div className="p-4">
-        <p className="font-bold w-full truncate">{season.title}</p>
-        <p className="font-bold w-full text-muted-foreground truncate">
+      <div className="p-2 w-full font-semibold">
+        <p className="truncate">{season.title}</p>
+        <p className="text-muted-foreground truncate">
           {season.leafCount} Episodes
         </p>
       </div>

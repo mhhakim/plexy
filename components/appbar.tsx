@@ -9,6 +9,8 @@ import { usePathname } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { Search } from "@/components/search";
 import { useLibraries } from "@/components/auth-provider";
+import { useIsAtTop } from "@/hooks/use-is-at-top";
+import { cn } from "@/lib/utils";
 
 const HeadLink: FC<{
   children: ReactNode;
@@ -25,10 +27,13 @@ const HeadLink: FC<{
   );
 };
 
+export const APPBAR_HEIGHT = "4rem";
+
 export const Appbar = () => {
   const path = usePathname();
   const { user } = useSession();
   const { libraries } = useLibraries();
+  const isAtTop = useIsAtTop();
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -39,7 +44,14 @@ export const Appbar = () => {
   };
 
   return (
-    <div className="flex flex-row gap-8 px-8 py-4 items-center fixed top-0 h-16 w-full z-[45] transition duration-500 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+    <div
+      className={cn(
+        `flex flex-row gap-8 px-8 py-4 items-center fixed top-0 h-[${APPBAR_HEIGHT}] w-full z-[45] transition duration-500`,
+        isAtTop
+          ? ""
+          : "backdrop-blur bg-background/95 supports-[backdrop-filter]:bg-background/60",
+      )}
+    >
       <Image src="/plex.png" alt="Plex logo" height={25} width={54} />
       <div className="flex flex-row gap-4 items-center">
         <HeadLink href="/" active={path === "/"}>

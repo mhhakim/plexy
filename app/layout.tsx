@@ -4,7 +4,6 @@ import { Appbar } from "@/components/appbar";
 import { ReactNode, Suspense } from "react";
 import Providers from "@/components/providers";
 import { Quicksand } from "next/font/google";
-import "@/app/slider.scss";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 

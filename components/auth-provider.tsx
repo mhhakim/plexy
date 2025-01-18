@@ -13,11 +13,11 @@ import { PLEX } from "@/constants";
 import axios from "axios";
 
 const LibrariesContext = createContext({ libraries: [] } as {
-  libraries: Plex.LibarySection[];
+  libraries: Plex.LibrarySection[];
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [libraries, setLibraries] = useState<Plex.LibarySection[]>([]);
+  const [libraries, setLibraries] = useState<Plex.LibrarySection[]>([]);
 
   useEffect(() => {
     let pin = localStorage.getItem("pin");
@@ -86,10 +86,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const controllers = res2.data[0].connections.map(
             () => new AbortController(),
           );
-          const promises = res2.data[0].connections.map((connection, index) => {
+          const promises: Promise<{
+            data: Plex.LibrarySection[];
+            uri: string;
+          }>[] = res2.data[0].connections.map((connection, index) => {
             return new Promise((resolve, reject) => {
               axios
-                .get<{ MediaContainer: { Directory: Plex.LibarySection[] } }>(
+                .get<{ MediaContainer: { Directory: Plex.LibrarySection[] } }>(
                   `${connection.uri}/library/sections`,
                   {
                     headers: {
@@ -123,7 +126,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           });
 
           // Use Promise.race to stop as soon as we find a valid server
-          const result: { data: Plex.LibarySection[]; uri: string } =
+          const result: { data: Plex.LibrarySection[]; uri: string } =
             await Promise.race(promises);
 
           // Abort remaining requests

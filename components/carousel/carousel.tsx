@@ -45,7 +45,8 @@ export const CarouselContext = createContext(
     spacing: number;
     scale: number;
     openIndex: string | null;
-    setOpenIndex: Dispatch<SetStateAction<string | null>>;
+    open: (refKey: string) => void;
+    close: () => void;
   },
 );
 
@@ -58,6 +59,15 @@ const CarouselProvider: FC<{
   scale: number;
 }> = ({ children, size, firstIndex, lastIndex, spacing, scale }) => {
   const { openIndex, setOpenIndex } = useContext(CarouselWrapperContext);
+
+  const close = () => {
+    setOpenIndex(null);
+  };
+
+  const open = (refKey: string) => {
+    setOpenIndex(refKey);
+  };
+
   return (
     <CarouselContext.Provider
       value={{
@@ -67,7 +77,8 @@ const CarouselProvider: FC<{
         spacing,
         scale,
         openIndex,
-        setOpenIndex,
+        open,
+        close,
       }}
     >
       {children}
@@ -76,18 +87,10 @@ const CarouselProvider: FC<{
 };
 
 export const useCarouselItem = (index: number, refKey: string) => {
-  const { size, firstIndex, lastIndex, spacing, openIndex, setOpenIndex } =
+  const { size, firstIndex, lastIndex, spacing, openIndex, open, close } =
     useContext(CarouselContext);
 
   const isOpen = useMemo(() => openIndex === refKey, [openIndex, refKey]);
-
-  const open = () => {
-    setOpenIndex(refKey);
-  };
-
-  const close = () => {
-    setOpenIndex(null);
-  };
 
   return {
     size: size - spacing,
@@ -97,7 +100,7 @@ export const useCarouselItem = (index: number, refKey: string) => {
     isLast: index === lastIndex,
     spacing,
     isOpen,
-    open,
+    open: () => open(refKey),
     close,
   };
 };
@@ -115,6 +118,7 @@ const Carousel: FC<{
   scale = 1.2,
   minimumVisibleItem = 1,
 }) => {
+  const { close } = useContext(CarouselContext);
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAtEndOfScroll, setIsAtEndOfScroll] = useState(false);
@@ -259,37 +263,41 @@ const Carousel: FC<{
     <div className="max-w-full w-full relative group mx-auto">
       <button
         className={cn(
-          `hidden absolute left-0 top-0 bottom-0 flex-row justify-center items-center carousel-button z-50 bg-gradient-to-r from-background to-transparent`,
+          `absolute left-0 top-0 bottom-0 flex-row justify-center items-center z-50 bg-gradient-to-r from-background to-transparent`,
           !isContainerScrollable ? "" : "flex",
         )}
         onClick={handlePrevious}
         style={{ width: `${edges}px` }}
         disabled={isAtStartOfScroll}
+        onMouseEnter={close}
       >
         <ChevronLeft
           size={40}
           color={"#ffffff"}
           className={cn(
-            "duration-200 hidden",
-            isAtStartOfScroll ? "" : "group-hover:block",
+            "transition opacity-0",
+            isAtStartOfScroll
+              ? ""
+              : "group-hover:opacity-100 group-hover:block",
           )}
         />
       </button>
       <button
         className={cn(
-          `hidden absolute right-0 top-0 bottom-0 flex-row justify-center items-center carousel-button z-50 bg-gradient-to-l from-background to-transparent`,
+          `absolute right-0 top-0 bottom-0 flex-row justify-center items-center carousel-button z-50 bg-gradient-to-l from-background to-transparent`,
           !isContainerScrollable ? "" : "flex",
         )}
         onClick={handleNext}
         style={{ width: `${edges}px` }}
         disabled={isAtEndOfScroll}
+        onMouseEnter={close}
       >
         <ChevronRight
           size={40}
           color={"#ffffff"}
           className={cn(
-            "duration-200 hidden",
-            isAtEndOfScroll ? "" : "group-hover:block",
+            "transition opacity-0",
+            isAtEndOfScroll ? "" : "group-hover:opacity-100 group-hover:block",
           )}
         />
       </button>

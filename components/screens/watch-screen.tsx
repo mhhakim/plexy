@@ -82,7 +82,9 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
   const seekToAfterLoad = useRef<number | null>(null);
   const [progress, setProgress] = useState(0);
   const [buffered, setBuffered] = useState(0);
-  const [openVolume, setOpenVolume] = useState(false);
+  const [isMuted, setIsMuted] = useState(
+    localStorage.getItem("is_watch_muted") === "true",
+  );
   const [buffering, setBuffering] = useState(false);
   const [showError, setShowError] = useState(false);
   const [showControls, setShowControls] = useState(true);
@@ -377,7 +379,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
             <ReactPlayer
               ref={player}
               playing={playing}
-              volume={volume / 100}
+              volume={(isMuted ? 0 : volume) / 100}
               onClick={(e: MouseEvent) => {
                 e.preventDefault();
 
@@ -595,40 +597,43 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                   />
                 )}
               </button>
-              <div className="flex group items-center gap-4">
+              <div className="flex group items-center">
                 <button
                   onClick={() => {
-                    let updatedVolume = 100;
-                    if (volume > 0) updatedVolume = 0;
-                    localStorage.setItem("volume", updatedVolume.toString());
-                    setVolume(updatedVolume);
+                    localStorage.setItem(
+                      "is_watch_muted",
+                      isMuted ? "false" : "true",
+                    );
+                    setIsMuted(!isMuted);
                   }}
                 >
-                  {volume === 0 ? (
-                    <VolumeX className="w-8 h-8 text-muted-foreground group-hover:scale-125 hover:text-primary transition duration-75" />
+                  {volume === 0 || isMuted ? (
+                    <VolumeX className="w-8 h-8 text-muted-foreground hover:scale-125 hover:text-primary transition duration-75" />
                   ) : volume < 45 ? (
-                    <Volume1 className="w-8 h-8 text-muted-foreground group-hover:scale-125 hover:text-primary transition duration-75" />
+                    <Volume1 className="w-8 h-8 text-muted-foreground hover:scale-125 hover:text-primary transition duration-75" />
                   ) : (
-                    <Volume2 className="w-8 h-8 text-muted-foreground group-hover:scale-125 hover:text-primary transition duration-75" />
+                    <Volume2 className="w-8 h-8 text-muted-foreground hover:scale-125 hover:text-primary transition duration-75" />
                   )}
                 </button>
-                <div className="group-hover:block hidden">
+                <div className="overflow-visible group-hover:opacity-100 opacity-0 pl-0 group-hover:pl-4 transition-all duration-200">
                   <Slider
-                    className="w-[200px]"
-                    value={[volume]}
-                    defaultValue={[volume]}
+                    className="group-hover:max-w-none max-w-[0px] w-[200px] h-full transition-all duration-200"
+                    value={[isMuted ? 0 : volume]}
+                    defaultValue={[isMuted ? 0 : volume]}
                     max={100}
                     min={0}
                     step={1}
                     onValueChange={(value) => {
                       localStorage.setItem("volume", value[0].toString());
                       setVolume(value[0]);
+                      localStorage.setItem("is_watch_muted", "false");
+                      setIsMuted(false);
                     }}
                   />
                 </div>
               </div>
               <div className="flex-1" />
-              <p className="font-bold select-none">
+              <p className="font-bold select-none text-center">
                 {metadata.type === "movie" && metadata.title}
                 {metadata.type === "episode" &&
                   `${metadata.grandparentTitle} - S${metadata.parentIndex?.toString().padStart(2, "0")}E${metadata.index?.toString().padStart(2, "0")} - ${metadata.title}`}

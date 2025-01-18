@@ -22,6 +22,7 @@
     :root {
         --plex-accent: 42 97% 46%;
         --background: 0 0% 100%;
+        --alternative: 21, 21, 23;
         --foreground: 240 10% 3.9%;
         --card: 0 0% 100%;
         --card-foreground: 240 10% 3.9%;
@@ -51,6 +52,7 @@
     .dark {
         --plex-accent: 42 97% 46%;
         --background: 240 10% 3.9%;
+        --alternative: 21, 21, 23;
         --foreground: 0 0% 98%;
         --card: 240 10% 3.9%;
         --card-foreground: 0 0% 98%;
@@ -103,9 +105,4 @@
 
 .ui-video-seek-slider .thumb .handler {
     background-color: hsl(var(--plex-accent));
-}
-
-.carousel-button:hover svg {
-    transition: scale;
-    scale: 1.25;
 }

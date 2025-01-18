@@ -5,11 +5,9 @@ import { useQuery } from "@tanstack/react-query";
 import { ServerApi } from "@/api";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { CollectionView } from "@/components/cards/collection-view";
-import qs from "qs";
-import { VideoView } from "@/components/cards/video-view";
 import { LoaderCircle } from "lucide-react";
 import { Canceler } from "axios";
+import { MetadataPreviewItem } from "@/components/cards/metadata-preview-item";
 
 type SelectedType = "recommended" | "collections" | "library";
 
@@ -30,7 +28,7 @@ export default function Page() {
 
   const observer = useRef<IntersectionObserver>();
   const lastRef = useCallback(
-    (node: HTMLButtonElement) => {
+    (node: HTMLDivElement) => {
       if (loading || !hasMore) return;
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
@@ -52,7 +50,6 @@ export default function Page() {
 
   useEffect(() => {
     if (!hasMore) {
-      console.log("safdgfsd");
       return;
     }
     setLoading(true);
@@ -66,7 +63,6 @@ export default function Page() {
         cancel = c;
       },
     }).then((res) => {
-      console.log(res);
       if (res) {
         if (res.results.length + results.length >= res.total) {
           setHasMore(false);
@@ -98,46 +94,13 @@ export default function Page() {
           <div className="max-w-screen-2xl p-20 mx-auto flex flex-col gap-10">
             <p className="font-bold text-5xl">Library</p>
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {results.map((item, i) =>
-                i === results.length - 1 ? (
-                  <VideoView
-                    key={i}
-                    ref={lastRef}
-                    item={{
-                      ...item,
-                      contentRating: item.contentRating ?? "",
-                      image: `${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
-                        {
-                          width: 300 * 2,
-                          height: 170 * 2,
-                          url: `${item.art}?X-Plex-Token=${token}`,
-                          minSize: 1,
-                          upscale: 1,
-                          "X-Plex-Token": token,
-                        },
-                      )}`,
-                    }}
-                  />
-                ) : (
-                  <VideoView
-                    key={i}
-                    item={{
-                      ...item,
-                      contentRating: item.contentRating ?? "",
-                      image: `${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
-                        {
-                          width: 300 * 2,
-                          height: 170 * 2,
-                          url: `${item.art}?X-Plex-Token=${token}`,
-                          minSize: 1,
-                          upscale: 1,
-                          "X-Plex-Token": token,
-                        },
-                      )}`,
-                    }}
-                  />
-                ),
-              )}
+              {results.map((item, i) => (
+                <MetadataPreviewItem
+                  key={i}
+                  ref={i === results.length - 1 ? lastRef : undefined}
+                  item={item}
+                />
+              ))}
             </div>
             {loading && (
               <LoaderCircle className="w-20 h-20 animate-spin text-plex mx-auto" />

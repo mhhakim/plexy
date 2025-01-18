@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { ServerApi } from "@/api";
 import { useQuery } from "@tanstack/react-query";
 import { useHubItem } from "@/hooks/use-hub-item";
+import { APPBAR_HEIGHT } from "@/components/appbar";
 
 export const Hero: FC<{ item: Plex.Metadata }> = ({ item }) => {
   const router = useRouter();
@@ -34,6 +35,14 @@ export const Hero: FC<{ item: Plex.Metadata }> = ({ item }) => {
           style={{
             background:
               "linear-gradient(0, hsl(var(--background)), rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.1))",
+          }}
+        />
+        <div
+          className={`w-full absolute top-0`}
+          style={{
+            height: `calc(${APPBAR_HEIGHT}*5)`,
+            background:
+              "linear-gradient(to top, transparent, rgba(0,0,0,0.06), rgba(0,0,0,0.2), rgba(0,0,0,0.5), rgba(0,0,0,0.8))",
           }}
         />
       </div>

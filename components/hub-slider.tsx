@@ -3,8 +3,8 @@ import qs from "qs";
 import { usePathname, useRouter } from "next/navigation";
 import { ChevronDown, ChevronRight, Play } from "lucide-react";
 import { Carousel, CarouselItem } from "@/components/carousel";
-import { OnDeckImagePreviewItem } from "@/components/hub/on-deck-image-preview-item";
-import { OtherImagePreviewItem } from "@/components/hub/other-image-preview-item";
+import { OnDeckImagePreviewItem } from "@/components/cards/on-deck-image-preview-item";
+import { OtherImagePreviewItem } from "@/components/cards/other-image-preview-item";
 import { useHubItem } from "@/hooks/use-hub-item";
 import { Progress } from "@/components/ui/progress";
 import { durationToMin } from "@/lib/utils";
@@ -18,11 +18,8 @@ const HubItem: FC<{
   isOnDeck: boolean;
   onUpdate: (item: Plex.HubMetadata) => void;
 }> = ({ item, index, refKey, isOnDeck, onUpdate }) => {
-  const {
-    info: { isEpisode, isSeason, isShow, isMovie, ...info },
-    open,
-    play,
-  } = useHubItem(item);
+  const { isEpisode, isSeason, isShow, isMovie, open, play, ...info } =
+    useHubItem(item);
 
   const handleUpdate = () => {
     if (!info.guid) return;
@@ -61,7 +58,7 @@ const HubItem: FC<{
       index={index}
       hoverview={
         isOnDeck ? (
-          <div className="bg-[rgb(21,21,23)] rounded overflow-hidden">
+          <div className="bg-alternative rounded overflow-hidden">
             <OnDeckImagePreviewItem
               item={item}
               progress={false}
@@ -158,6 +155,7 @@ const HubItem: FC<{
                     <Progress
                       className="h-[2px] rounded-full"
                       value={info.progress ?? 0}
+                      color="bg-primary"
                     />
                     <span className="font-bold flex-1 min-w-fit">
                       {item.viewOffset
@@ -231,7 +229,7 @@ export const HubSlider: FC<{
         }}
       >
         <p className="font-bold text-xl md:text-2xl tracking-tight">
-          <span className="px-[5px]">{hub.title}</span>
+          {hub.title}
         </p>
         <div className="group-hover:opacity-100 group-hover:translate-x-0 opacity-0 transition duration-150 -translate-x-full">
           <ChevronRight className="h-6 w-6 text-plex" />

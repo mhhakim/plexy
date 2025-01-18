@@ -363,7 +363,7 @@ export class ServerApi {
   }
   static async libraries() {
     return await axios
-      .get<{ MediaContainer: { Directory: Plex.LibarySection[] } }>(
+      .get<{ MediaContainer: { Directory: Plex.LibrarySection[] } }>(
         `${localStorage.getItem("server")}/library/sections`,
         {
           headers: {
@@ -467,7 +467,7 @@ export class ServerApi {
     libraries,
     include = false,
   }: {
-    libraries: Plex.LibarySection[];
+    libraries: Plex.LibrarySection[];
     include?: boolean;
   }): Promise<RecommendationShelf[]> {
     const selections: RecommendationShelf[] = [];
