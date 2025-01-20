@@ -6,11 +6,17 @@ import { cn } from "@/lib/utils";
 
 export const OnDeckImagePreviewItem: FC<
   Omit<React.ComponentPropsWithoutRef<typeof ElementImagePreviewItem>, "image">
-> = ({ item, className, ...rest }) => {
+> = ({ item, className, higherResolution, ...rest }) => {
   const image = useMemo(() => {
-    if (item.type === "movie") return getCoverImage(item.art);
-    if (item.type === "episode") return getCoverImage(item.thumb ?? item.art);
-    return getCoverImage(item.grandparentArt ?? item.art);
+    if (item.type === "movie")
+      return getCoverImage(item.art, false, higherResolution);
+    if (item.type === "episode")
+      return getCoverImage(item.thumb ?? item.art, false, higherResolution);
+    return getCoverImage(
+      item.grandparentArt ?? item.art,
+      false,
+      higherResolution,
+    );
   }, [item]);
 
   return (

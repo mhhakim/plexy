@@ -12,12 +12,17 @@ const MetadataPreviewItem = forwardRef<
   return (
     <div
       ref={ref}
-      className="w-full h-full flex flex-col outline-plex hover:outline rounded overflow-hidden bg-alternative"
+      className="w-full h-full flex flex-col hover:outline rounded overflow-hidden bg-alternative"
     >
-      <OnDeckImagePreviewItem item={item} indicator progress action="open" />
+      <OnDeckImagePreviewItem
+        item={item}
+        indicator
+        action="open"
+        higherResolution
+      />
       <button
         type="button"
-        onClick={open}
+        onClick={() => open()}
         className="flex flex-col flex-1 gap-2 p-4 text-left"
       >
         {isEpisode && (
@@ -39,7 +44,7 @@ const MetadataPreviewItem = forwardRef<
         </p>
 
         {item.summary && (
-          <p className="font-semibold text-muted-foreground text-sm line-clamp-6">
+          <p className="font-semibold text-muted-foreground text-sm line-clamp-3">
             {item.summary}
           </p>
         )}
@@ -47,22 +52,19 @@ const MetadataPreviewItem = forwardRef<
         {(item.contentRating || quality) && (
           <>
             <div className="flex-1" />
-            <div className="flex items-center font-semibold gap-2">
-              {item.year && (
-                <p className="border border-muted-foreground rounded-sm px-1 text-sm">
-                  {item.year}
-                </p>
-              )}
-              {quality && (
-                <p className="border border-muted-foreground rounded-sm px-1 text-sm">
-                  {quality}
-                </p>
-              )}
+            <div className="flex items-center font-semibold gap-2 w-full">
               {item.contentRating && (
                 <p className="border border-muted-foreground rounded-sm px-1 text-sm">
                   {item.contentRating}
                 </p>
               )}
+              {quality && (
+                <p className="border border-plex text-plex rounded-sm px-1 text-sm">
+                  {quality}
+                </p>
+              )}
+              <div className="flex-1"></div>
+              {item.year && <p className="px-1 text-sm">{item.year}</p>}
             </div>
           </>
         )}

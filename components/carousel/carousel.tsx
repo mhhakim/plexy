@@ -4,6 +4,7 @@ import {
   FC,
   ReactNode,
   SetStateAction,
+  TouchEvent,
   useContext,
   useEffect,
   useMemo,
@@ -126,6 +127,8 @@ const Carousel: FC<{
   const [isContainerScrollable, setIsContainerScrollable] = useState(false);
   const [numberOfItemsVisible, setNumberOfItemsVisible] = useState(0);
   const [size, setSize] = useState(0);
+  const [startMove, setStartMove] = useState<number | null>(null);
+  const [moved, setMoved] = useState<boolean>(false);
 
   // MUST NOT TOUCH THIS USE EFFECT
   useEffect(() => {
@@ -258,6 +261,52 @@ const Carousel: FC<{
       0,
     );
   };
+
+  useEffect(() => {
+    const onmove = (e: TouchEvent) => {
+      e.preventDefault();
+      if (!moved) {
+        if (startMove === null) {
+          setStartMove(e.touches[0].clientX);
+        } else {
+          const diff = startMove - e.touches[0].clientX;
+          const diffAbs = Math.abs(diff);
+          if (diffAbs > 50) {
+            if (diff < 0) {
+              handlePrevious();
+            } else {
+              handleNext();
+            }
+            setMoved(true);
+          }
+        }
+      }
+    };
+
+    const touchend = () => {
+      setMoved(false);
+      setStartMove(null);
+    };
+
+    const container = containerRef.current;
+    if (container) {
+      // @ts-ignore
+      container.addEventListener("touchmove", onmove, { passive: false });
+      // @ts-ignore
+      container.addEventListener("touchstart", onmove, { passive: false });
+      container.addEventListener("touchend", touchend);
+    }
+
+    return () => {
+      if (container) {
+        // @ts-ignore
+        container.removeEventListener("touchmove", onmove);
+        // @ts-ignore
+        container.removeEventListener("touchstart", onmove);
+        container.removeEventListener("touchend", touchend);
+      }
+    };
+  }, [startMove, moved]);
 
   return (
     <div className="max-w-full w-full relative group mx-auto">

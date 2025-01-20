@@ -60,7 +60,8 @@ declare namespace Plex {
     | "episode"
     | "track"
     | "season"
-    | "album";
+    | "album"
+    | "collection";
 
   interface LibrarySection {
     allowSync: boolean;
@@ -463,6 +464,8 @@ declare namespace Plex {
   }
 
   export interface HubMetadata {
+    parentRatingKey?: string;
+    grandparentRatingKey?: string;
     grandparentThumb?: string;
     parentThumb?: string;
     viewedLeafCount?: number;

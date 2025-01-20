@@ -6,15 +6,21 @@ import { ElementImagePreviewItem } from "@/components/cards/element-image-previe
 
 export const OtherImagePreviewItem: FC<
   Omit<React.ComponentPropsWithoutRef<typeof ElementImagePreviewItem>, "image">
-> = ({ item, className, ...rest }) => {
+> = ({ item, higherResolution, className, ...rest }) => {
   const image = useMemo(() => {
     if (item.type === "episode")
       return getPosterImage(
         item.parentThumb ?? item.grandparentThumb ?? item.thumb,
+        false,
+        higherResolution,
       );
     if (item.type === "season")
-      return getPosterImage(item.thumb ?? item.parentThumb);
-    return getPosterImage(item.thumb);
+      return getPosterImage(
+        item.thumb ?? item.parentThumb,
+        false,
+        higherResolution,
+      );
+    return getPosterImage(item.thumb, false, higherResolution);
   }, [item]);
 
   return (

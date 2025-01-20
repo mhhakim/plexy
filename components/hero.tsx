@@ -20,16 +20,17 @@ export const Hero: FC<{ item: Plex.Metadata }> = ({ item }) => {
     },
   });
 
-  const { play } = useHubItem(metadata.data ?? item);
+  const { play, coverImage, playable, open } = useHubItem(
+    metadata.data ?? item,
+    {
+      fullSize: true,
+    },
+  );
 
   return (
     <div className="w-full flex flex-col items-start justify-start relative">
       <div className="relative w-full">
-        <img
-          className="w-full top-0"
-          src={`${localStorage.getItem("server")}${item.art}?X-Plex-Token=${localStorage.getItem("token")}`}
-          alt="preview image"
-        />
+        <img className="w-full top-0" src={coverImage} alt="preview image" />
         <div
           className="w-full h-full absolute top-0"
           style={{
@@ -38,7 +39,7 @@ export const Hero: FC<{ item: Plex.Metadata }> = ({ item }) => {
           }}
         />
         <div
-          className={`w-full absolute top-0`}
+          className="w-full absolute top-0"
           style={{
             height: `calc(${APPBAR_HEIGHT}*5)`,
             background:
@@ -55,33 +56,14 @@ export const Hero: FC<{ item: Plex.Metadata }> = ({ item }) => {
         </p>
         <div className="flex flex-row gap-2">
           {metadata.data && (
-            <Button
-              variant="default"
-              onClick={play}
-              className="font-bold xl:text-lg"
-            >
+            <Button variant="default" onClick={play} className="font-bold">
               <Play fill="currentColor" /> Play
-              {(metadata.data.type === "show" ||
-                metadata.data.type === "season") &&
-                metadata.data.OnDeck &&
-                metadata.data.OnDeck?.Metadata &&
-                ` ${
-                  metadata.data.Children?.size &&
-                  metadata.data.Children.size > 0
-                    ? `S${metadata.data.OnDeck.Metadata.parentIndex}`
-                    : ""
-                } E${metadata.data.OnDeck.Metadata.index}`}
+              {playable
+                ? `${playable.season !== null ? ` ${playable.season}S` : ""}${playable.episode !== null ? ` ${playable.episode}E` : ""}`
+                : null}
             </Button>
           )}
-          <Button
-            type="button"
-            className="font-bold xl:text-lg"
-            onClick={() => {
-              router.push(`${pathname}?mid=${item.ratingKey.toString()}`, {
-                scroll: false,
-              });
-            }}
-          >
+          <Button type="button" className="font-bold" onClick={() => open()}>
             <Info /> More Info
           </Button>
         </div>

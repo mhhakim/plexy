@@ -19,7 +19,6 @@ export default function Providers({ children }: { children: ReactNode }) {
   const watch = searchParams.get("watch");
   const key = searchParams.get("key");
   const libtitle = searchParams.get("libtitle");
-  const full = searchParams.get("full");
   const contentDirectoryID = searchParams.get("contentDirectoryID");
 
   useEffect(() => {
@@ -50,7 +49,6 @@ export default function Providers({ children }: { children: ReactNode }) {
                   contentDirectoryID={contentDirectoryID ?? undefined}
                   title={libtitle ?? undefined}
                   keypath={key ?? undefined}
-                  full={!!(full && full === "true")}
                 />
               </Suspense>
               {children}

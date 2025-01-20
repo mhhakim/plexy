@@ -753,7 +753,7 @@ export class ServerApi {
           includeLibraryPlaylists: 1,
           includeRecentChannels: 1,
           includeCollections: 1,
-          ...includes,
+          includeOnDeck: 1,
           ...xprops(),
         })}`,
         {

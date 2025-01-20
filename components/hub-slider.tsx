@@ -23,30 +23,27 @@ const HubItem: FC<{
 
   const handleUpdate = () => {
     if (!info.guid) return;
-    ServerApi.discoverMetadata({ guid: info.guid }).then((res) => {
-      if (res) {
-        ServerApi.key(
-          { key: item.key },
-          {
-            includeConcerts: 1,
-            includeExtras: 1,
-            includeOnDeck: 1,
-            includePopularLeaves: 1,
-            includePreferences: 1,
-            includeReviews: 1,
-            includeChapters: 1,
-            includeStations: 1,
-            includeExternalMedia: 1,
-            asyncAugmentMetadata: 1,
-            asyncCheckFiles: 1,
-            asyncRefreshAnalysis: 1,
-            asyncRefreshLocalMediaAgent: 1,
-          },
-        ).then((res) => {
-          if (res && res.length > 0) {
-            onUpdate(res[0]);
-          }
-        });
+    ServerApi.discoverMetadata({ guid: info.guid }).then(console.log);
+    ServerApi.key(
+      { key: item.key },
+      {
+        includeConcerts: 1,
+        includeExtras: 1,
+        includeOnDeck: 1,
+        includePopularLeaves: 1,
+        includePreferences: 1,
+        includeReviews: 1,
+        includeChapters: 1,
+        includeStations: 1,
+        includeExternalMedia: 1,
+        asyncAugmentMetadata: 1,
+        asyncCheckFiles: 1,
+        asyncRefreshAnalysis: 1,
+        asyncRefreshLocalMediaAgent: 1,
+      },
+    ).then((res) => {
+      if (res && res.length > 0) {
+        onUpdate(res[0]);
       }
     });
   };
@@ -65,7 +62,7 @@ const HubItem: FC<{
               action="play"
             />
             <div
-              onClick={open}
+              onClick={() => open()}
               className="p-4 w-full max-w-full flex-1 text-left text-xs cursor-pointer"
             >
               <div className="mb-2 flex flex-row items-center gap-2">
@@ -204,6 +201,7 @@ export const isOnDeckHub = (hub: Plex.Hub) => {
   return isInProgress || isContinueWatching || isEpisodeType;
 };
 
+// TODO: have the HubSlider only receive the hub key and then let him deal with the items and fetching
 export const HubSlider: FC<{
   hub: Plex.Hub;
   onUpdate: (item: Plex.HubMetadata, index: number) => void;

@@ -1,17 +1,20 @@
 "use client";
 
 import { ServerApi } from "@/api";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useEffect, useState } from "react";
 import { Hero } from "@/components/hero";
 import { HubSlider, isOnDeckHub } from "@/components/hub-slider";
+import { Button } from "@/components/ui/button";
+import qs from "qs";
 
 type SelectedType = "recommended" | "collections" | "library";
 
 export default function Page() {
   const params = useParams<{ key: string }>();
+  const pathname = usePathname();
   const router = useRouter();
   const library = useQuery({
     queryKey: ["details", params.key],
@@ -96,41 +99,36 @@ export default function Page() {
           </div>
         </div>
         <div className="absolute right-0 top-16 p-4">
-          <ToggleGroup
-            type="single"
-            value="recommended"
-            onValueChange={(value: SelectedType) => {
-              if (value === "collections") {
-                router.push(`/browse/${params.key}/collections`);
-              } else if (value === "library") {
-                router.push(`/browse/${params.key}/library`);
-              }
+          <Button
+            type="button"
+            variant="search"
+            size="sm"
+            onClick={() => {
+              router.push(
+                `${pathname}?${qs.stringify({ key: `/library/sections/${params.key}/all?sort=titleSort`, libtitle: "Library" })}`,
+                {
+                  scroll: false,
+                },
+              );
             }}
           >
-            <ToggleGroupItem
-              value="recommended"
-              aria-label="Recommended"
-              variant="outline"
-              size="sm"
-            >
-              Recommended
-            </ToggleGroupItem>
-            {/*<ToggleGroupItem*/}
-            {/*  value="collections"*/}
-            {/*  aria-label="Collections"*/}
-            {/*  variant="outline"*/}
-            {/*>*/}
-            {/*  Collections*/}
-            {/*</ToggleGroupItem>*/}
-            <ToggleGroupItem
-              value="library"
-              aria-label="Library"
-              variant="outline"
-              size="sm"
-            >
-              Library
-            </ToggleGroupItem>
-          </ToggleGroup>
+            Library
+          </Button>
+          {/*<Button*/}
+          {/*  type="button"*/}
+          {/*  variant="search"*/}
+          {/*  size="sm"*/}
+          {/*  onClick={() => {*/}
+          {/*    router.push(*/}
+          {/*      `${pathname}?${qs.stringify({ key: `/library/sections/${params.key}/collections`, libtitle: "Collections" })}`,*/}
+          {/*      {*/}
+          {/*        scroll: false,*/}
+          {/*      },*/}
+          {/*    );*/}
+          {/*  }}*/}
+          {/*>*/}
+          {/*  Collections*/}
+          {/*</Button>*/}
         </div>
       </>
     );

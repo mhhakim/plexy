@@ -13,6 +13,7 @@ export const ElementImagePreviewItem: FC<{
   className?: ClassNameValue;
   progress?: boolean;
   quality?: boolean;
+  higherResolution?: boolean;
 }> = ({
   item,
   image,
@@ -22,9 +23,12 @@ export const ElementImagePreviewItem: FC<{
   action = null,
   progress = true,
   quality = false,
+  higherResolution = false,
 }) => {
-  const { isEpisode, isMovie, isSeason, play, open, ...info } =
-    useHubItem(item);
+  const { isEpisode, isMovie, isSeason, play, open, ...info } = useHubItem(
+    item,
+    { higherResolution },
+  );
   return (
     <button
       className={cn("relative w-full flex flex-col", className)}
