@@ -38,12 +38,12 @@ const CarouselItem: FC<{
       clearTimeout(timer);
     };
 
-    itemRef.current.addEventListener("mouseenter", enter);
-    itemRef.current.addEventListener("mouseleave", leave);
+    itemRef.current.addEventListener("pointerenter", enter);
+    itemRef.current.addEventListener("pointerleave", leave);
 
     return () => {
-      itemRef.current?.removeEventListener("mouseenter", enter);
-      itemRef.current?.removeEventListener("mouseleave", leave);
+      itemRef.current?.removeEventListener("pointerenter", enter);
+      itemRef.current?.removeEventListener("pointerleave", leave);
     };
   }, [itemRef.current]);
 
