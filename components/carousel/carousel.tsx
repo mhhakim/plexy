@@ -262,51 +262,52 @@ const Carousel: FC<{
     );
   };
 
-  useEffect(() => {
-    const onmove = (e: TouchEvent) => {
-      e.preventDefault();
-      if (!moved) {
-        if (startMove === null) {
-          setStartMove(e.touches[0].clientX);
-        } else {
-          const diff = startMove - e.touches[0].clientX;
-          const diffAbs = Math.abs(diff);
-          if (diffAbs > 50) {
-            if (diff < 0) {
-              handlePrevious();
-            } else {
-              handleNext();
-            }
-            setMoved(true);
-          }
-        }
-      }
-    };
-
-    const touchend = () => {
-      setMoved(false);
-      setStartMove(null);
-    };
-
-    const container = containerRef.current;
-    if (container) {
-      // @ts-ignore
-      container.addEventListener("touchmove", onmove, { passive: false });
-      // @ts-ignore
-      container.addEventListener("touchstart", onmove, { passive: false });
-      container.addEventListener("touchend", touchend);
-    }
-
-    return () => {
-      if (container) {
-        // @ts-ignore
-        container.removeEventListener("touchmove", onmove);
-        // @ts-ignore
-        container.removeEventListener("touchstart", onmove);
-        container.removeEventListener("touchend", touchend);
-      }
-    };
-  }, [startMove, moved]);
+  // TODO: fix on click/touch events and vertical scroll
+  // useEffect(() => {
+  //   const onmove = (e: TouchEvent) => {
+  //     e.preventDefault();
+  //     if (!moved) {
+  //       if (startMove === null) {
+  //         setStartMove(e.touches[0].clientX);
+  //       } else {
+  //         const diff = startMove - e.touches[0].clientX;
+  //         const diffAbs = Math.abs(diff);
+  //         if (diffAbs > 50) {
+  //           if (diff < 0) {
+  //             handlePrevious();
+  //           } else {
+  //             handleNext();
+  //           }
+  //           setMoved(true);
+  //         }
+  //       }
+  //     }
+  //   };
+  //
+  //   const touchend = () => {
+  //     setMoved(false);
+  //     setStartMove(null);
+  //   };
+  //
+  //   const container = containerRef.current;
+  //   if (container) {
+  //     // @ts-ignore
+  //     container.addEventListener("touchmove", onmove, { passive: false });
+  //     // @ts-ignore
+  //     container.addEventListener("touchstart", onmove, { passive: false });
+  //     container.addEventListener("touchend", touchend);
+  //   }
+  //
+  //   return () => {
+  //     if (container) {
+  //       // @ts-ignore
+  //       container.removeEventListener("touchmove", onmove);
+  //       // @ts-ignore
+  //       container.removeEventListener("touchstart", onmove);
+  //       container.removeEventListener("touchend", touchend);
+  //     }
+  //   };
+  // }, [startMove, moved]);
 
   return (
     <div className="max-w-full w-full relative group mx-auto">
