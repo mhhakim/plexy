@@ -3,14 +3,11 @@
 import { ServerApi } from "@/api";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useEffect, useState } from "react";
 import { Hero } from "@/components/hero";
-import { HubSlider, isOnDeckHub } from "@/components/hub-slider";
+import { HubSlider } from "@/components/hub-slider";
 import { Button } from "@/components/ui/button";
 import qs from "qs";
-
-type SelectedType = "recommended" | "collections" | "library";
 
 export default function Page() {
   const params = useParams<{ key: string }>();

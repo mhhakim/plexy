@@ -262,6 +262,7 @@ const Carousel: FC<{
     );
   };
 
+  // TODO: fix on click/touch events and vertical scroll
   useEffect(() => {
     const onmove = (e: TouchEvent) => {
       e.preventDefault();
@@ -292,8 +293,6 @@ const Carousel: FC<{
     if (container) {
       // @ts-ignore
       container.addEventListener("touchmove", onmove, { passive: false });
-      // @ts-ignore
-      container.addEventListener("touchstart", onmove, { passive: false });
       container.addEventListener("touchend", touchend);
     }
 
@@ -301,8 +300,6 @@ const Carousel: FC<{
       if (container) {
         // @ts-ignore
         container.removeEventListener("touchmove", onmove);
-        // @ts-ignore
-        container.removeEventListener("touchstart", onmove);
         container.removeEventListener("touchend", touchend);
       }
     };

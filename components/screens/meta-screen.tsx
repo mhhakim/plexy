@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useEffect, useMemo, useRef, useState } from "react";
+import { FC, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ServerApi } from "@/api";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -29,6 +29,7 @@ import qs from "qs";
 import { MetadataPreviewItem } from "@/components/cards/metadata-preview-item";
 import { Skeleton } from "@/components/ui/skeleton";
 import ReactPlayer from "react-player";
+import { CarouselContext } from "@/components/carousel";
 
 export const MetaScreen: FC = () => {
   const pathname = usePathname();
@@ -58,6 +59,7 @@ export const MetaScreen: FC = () => {
   const { languages, subtitles, process } = useItemLanguages();
   const [preview, setPreview] = useState<string | null>(null);
   const [playing, setPlaying] = useState<boolean>(false);
+  const { close } = useContext(CarouselContext);
 
   useEffect(() => {
     if (!metadata) return;
@@ -81,6 +83,8 @@ export const MetaScreen: FC = () => {
     closeButtonRef.current?.scrollIntoView(false);
     setPreview(null);
     setPlaying(false);
+
+    if (mid && close) close();
   }, [mid]);
 
   useEffect(() => {
@@ -443,6 +447,7 @@ export const MetaScreen: FC = () => {
                           <div className="flex flex-col w-full">
                             {seasonChildren.map((child) => (
                               <EpisodePreviewItem
+                                key={child.ratingKey}
                                 item={child}
                                 count={episodeIndexCharCount}
                               />
@@ -485,6 +490,7 @@ export const MetaScreen: FC = () => {
                           <div className="flex flex-col w-full">
                             {episodeChildren.map((child) => (
                               <EpisodePreviewItem
+                                key={child.ratingKey}
                                 selected={child.ratingKey === mid}
                                 item={child}
                                 count={episodeIndexCharCount}
@@ -501,7 +507,7 @@ export const MetaScreen: FC = () => {
                         <Skeleton className="h-7 w-[20ch]" />
                         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                           {Array.from({ length: 5 }).map((_, i) => (
-                            <div className="bg-alternative rounded">
+                            <div className="bg-alternative rounded" key={i}>
                               <Skeleton
                                 key={i}
                                 className="aspect-video w-full rounded-b-none"
