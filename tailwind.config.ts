@@ -9,9 +9,14 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      screens: {
+        "3xl": "1600px",
+        "4xl": "2000px",
+      },
       colors: {
         plex: "hsl(var(--plex-accent))",
         background: "hsl(var(--background))",
+        alternative: "rgb(var(--alternative))",
         foreground: "hsl(var(--foreground))",
         card: {
           DEFAULT: "hsl(var(--card))",

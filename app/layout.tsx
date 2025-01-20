@@ -4,7 +4,6 @@ import { Appbar } from "@/components/appbar";
 import { ReactNode, Suspense } from "react";
 import Providers from "@/components/providers";
 import { Quicksand } from "next/font/google";
-import "@/app/slider.scss";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
@@ -25,7 +24,9 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/plexicon.png" />
       </head>
-      <body className={`${quicksand.className} antialiased bg-background`}>
+      <body
+        className={`${quicksand.className} antialiased bg-background pb-20`}
+      >
         <Suspense>
           <Providers>
             <Appbar />

@@ -3,7 +3,6 @@
 import { ServerApi } from "@/api";
 import { useEffect, useState } from "react";
 import { Hero } from "@/components/hero";
-import _ from "lodash";
 import { HubSlider } from "@/components/hub-slider";
 import { useLibraries } from "@/components/auth-provider";
 
@@ -77,22 +76,25 @@ export default function Home() {
 
   return (
     <div className="w-full flex flex-col items-start justify-start">
-      {item ? <Hero item={item} /> : <div className="h-16" />}
-      <div
-        className={`flex flex-col items-start justify-start w-full z-10 ${item ? "-mt-20" : "mt-16"}`}
-      >
-        {continueWatching && (
-          <HubSlider onUpdate={updateContinueWatching} hub={continueWatching} />
-        )}
-        {promoted &&
-          promoted.map((item, i) => (
+      {item && <Hero item={item} />}
+      {item && (
+        <div className="flex flex-col items-start justify-start w-full z-10 lg:-mt-[calc(10vw-4rem)] md:mt-[3rem] -mt-[calc(-10vw-2rem)]">
+          {continueWatching && (
             <HubSlider
-              onUpdate={updatePromoted}
-              key={`${item.key}-${i}`}
-              hub={item}
+              onUpdate={updateContinueWatching}
+              hub={continueWatching}
             />
-          ))}
-      </div>
+          )}
+          {promoted &&
+            promoted.map((item, i) => (
+              <HubSlider
+                onUpdate={updatePromoted}
+                key={`${item.key}-${i}`}
+                hub={item}
+              />
+            ))}
+        </div>
+      )}
     </div>
   );
 }

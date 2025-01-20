@@ -52,7 +52,7 @@ declare namespace Plex {
     voiceSearch: boolean;
   }
 
-  type LibaryType =
+  type LibraryType =
     | "movie"
     | "show"
     | "artist"
@@ -60,9 +60,10 @@ declare namespace Plex {
     | "episode"
     | "track"
     | "season"
-    | "album";
+    | "album"
+    | "collection";
 
-  interface LibarySection {
+  interface LibrarySection {
     allowSync: boolean;
     art: string;
     composite: string;
@@ -70,7 +71,7 @@ declare namespace Plex {
     refreshing: boolean;
     thumb: string;
     key: string;
-    type: LibaryType;
+    type: LibraryType;
     title: string;
     agent: string;
     scanner: string;
@@ -141,7 +142,7 @@ declare namespace Plex {
 
   interface Type {
     key: string;
-    type: LibaryType;
+    type: LibraryType;
     title: string;
     active: boolean;
     Filter: Filter[];
@@ -191,12 +192,14 @@ declare namespace Plex {
     guid: string;
     slug?: string;
     studio: string;
-    type: LibaryType;
+    type: LibraryType;
     title: string;
     titleSort?: string;
     librarySectionTitle: string;
     librarySectionID: number;
     librarySectionKey: string;
+    grandparentArt?: string;
+    grandparentThumb?: string;
     grandparentKey?: string;
     parentKey?: string;
     grandparentTitle?: string;
@@ -460,98 +463,120 @@ declare namespace Plex {
     minOffsetAvailable: number;
   }
 
+  export interface HubMetadata {
+    parentRatingKey?: string;
+    grandparentRatingKey?: string;
+    grandparentThumb?: string;
+    parentThumb?: string;
+    viewedLeafCount?: number;
+    grandparentTitle?: string;
+    parentTitle?: string;
+    index?: number;
+    parentIndex?: number;
+    leafCount?: number;
+    childCount?: number;
+    ratingKey: string;
+    key: string;
+    guid: string;
+    slug: string;
+    studio: string;
+    type: LibraryType;
+    title: string;
+    summary: string;
+    audienceRating: number;
+    viewCount?: number;
+    skipCount?: number;
+    lastViewedAt?: number;
+    year: number;
+    thumb: string;
+    art: string;
+    duration: number;
+    originallyAvailableAt: string;
+    grandparentArt?: string;
+    addedAt: number;
+    updatedAt: number;
+    audienceRatingImage: string;
+    viewOffset?: number;
+    OnDeck?: {
+      Metadata: Metadata;
+    };
+    Children?: {
+      size: number;
+      Metadata: Child[];
+    };
+    Media: {
+      id: number;
+      duration: number;
+      bitrate: number;
+      width: number;
+      height: number;
+      aspectRatio: number;
+      audioChannels: number;
+      audioCodec: string;
+      videoCodec: string;
+      videoResolution: string;
+      container: string;
+      videoFrameRate: string;
+      videoProfile: string;
+      hasVoiceActivity: boolean;
+      Part: {
+        id: number;
+        key: string;
+        duration: number;
+        file: string;
+        size: number;
+        container: string;
+        videoProfile: string;
+      }[];
+    }[];
+    Image: {
+      alt: string;
+      type: string;
+      url: string;
+    }[];
+    UltraBlurColors: {
+      topLeft: string;
+      topRight: string;
+      bottomRight: string;
+      bottomLeft: string;
+    };
+    Genre: {
+      tag: string;
+    }[];
+    Country: {
+      tag: string;
+    }[];
+    Collection: {
+      tag: string;
+    }[];
+    Director: {
+      tag: string;
+    }[];
+    Writer: {
+      tag: string;
+    }[];
+    Role: {
+      tag: string;
+    }[];
+    contentRating?: string;
+    rating?: number;
+    tagline?: string;
+    chapterSource?: string;
+    primaryExtraKey?: string;
+    ratingImage?: string;
+    titleSort?: string;
+  }
+
   export interface Hub {
     hubKey: string;
     key: string;
     title: string;
-    type: LibaryType;
+    type: LibraryType;
     hubIdentifier: string;
     context: string;
     size: number;
     more: boolean;
     style: string;
-    Metadata?: {
-      ratingKey: string;
-      key: string;
-      guid: string;
-      slug: string;
-      studio: string;
-      type: LibaryType;
-      title: string;
-      summary: string;
-      audienceRating: number;
-      viewCount?: number;
-      skipCount?: number;
-      lastViewedAt?: number;
-      year: number;
-      thumb: string;
-      art: string;
-      duration: number;
-      originallyAvailableAt: string;
-      addedAt: number;
-      updatedAt: number;
-      audienceRatingImage: string;
-      Media: {
-        id: number;
-        duration: number;
-        bitrate: number;
-        width: number;
-        height: number;
-        aspectRatio: number;
-        audioChannels: number;
-        audioCodec: string;
-        videoCodec: string;
-        videoResolution: string;
-        container: string;
-        videoFrameRate: string;
-        videoProfile: string;
-        hasVoiceActivity: boolean;
-        Part: {
-          id: number;
-          key: string;
-          duration: number;
-          file: string;
-          size: number;
-          container: string;
-          videoProfile: string;
-        }[];
-      }[];
-      Image: {
-        alt: string;
-        type: string;
-        url: string;
-      }[];
-      UltraBlurColors: {
-        topLeft: string;
-        topRight: string;
-        bottomRight: string;
-        bottomLeft: string;
-      };
-      Genre: {
-        tag: string;
-      }[];
-      Country: {
-        tag: string;
-      }[];
-      Collection: {
-        tag: string;
-      }[];
-      Director: {
-        tag: string;
-      }[];
-      Writer: {
-        tag: string;
-      }[];
-      Role: {
-        tag: string;
-      }[];
-      contentRating?: string;
-      rating?: number;
-      tagline?: string;
-      chapterSource?: string;
-      primaryExtraKey?: string;
-      ratingImage?: string;
-      titleSort?: string;
-    }[];
+    Metadata?: HubMetadata[];
   }
 }

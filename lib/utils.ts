@@ -5,6 +5,24 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export function getUrlLocation(href: string) {
+  const match = href.match(
+    /^(https?\:)\/\/(([^:\/?#]*)(?:\:([0-9]+))?)([\/]{0,1}[^?#]*)(\?[^#]*|)(#.*|)$/,
+  );
+  return (
+    match && {
+      href: href,
+      protocol: match[1],
+      host: match[2],
+      hostname: match[3],
+      port: match[4],
+      pathname: match[5],
+      search: match[6],
+      hash: match[7],
+    }
+  );
+}
+
 export function uuidv4() {
   const length = 24;
   let result = "";
@@ -35,6 +53,10 @@ export function getFormatedTime(time: number) {
     .padStart(2, "0")}`;
 }
 
+export function durationToMin(duration: number) {
+  return Math.floor(duration / 1000 / 60);
+}
+
 export function durationToText(duration: number): string {
   const hours = Math.floor(duration / 1000 / 60 / 60);
   const minutes = (duration / 1000 / 60 / 60 - hours) * 60;
@@ -51,4 +73,8 @@ export function uuid() {
       v = c === "x" ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
+}
+
+export function lerp(start: number, end: number, t: number): number {
+  return start + t * (end - start);
 }
