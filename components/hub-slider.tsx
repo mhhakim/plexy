@@ -1,4 +1,12 @@
-import { FC, useMemo } from "react";
+import {
+  FC,
+  forwardRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import qs from "qs";
 import { usePathname, useRouter } from "next/navigation";
 import { ChevronDown, ChevronRight, Play } from "lucide-react";
@@ -7,51 +15,36 @@ import { OnDeckImagePreviewItem } from "@/components/cards/on-deck-image-preview
 import { OtherImagePreviewItem } from "@/components/cards/other-image-preview-item";
 import { useHubItem } from "@/hooks/use-hub-item";
 import { Progress } from "@/components/ui/progress";
-import { durationToMin } from "@/lib/utils";
+import { durationToMin, uuid } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { ServerApi } from "@/api";
+import { ServerApi, xprops } from "@/api";
+import axios, { Canceler } from "axios";
 
-const HubItem: FC<{
-  item: Plex.HubMetadata;
-  index: number;
-  refKey: string;
-  isOnDeck: boolean;
-  onUpdate: (item: Plex.HubMetadata) => void;
-}> = ({ item, index, refKey, isOnDeck, onUpdate }) => {
+const HubItem = forwardRef<
+  HTMLDivElement,
+  {
+    item: Plex.HubMetadata;
+    index: number;
+    refKey: string;
+    isOnDeck: boolean;
+    onUpdate: (item: Plex.HubMetadata) => void;
+  }
+>(({ item, index, refKey, isOnDeck, onUpdate }, ref) => {
   const { isEpisode, isSeason, isShow, isMovie, open, play, ...info } =
     useHubItem(item);
 
   const handleUpdate = () => {
-    if (!info.guid) return;
-    ServerApi.discoverMetadata({ guid: info.guid }).then(console.log);
-    ServerApi.key(
-      { key: item.key },
-      {
-        includeConcerts: 1,
-        includeExtras: 1,
-        includeOnDeck: 1,
-        includePopularLeaves: 1,
-        includePreferences: 1,
-        includeReviews: 1,
-        includeChapters: 1,
-        includeStations: 1,
-        includeExternalMedia: 1,
-        asyncAugmentMetadata: 1,
-        asyncCheckFiles: 1,
-        asyncRefreshAnalysis: 1,
-        asyncRefreshLocalMediaAgent: 1,
-      },
-    ).then((res) => {
-      if (res && res.length > 0) {
-        onUpdate(res[0]);
-      }
-    });
+    if (info.guid) {
+      ServerApi.discoverMetadata({ guid: info.guid }).then(console.log);
+    }
+    onUpdate(item);
   };
 
   return (
     <CarouselItem
       key={refKey}
       refKey={refKey}
+      ref={ref}
       index={index}
       hoverview={
         isOnDeck ? (
@@ -192,7 +185,7 @@ const HubItem: FC<{
       </div>
     </CarouselItem>
   );
-};
+});
 
 export const isOnDeckHub = (hub: Plex.Hub) => {
   const isInProgress = hub.context.includes("inprogress");
@@ -205,12 +198,96 @@ export const isOnDeckHub = (hub: Plex.Hub) => {
 export const HubSlider: FC<{
   hub: Plex.Hub;
   onUpdate: (item: Plex.HubMetadata, index: number) => void;
+  onAppend: (items: Plex.HubMetadata[]) => void;
   id?: string | undefined;
-}> = ({ id = undefined, hub, onUpdate }) => {
+}> = ({ id = undefined, hub, onUpdate, onAppend }) => {
   const router = useRouter();
   const pathname = usePathname();
+  const token = localStorage.getItem("token");
+  const server = localStorage.getItem("server");
 
   const isOnDeck = useMemo(() => isOnDeckHub(hub), [hub]);
+
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [page, setPage] = useState(0);
+  const observer = useRef<IntersectionObserver>();
+  const lastRef = useCallback(
+    (node: HTMLDivElement) => {
+      if (loading || !hasMore) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          setPage((p) => p + 1);
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [loading, hasMore],
+  );
+
+  const [prevHubLength, setPrevHubLength] = useState<number | undefined>(
+    undefined,
+  );
+
+  useEffect(() => {
+    if (!hasMore || prevHubLength === hub.Metadata?.length || page === 0) {
+      return;
+    }
+    setLoading(true);
+    setPrevHubLength(hub.Metadata?.length);
+    let cancel: Canceler;
+    const decodedKey = decodeURIComponent(hub.key);
+    axios
+      .get<{
+        MediaContainer: { Metadata: Plex.HubMetadata[]; totalSize: number };
+      }>(
+        `${server}${decodedKey}${decodedKey.includes("?") ? "&" : "?"}${qs.stringify(
+          {
+            ...xprops(),
+            excludeFields: "summary",
+            "X-Plex-Container-Start": hub.Metadata?.length ?? 0,
+            "X-Plex-Container-Size": 30,
+            uuid: uuid(),
+          },
+        )}`,
+        {
+          headers: { "X-Plex-Token": token, accept: "application/json" },
+          cancelToken: new axios.CancelToken((c) => {
+            cancel = c;
+          }),
+        },
+      )
+      .then((res) => {
+        if (res.data?.MediaContainer?.Metadata) {
+          if (
+            res.data.MediaContainer.Metadata.length +
+              (hub.Metadata?.length ?? 0) >=
+            res.data.MediaContainer.totalSize
+          ) {
+            setHasMore(false);
+          }
+          onAppend(res.data.MediaContainer.Metadata);
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setHasMore(true);
+        setPage(0);
+        setLoading(false);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+
+    return () => {
+      if (cancel) {
+        cancel();
+        setLoading(false);
+      }
+    };
+  }, [page]);
 
   return (
     <div className="w-[100%] overflow-x-hidden mb-12 last:mb-24">
@@ -241,15 +318,24 @@ export const HubSlider: FC<{
           minimumVisibleItem={isOnDeck ? 1 : 3}
         >
           {hub.Metadata.map((item, index) => {
-            const refKey = `${hub.hubIdentifier}-${item.ratingKey}-${item?.viewOffset ?? ""}-${item?.viewCount ?? ""}`;
+            const refKey = `${hub.hubIdentifier}-${item.ratingKey}-${item?.viewOffset ?? ""}-${item?.viewCount ?? ""}-${hub.Metadata?.length}`;
             return (
               <HubItem
                 key={item.ratingKey}
+                ref={
+                  index ===
+                  (hub.Metadata?.length ?? 0) -
+                    ((hub.Metadata?.length ?? 0) > 6 ? 5 : 1)
+                    ? lastRef
+                    : undefined
+                }
                 refKey={refKey}
                 item={item}
                 index={index}
                 isOnDeck={isOnDeck}
-                onUpdate={(item) => onUpdate(item, index)}
+                onUpdate={(item) => {
+                  onUpdate(item, index);
+                }}
               />
             );
           })}

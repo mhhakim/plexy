@@ -749,7 +749,7 @@ export class ServerApi {
           includeMeta: 1,
           excludeFields: "summary",
           includeExternalMetadata: 1,
-          count: 40,
+          count: 12,
           includeLibraryPlaylists: 1,
           includeRecentChannels: 1,
           includeCollections: 1,

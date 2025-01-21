@@ -63,6 +63,16 @@ export const MetaScreen: FC = () => {
 
   useEffect(() => {
     if (!metadata) return;
+
+    localStorage.setItem(
+      "from-meta-screen",
+      JSON.stringify({
+        ratingKey: metadata.ratingKey,
+        parentRatingKey: metadata.parentRatingKey ?? null,
+        grandparentRatingKey: metadata.grandparentRatingKey ?? null,
+      }),
+    );
+
     const extras = metadata.Extras?.Metadata;
     if (!extras?.[0] || !extras?.[0]?.Media?.[0]?.Part?.[0]?.key) return;
 
