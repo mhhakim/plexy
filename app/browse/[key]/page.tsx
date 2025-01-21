@@ -8,6 +8,7 @@ import { Hero } from "@/components/hero";
 import { HubSlider } from "@/components/hub-slider";
 import { Button } from "@/components/ui/button";
 import qs from "qs";
+import { useHubs } from "@/hooks/use-hubs";
 
 export default function Page() {
   const params = useParams<{ key: string }>();
@@ -20,25 +21,40 @@ export default function Page() {
     },
   });
   const [featured, setFeatured] = useState<Plex.Metadata | null>(null);
-  const [hubs, setHubs] = useState<Plex.Hub[]>([]);
+  const [initialHubs, setInitialHubs] = useState<Plex.Hub[]>([]);
+  const { hubs, reload, append } = useHubs(initialHubs);
 
-  const updateHub = (
+  const handleUpdate = (
     updatedItem: Plex.HubMetadata,
-    itemIndex: number,
+    _: number,
     hubIndex: number,
   ) => {
-    setHubs((prev) => {
-      const updated = [...prev];
-      if (updated[hubIndex].Metadata) {
-        updated[hubIndex].Metadata[itemIndex] = updatedItem;
+    const hubsIndex = [hubIndex];
+    const keys = [updatedItem.ratingKey];
+    if (updatedItem.parentRatingKey) keys.push(updatedItem.parentRatingKey);
+    if (updatedItem.grandparentRatingKey)
+      keys.push(updatedItem.grandparentRatingKey);
+    hubs?.forEach((hub, index) => {
+      if (hubIndex === index) return;
+      const included = hub.Metadata?.some((item) => {
+        return keys.includes(item.ratingKey);
+      });
+      if (
+        included ||
+        hub.context.includes("recentlyviewed") ||
+        hub.context.includes("inprogress")
+      ) {
+        hubsIndex.push(index);
       }
-      return updated;
+    });
+    hubsIndex.forEach((index) => {
+      reload(index);
     });
   };
 
   useEffect(() => {
     setFeatured(null);
-    setHubs([]);
+    setInitialHubs([]);
 
     ServerApi.random({ dir: params.key }).then((res) => {
       if (!res) return;
@@ -50,26 +66,51 @@ export default function Page() {
     }).then((res) => {
       if (!res) return;
       if (res.length === 0) return;
-      setHubs(res.filter((hub) => hub.Metadata && hub.Metadata.length > 0));
+      setInitialHubs(
+        res.filter((hub) => hub.Metadata && hub.Metadata.length > 0),
+      );
     });
   }, [params.key]);
 
   useEffect(() => {
-    const updateHubs = () => {
-      ServerApi.hubs({
-        id: params.key,
-      }).then((res) => {
-        if (!res) return;
-        if (res.length === 0) return;
-        setHubs(res.filter((hub) => hub.Metadata && hub.Metadata.length > 0));
-      });
+    const updateHubs = (event: PopStateEvent) => {
+      const storage = localStorage.getItem("from-meta-screen");
+      if (storage) {
+        const { ratingKey, parentRatingKey, grandparentRatingKey } = JSON.parse(
+          storage,
+        ) as {
+          ratingKey: string;
+          parentRatingKey: string | null;
+          grandparentRatingKey: string | null;
+        };
+        const hubsIndex: number[] = [];
+        const keys = [ratingKey];
+        if (parentRatingKey) keys.push(parentRatingKey);
+        if (grandparentRatingKey) keys.push(grandparentRatingKey);
+        hubs?.forEach((hub, index) => {
+          const included = hub.Metadata?.some((item) =>
+            keys.includes(item.ratingKey),
+          );
+          if (
+            included ||
+            hub.context.includes("recentlyviewed") ||
+            hub.context.includes("inprogress")
+          ) {
+            hubsIndex.push(index);
+          }
+        });
+        hubsIndex.forEach((index) => {
+          reload(index);
+        });
+      }
+      localStorage.removeItem("from-meta-screen");
     };
 
     window.addEventListener("popstate", updateHubs);
     return () => {
       window.removeEventListener("popstate", updateHubs);
     };
-  }, [params.key]);
+  }, [params.key, hubs]);
 
   if (!library.data) {
     return null;
@@ -83,16 +124,18 @@ export default function Page() {
         <div className="w-full flex flex-col items-start justify-start">
           {featured && <Hero item={featured} />}
           <div className="flex flex-col items-start justify-start w-full z-10 lg:-mt-[calc(10vw-4rem)] md:mt-[3rem] -mt-[calc(-10vw-2rem)]">
-            {hubs.map((item, i) => (
-              <HubSlider
-                key={`${item.key}-${i}`}
-                id={params.key}
-                hub={item}
-                onUpdate={(updatedItem, itemIndex) =>
-                  updateHub(updatedItem, itemIndex, i)
-                }
-              />
-            ))}
+            {hubs &&
+              hubs.map((item, i) => (
+                <HubSlider
+                  key={`${item.key}-${i}`}
+                  id={params.key}
+                  hub={item}
+                  onAppend={(items: Plex.HubMetadata[]) => append(i, items)}
+                  onUpdate={(updatedItem, itemIndex) =>
+                    handleUpdate(updatedItem, itemIndex, i)
+                  }
+                />
+              ))}
           </div>
         </div>
         <div className="absolute right-0 top-16 p-4">
@@ -111,21 +154,6 @@ export default function Page() {
           >
             Library
           </Button>
-          {/*<Button*/}
-          {/*  type="button"*/}
-          {/*  variant="search"*/}
-          {/*  size="sm"*/}
-          {/*  onClick={() => {*/}
-          {/*    router.push(*/}
-          {/*      `${pathname}?${qs.stringify({ key: `/library/sections/${params.key}/collections`, libtitle: "Collections" })}`,*/}
-          {/*      {*/}
-          {/*        scroll: false,*/}
-          {/*      },*/}
-          {/*    );*/}
-          {/*  }}*/}
-          {/*>*/}
-          {/*  Collections*/}
-          {/*</Button>*/}
         </div>
       </>
     );

@@ -1,12 +1,15 @@
-import { FC, ReactNode, useEffect, useRef, useState } from "react";
+import { FC, forwardRef, ReactNode, useEffect, useRef, useState } from "react";
 import { CarouselItemHover, useCarouselItem } from "@/components/carousel";
 
-const CarouselItem: FC<{
-  children: ReactNode;
-  hoverview: ReactNode;
-  index: number;
-  refKey: string;
-}> = ({ children, hoverview, index, refKey }) => {
+const CarouselItem = forwardRef<
+  HTMLDivElement,
+  {
+    children: ReactNode;
+    hoverview: ReactNode;
+    index: number;
+    refKey: string;
+  }
+>(({ children, hoverview, index, refKey }, ref) => {
   const { size, isFirst, isLast, open, close, isOpen } = useCarouselItem(
     index,
     refKey,
@@ -57,6 +60,7 @@ const CarouselItem: FC<{
       }}
       ref={itemRef}
     >
+      <div ref={ref} />
       {hoverview && itemRef.current && (
         <CarouselItemHover
           refKey={refKey}
@@ -76,6 +80,6 @@ const CarouselItem: FC<{
       {children}
     </div>
   );
-};
+});
 
 export default CarouselItem;
