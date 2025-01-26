@@ -45,7 +45,6 @@ export const MetaScreen: FC = () => {
   const season = useMemo(() => {
     if (!metadata) return null;
     if (info.isSeason) return metadata;
-    // console.log(metadata.Children.Metadata);
     if (metadata?.Children?.Metadata && metadata.Children.Metadata.length > 0) {
       return metadata.Children.Metadata[0];
     }

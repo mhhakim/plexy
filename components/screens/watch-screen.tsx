@@ -54,6 +54,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import Link from "next/link";
 
 export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
   const router = useRouter();
@@ -72,7 +73,6 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
     }),
     auto: false,
   });
-
   const [volume, setVolume] = useState<number>(
     parseInt(localStorage.getItem("volume") ?? "100"),
   );
@@ -635,8 +635,34 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
               <div className="flex-1" />
               <p className="font-bold select-none text-center">
                 {metadata.type === "movie" && metadata.title}
-                {metadata.type === "episode" &&
-                  `${metadata.grandparentTitle} - S${metadata.parentIndex?.toString().padStart(2, "0")}E${metadata.index?.toString().padStart(2, "0")} - ${metadata.title}`}
+                {metadata.type === "episode" && (
+                  <span>
+                    <button
+                      onClick={() =>
+                        router.push(
+                          `${pathname}?mid=${metadata.grandparentRatingKey}`,
+                          { scroll: false },
+                        )
+                      }
+                    >
+                      {metadata.grandparentTitle}
+                    </button>
+                    {" - "}
+                    <button
+                      onClick={() =>
+                        router.push(
+                          `${pathname}?mid=${metadata.parentRatingKey}`,
+                          { scroll: false },
+                        )
+                      }
+                    >
+                      S{metadata.parentIndex?.toString().padStart(2, "0")}
+                    </button>
+                    E{metadata.index?.toString().padStart(2, "0")}
+                    {" - "}
+                    {metadata.title}
+                  </span>
+                )}
               </p>
               <div className="flex-1" />
               {playQueue && playQueue[1] && (
