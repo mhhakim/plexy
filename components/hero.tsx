@@ -3,16 +3,12 @@
 import { FC } from "react";
 import { Button } from "@/components/ui/button";
 import { Info, Play } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
 import { ServerApi } from "@/api";
 import { useQuery } from "@tanstack/react-query";
 import { useHubItem } from "@/hooks/use-hub-item";
 import { APPBAR_HEIGHT } from "@/components/appbar";
 
 export const Hero: FC<{ item: Plex.Metadata }> = ({ item }) => {
-  const router = useRouter();
-  const pathname = usePathname();
-
   const metadata = useQuery({
     queryKey: ["metadata", item.ratingKey],
     queryFn: async () => {
