@@ -1,7 +1,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import qs from "qs";
 import _ from "lodash";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ServerApi } from "@/api";
 import { useQuery } from "@tanstack/react-query";
 
@@ -249,12 +249,48 @@ export const useHubItem = (
   };
 
   const play = () => {
-    if (!playable.ratingKey) return;
+    if (isType.movie) {
+      router.push(
+        `${pathname}?watch=${item.ratingKey}${item.viewOffset ? `&t=${item.viewOffset}` : ""}`,
+        { scroll: false },
+      );
+      return;
+    }
+    if (isType.episode) {
+      router.push(
+        `${pathname}?watch=${item.ratingKey.toString()}${item.viewOffset ? `&t=${item.viewOffset}` : ""}`,
+        { scroll: false },
+      );
+      return;
+    }
+    if (isType.show || isType.season) {
+      if (item.OnDeck && item.OnDeck.Metadata) {
+        router.push(
+          `${pathname}?watch=${item.OnDeck.Metadata.ratingKey}${
+            item.OnDeck.Metadata.viewOffset
+              ? `&t=${item.OnDeck.Metadata.viewOffset}`
+              : ""
+          }`,
+          { scroll: false },
+        );
+        return;
+      }
+      const season = isType.season
+        ? item
+        : item.Children?.Metadata.find((s) => s.title !== "Specials");
+      if (!season) return;
 
-    router.push(
-      `${pathname}?watch=${playable.ratingKey}${playable.viewOffset ? `&t=${playable.viewOffset}` : ""}`,
-      { scroll: false },
-    );
+      ServerApi.children({
+        id: season.ratingKey as string,
+      }).then((eps) => {
+        if (!eps) return;
+
+        router.push(`${pathname}?watch=${eps[0].ratingKey}`, {
+          scroll: false,
+        });
+        return;
+      });
+    }
   };
 
   return {

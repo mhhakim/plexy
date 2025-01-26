@@ -36,7 +36,7 @@ export const MetaScreen: FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const mid = searchParams.get("mid");
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const { close } = useContext(CarouselContext);
   const [episodeIndexCharCount, setEpisodeIndexCharCount] = useState(1);
   const { muted, toggleMuted } = usePreviewMuted();
   const { metadata, loading: loadingMetadata } = useItemMetadata(mid);
@@ -45,21 +45,26 @@ export const MetaScreen: FC = () => {
   const season = useMemo(() => {
     if (!metadata) return null;
     if (info.isSeason) return metadata;
+    // console.log(metadata.Children.Metadata);
     if (metadata?.Children?.Metadata && metadata.Children.Metadata.length > 0) {
       return metadata.Children.Metadata[0];
     }
     return null;
   }, [metadata]);
+
   const { children: episodeChildren, loading: loadingEpisodeChildren } =
     useItemChildren(info.isEpisode ? metadata : null);
   const { children: seasonChildren, loading: loadingSeasonChildren } =
     useItemChildren(info.isSeason || info.isShow ? season : null);
   const { children: showChildren, loading: loadingShowChildren } =
     useItemChildren(info.isShow ? metadata : null);
-  const { languages, subtitles, process } = useItemLanguages();
+
   const [preview, setPreview] = useState<string | null>(null);
   const [playing, setPlaying] = useState<boolean>(false);
-  const { close } = useContext(CarouselContext);
+
+  const { languages, subtitles, process } = useItemLanguages();
+
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!metadata) return;
