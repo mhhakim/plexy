@@ -191,7 +191,8 @@ export const isOnDeckHub = (hub: Plex.Hub) => {
   const isInProgress = hub.context.includes("inprogress");
   const isContinueWatching = hub.context.includes("continueWatching");
   const isEpisodeType = hub.type === "episode";
-  return isInProgress || isContinueWatching || isEpisodeType;
+  const isClipType = hub.type === "clip";
+  return isInProgress || isContinueWatching || isEpisodeType || isClipType;
 };
 
 // TODO: have the HubSlider only receive the hub key and then let him deal with the items and fetching

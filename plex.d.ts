@@ -61,7 +61,8 @@ declare namespace Plex {
     | "track"
     | "season"
     | "album"
-    | "collection";
+    | "collection"
+    | "clip";
 
   interface LibrarySection {
     allowSync: boolean;

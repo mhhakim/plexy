@@ -132,7 +132,9 @@ export default function Page() {
                 "lg:-mt-[calc(10vw-4rem)] md:mt-[3rem] -mt-[calc(-10vw-2rem)]",
             )}
             style={{
-              paddingTop: !featured ? APPBAR_HEIGHT : undefined,
+              paddingTop: !featured
+                ? `calc(${APPBAR_HEIGHT} + 2rem)`
+                : undefined,
             }}
           >
             {hubs &&
@@ -149,7 +151,7 @@ export default function Page() {
               ))}
           </div>
         </div>
-        <div className="absolute right-0 top-16 p-4">
+        <div className="absolute right-0 top-16 p-4 z-40">
           <Button
             type="button"
             variant="search"
