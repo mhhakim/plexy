@@ -9,6 +9,8 @@ import { HubSlider } from "@/components/hub-slider";
 import { Button } from "@/components/ui/button";
 import qs from "qs";
 import { useHubs } from "@/hooks/use-hubs";
+import { cn } from "@/lib/utils";
+import { APPBAR_HEIGHT } from "@/components/appbar";
 
 export default function Page() {
   const params = useParams<{ key: string }>();
@@ -123,7 +125,16 @@ export default function Page() {
       <>
         <div className="w-full flex flex-col items-start justify-start">
           {featured && <Hero item={featured} />}
-          <div className="flex flex-col items-start justify-start w-full z-10 lg:-mt-[calc(10vw-4rem)] md:mt-[3rem] -mt-[calc(-10vw-2rem)]">
+          <div
+            className={cn(
+              "flex flex-col items-start justify-start w-full z-10",
+              featured &&
+                "lg:-mt-[calc(10vw-4rem)] md:mt-[3rem] -mt-[calc(-10vw-2rem)]",
+            )}
+            style={{
+              paddingTop: !featured ? APPBAR_HEIGHT : undefined,
+            }}
+          >
             {hubs &&
               hubs.map((item, i) => (
                 <HubSlider
