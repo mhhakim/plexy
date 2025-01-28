@@ -55,7 +55,7 @@ export const Hero: FC<{ item: Plex.Metadata }> = ({ item }) => {
             <Button variant="default" onClick={play} className="font-bold">
               <Play fill="currentColor" /> Play
               {playable
-                ? `${playable.season !== null ? ` ${playable.season}S` : ""}${playable.episode !== null ? ` ${playable.episode}E` : ""}`
+                ? `${playable.season !== null ? ` S${playable.season}` : ""}${playable.episode !== null ? ` E${playable.episode}` : ""}`
                 : null}
             </Button>
           )}
