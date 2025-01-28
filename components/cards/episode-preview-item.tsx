@@ -35,7 +35,7 @@ export const EpisodePreviewItem: FC<{
         />
         {progress !== 0 && (
           <Progress
-            className="absolute rounded-t-none rounded-b bottom-0 left-0 h-[4px]"
+            className="absolute rounded-t-none rounded-b bottom-0 left-0 h-[2px]"
             value={progress}
           />
         )}
