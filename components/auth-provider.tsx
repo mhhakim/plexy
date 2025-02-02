@@ -11,15 +11,31 @@ import { uuidv4 } from "@/lib/utils";
 import { Api } from "@/api";
 import { PLEX } from "@/constants";
 import axios from "axios";
+import { ServerSelectionModal } from "./server-selection-modal";
 
 const LibrariesContext = createContext({ libraries: [] } as {
   libraries: Plex.LibrarySection[];
 });
 
+export const useLibraries = () => {
+  return useContext(LibrariesContext);
+};
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [libraries, setLibraries] = useState<Plex.LibrarySection[]>([]);
+  const [servers, setServers] = useState<any[]>([]);
+  const [isLoadingServers, setIsLoadingServers] = useState(false);
+  const [serverError, setServerError] = useState<string>();
+  const [showServerSelection, setShowServerSelection] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
     let pin = localStorage.getItem("pin");
     const stored = localStorage.getItem("token");
     const pinId = new URL(location.href).searchParams.get("pinID");
@@ -71,112 +87,93 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           });
       }
     } else {
+      // fetch available servers
+      setIsLoadingServers(true);
       Api.servers()
         .then(async (res2) => {
+          setServers(res2.data || []);
+          
+          // if no server is selected and servers are available, show selection modal
+          if (!localStorage.getItem("server") && res2.data && res2.data.length > 0) {
+            setShowServerSelection(true);
+            return;
+          }
+
+          // if no servers available, show error
           if (
             !res2.data ||
             res2.data.length === 0 ||
             !res2.data[0].connections ||
             res2.data[0].connections.length === 0
           ) {
+            setServerError("no servers available");
             return;
           }
 
-          // Create an array of promises for each connection
-          const controllers = res2.data[0].connections.map(
-            () => new AbortController(),
-          );
-          const promises: Promise<{
-            data: Plex.LibrarySection[];
-            uri: string;
-          }>[] = res2.data[0].connections.map((connection, index) => {
-            return new Promise((resolve, reject) => {
-              axios
-                .get<{ MediaContainer: { Directory: Plex.LibrarySection[] } }>(
-                  `${connection.uri}/library/sections`,
-                  {
-                    headers: {
-                      "X-Plex-Token": localStorage.getItem("token") as string,
-                      accept: "application/json",
-                    },
-                    signal: controllers[index].signal,
-                  },
-                )
-                .then(({ data }) => {
-                  if (data) {
-                    resolve({
-                      data: data.MediaContainer.Directory,
-                      uri: connection.uri,
-                    });
-                  } else {
-                    setTimeout(() => {
-                      reject(
-                        new Error("Call failed for url: " + connection.uri),
-                      );
-                    }, 60_000);
-                  }
-                })
-                .catch((err) => {
-                  console.error(err);
-                  setTimeout(() => {
-                    reject(new Error("Call failed for url: " + connection.uri));
-                  }, 60_000);
-                });
-            });
-          });
-
-          // Use Promise.race to stop as soon as we find a valid server
-          const result: { data: Plex.LibrarySection[]; uri: string } =
-            await Promise.race(promises);
-
-          // Abort remaining requests
-          controllers.forEach((controller) => controller.abort());
-
-          if (result) {
-            localStorage.setItem("server", result.uri);
-            setLibraries(result.data);
-          } else {
-            localStorage.removeItem("token");
-            window.location.href = "/";
+          // if server is already selected, try to connect
+          if (localStorage.getItem("server")) {
+            await connectToServer();
           }
         })
         .catch((err) => {
-          if (err.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            console.log(err.response.data);
-            console.log(err.response.status);
-            console.log(err.response.headers);
-            if (err.response.status === 401) {
-              localStorage.removeItem("token");
-              window.location.href = "/";
-              return;
-            }
-          } else if (err.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-            console.log(err.request);
-          }
           console.error(err);
-          // TODO: handle other errors
-
-          localStorage.removeItem("token");
-          window.location.href = "/";
-          return;
+          setServerError("failed to fetch servers");
+        })
+        .finally(() => {
+          setIsLoadingServers(false);
         });
     }
-  }, []);
+  }, [mounted]);
 
-  if (libraries.length === 0) return null;
+  const connectToServer = async () => {
+    try {
+      const serverUri = localStorage.getItem("server");
+      if (!serverUri) {
+        throw new Error("no server selected");
+      }
+
+      // Create an array of promises for each connection
+      const response = await axios.get<{ MediaContainer: { Directory: Plex.LibrarySection[] } }>(
+        `${serverUri}/library/sections`,
+        {
+          headers: {
+            "X-Plex-Token": localStorage.getItem("token") as string,
+            accept: "application/json",
+          },
+        }
+      );
+
+      if (response.data?.MediaContainer?.Directory) {
+        setLibraries(response.data.MediaContainer.Directory);
+      }
+    } catch (err) {
+      console.error(err);
+      setServerError("failed to connect to server");
+      // clear server selection to allow retrying
+      localStorage.removeItem("server");
+      setShowServerSelection(true);
+    }
+  };
+
+  const handleServerSelect = async (server: any, uri: string) => {
+    localStorage.setItem("server", uri);
+    setShowServerSelection(false);
+    await connectToServer();
+  };
+
+  if (!mounted) return null;
 
   return (
     <LibrariesContext.Provider value={{ libraries }}>
+      <ServerSelectionModal
+        open={showServerSelection}
+        onOpenChange={setShowServerSelection}
+        servers={servers}
+        onServerSelect={handleServerSelect}
+        isLoading={isLoadingServers}
+        error={serverError}
+      />
       {children}
     </LibrariesContext.Provider>
   );
 }
-
-export const useLibraries = () => {
-  return useContext(LibrariesContext);
-};
