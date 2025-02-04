@@ -2,7 +2,7 @@ import { PLEX } from "@/constants";
 import axios, { Canceler } from "axios";
 import _ from "lodash";
 import qs from "qs";
-import { PlexServer } from "@/components/server-selection-modal2";
+import { PlexServer } from "@/type";
 
 const includes = {
   includeDetails: 1,
