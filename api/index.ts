@@ -2,6 +2,7 @@ import { PLEX } from "@/constants";
 import axios, { Canceler } from "axios";
 import _ from "lodash";
 import qs from "qs";
+import { PlexServer } from "@/type";
 
 const includes = {
   includeDetails: 1,
@@ -160,42 +161,7 @@ export class Api {
     return axios.get(`https://plex.tv/api/resources?X-Plex-Token=${token}`);
   }
   static async servers() {
-    return axios.get<
-      {
-        name: string;
-        product: string;
-        productVersion: string;
-        platform: string;
-        platformVersion: string;
-        device: string;
-        clientIdentifier: string;
-        createdAt: string;
-        lastSeenAt: string;
-        provides: string;
-        ownerId: any;
-        sourceTitle: any;
-        publicAddress: string;
-        accessToken: string;
-        owned: boolean;
-        home: boolean;
-        synced: boolean;
-        relay: boolean;
-        presence: boolean;
-        httpsRequired: boolean;
-        publicAddressMatches: boolean;
-        dnsRebindingProtection: boolean;
-        natLoopbackSupported: boolean;
-        connections: {
-          protocol: string;
-          address: string;
-          port: number;
-          uri: string;
-          local: boolean;
-          relay: boolean;
-          IPv6: boolean;
-        }[];
-      }[]
-    >(
+    return axios.get<PlexServer[]>(
       `https://clients.plex.tv/api/v2/resources?${qs.stringify({
         includeHttps: 1,
         includeRelay: 1,
