@@ -4,15 +4,15 @@ import { ServerApi } from "@/api";
 import { useEffect, useState } from "react";
 import { Hero } from "@/components/hero";
 import { HubSlider } from "@/components/hub-slider";
-import { useLibraries } from "@/components/auth-provider";
 import { useHubs } from "@/hooks/use-hubs";
+import { useServer } from "@/components/server-provider";
 
 export default function Home() {
   const [item, setItem] = useState<Plex.Metadata | null>(null);
   const [promoted, setPromoted] = useState<Plex.Hub[] | null>(null);
   const { hubs, reload, append } = useHubs(promoted);
   const [isLoading, setIsLoading] = useState(false);
-  const { libraries } = useLibraries();
+  const { libraries } = useServer();
 
   const handleUpdate = (
     updatedItem: Plex.HubMetadata,

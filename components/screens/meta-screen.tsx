@@ -172,7 +172,7 @@ export const MetaScreen: FC = () => {
         if (!open) router.replace(pathname, { scroll: false });
       }}
     >
-      <DialogContent className="w-full p-0 max-w-[min(1500px,calc(100%-2rem))] h-full max-h-[calc(100%-2rem)] overflow-hidden">
+      <DialogContent className="w-full p-0 max-w-[min(1500px,calc(100%-2rem))] h-full max-h-[calc(100%-2rem)] overflow-hidden z-[999]">
         <VisuallyHidden>
           <DialogTitle>Item metadata dialog</DialogTitle>
         </VisuallyHidden>
