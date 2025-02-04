@@ -5,14 +5,9 @@ import ReactPlayer from "react-player";
 import { ServerApi, streamprops } from "@/api";
 import qs from "qs";
 import { createPortal } from "react-dom";
-import { disableBodyScroll, clearAllBodyScrollLocks } from "body-scroll-lock";
+import { clearAllBodyScrollLocks, disableBodyScroll } from "body-scroll-lock";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Slider } from "@/components/ui/slider";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import {
   ArrowLeft,
   LoaderCircle,
@@ -54,7 +49,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import Link from "next/link";
 
 export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
   const router = useRouter();
