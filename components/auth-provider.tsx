@@ -73,6 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               return;
             }
 
+            // update/set the plex token then redirect to home screen
             localStorage.setItem("token", res.data.authToken);
             localStorage.setItem("auth-token", res.data.authToken);
             window.location.href = "/";

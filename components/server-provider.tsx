@@ -30,6 +30,7 @@ export function ServerProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const currentConnectionUri = localStorage.getItem("server") ?? "";
+    let controllers: AbortController[] = [];
     setLoading(true);
     fetchExistingServer(currentConnectionUri).then((currentInfo) => {
       console.log(currentInfo);
@@ -38,7 +39,8 @@ export function ServerProvider({ children }: { children: ReactNode }) {
         setServer(currentInfo);
       }
       fetchAvailableServers()
-        .then(({ list, info }) => {
+        .then(({ list, info, controllers: aborts }) => {
+          if (aborts) controllers = aborts;
           if (list.length === 0) {
             // TODO: error
             return;
@@ -54,6 +56,10 @@ export function ServerProvider({ children }: { children: ReactNode }) {
           setLoading(false);
         });
     });
+
+    return () => {
+      controllers.forEach((controller) => controller.abort());
+    };
   }, []);
 
   const handleServerSelection = (server: LibraryAndServer) => {
