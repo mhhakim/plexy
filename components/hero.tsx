@@ -43,7 +43,7 @@ export const Hero: FC<{ item: Plex.Metadata }> = ({ item }) => {
           }}
         />
       </div>
-      <div className="flex flex-col items-start justify-center mx-20 gap-4 absolute -bottom-[10vw] md:bottom-0 lg:bottom-[10vw]">
+      <div className="flex flex-col items-start justify-center mx-10 md:mx-20 gap-4 absolute -bottom-[10vw] md:bottom-0 lg:bottom-[10vw]">
         <p className="font-bold text-xl sm:text-2xl md:text-3xl xl:text-4xl 2xl:text-5xl max-w-screen-lg line-clamp-2 md:line-clamp-3 lg:line-clamp-none">
           {item.title}
         </p>

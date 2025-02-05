@@ -2,6 +2,7 @@ import { PlexConnection, PlexServer } from "@/type";
 import axios from "axios";
 import { Api } from "@/api";
 import { LibraryAndServer } from "@/components/server-provider";
+import { flatMap } from "lodash";
 
 export async function fetchConnectionLibrary(
   {
@@ -41,10 +42,10 @@ export async function fetchConnectionLibrary(
     });
 }
 
-export async function fetchLibraries(server: PlexServer) {
-  // create an array of promises for each connection
-  const controllers = server.connections.map(() => new AbortController());
-
+export async function fetchLibraries(
+  server: PlexServer,
+  controllers: AbortController[],
+) {
   const promises: Promise<LibraryAndServer | null>[] = server.connections.map(
     (connection, index) =>
       new Promise((resolve2) => {
@@ -92,12 +93,21 @@ export async function fetchAvailableServers() {
     }
 
     const promises = list.map((server) => {
-      return fetchLibraries(server);
+      // create an array of promises for each connection
+      const controllers = server.connections.map(() => new AbortController());
+      return [fetchLibraries(server, controllers), controllers] as [
+        Promise<LibraryAndServer | null>,
+        AbortController[],
+      ];
     });
-    const info = await Promise.race(promises);
+    const info = await Promise.race(promises.map(([call]) => call));
+    promises.forEach(([_, controllers]) =>
+      controllers.forEach((controller) => controller.abort()),
+    );
     return {
       info,
       list,
+      controllers: flatMap(promises, ([_, controllers]) => controllers),
     };
   });
 }

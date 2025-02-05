@@ -622,7 +622,7 @@ export class ServerApi {
   }: {
     id: number;
     duration: number;
-    state: string;
+    state: "buffering" | "playing" | "paused" | "stopped";
     time: number;
   }) {
     return await axios

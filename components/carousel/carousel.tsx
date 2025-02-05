@@ -202,7 +202,7 @@ const Carousel: FC<{
     };
 
     const sizechange = () => {
-      let updatedSize = 0;
+      let updatedSize: number;
       if (window.innerWidth < 520) {
         updatedSize = calcSize(minimumVisibleItem);
       } else if (window.innerWidth < TINY_BREAKPOINT) {
@@ -225,7 +225,7 @@ const Carousel: FC<{
 
     sizechange();
 
-    const onresize = (event: UIEvent) => {
+    const onresize = () => {
       const updatedSize = sizechange();
       if (containerRef.current) {
         const updatedNumberOfItemsVisible = Math.floor(
@@ -242,7 +242,7 @@ const Carousel: FC<{
     return () => {
       window.removeEventListener("resize", onresize);
     };
-  }, [currentIndex]);
+  }, [currentIndex, minimumVisibleItem, edges]);
 
   const handlePrevious = () => {
     if (!containerRef.current) return;

@@ -4,7 +4,7 @@ export const GIANT_BREAKPOINT = 2000;
 export const DESKTOP_BREAKPOINT = 1800;
 export const TABLET_BREAKPOINT = 1400;
 export const MOBILE_BREAKPOINT = 1000;
-export const TINY_BREAKPOINT = 800;
+export const TINY_BREAKPOINT = 768;
 
 const useIsSize = () => {
   const [isGiant, setIsGiant] = useState<boolean | undefined>(undefined);

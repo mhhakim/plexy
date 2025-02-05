@@ -19,6 +19,7 @@ import { durationToMin, uuid } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ServerApi, xprops } from "@/api";
 import axios, { Canceler } from "axios";
+import { useIsSize } from "@/hooks/use-is-size";
 
 const HubItem = forwardRef<
   HTMLDivElement,
@@ -206,6 +207,7 @@ export const HubSlider: FC<{
   const pathname = usePathname();
   const token = localStorage.getItem("token");
   const server = localStorage.getItem("server");
+  const { isTiny } = useIsSize();
 
   const isOnDeck = useMemo(() => isOnDeckHub(hub), [hub]);
 
@@ -294,7 +296,7 @@ export const HubSlider: FC<{
     <div className="w-[100%] overflow-x-hidden mb-12 last:mb-24">
       <button
         type="button"
-        className="text-left flex flex-row items-center mx-20 group gap-2 mb-3"
+        className="text-left flex flex-row items-center mx-10 md:mx-20 group gap-2 mb-3"
         onClick={() => {
           router.push(
             `${pathname}?${qs.stringify({ key: hub.key, libtitle: hub.title, ...(id ? { contentDirectoryID: id } : {}) })}`,
@@ -313,10 +315,10 @@ export const HubSlider: FC<{
       </button>
       {hub.Metadata && (
         <Carousel
-          edges={80}
+          edges={isTiny ? 40 : 80}
           spacing={10}
-          scale={1.3}
-          minimumVisibleItem={isOnDeck ? 1 : 3}
+          scale={isTiny ? 1.15 : 1.3}
+          minimumVisibleItem={isOnDeck ? 1 : isTiny ? 2 : 3}
         >
           {hub.Metadata.map((item, index) => {
             const refKey = `${hub.hubIdentifier}-${item.ratingKey}-${item?.viewOffset ?? ""}-${item?.viewCount ?? ""}-${hub.Metadata?.length}`;

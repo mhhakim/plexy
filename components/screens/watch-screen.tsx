@@ -5,14 +5,9 @@ import ReactPlayer from "react-player";
 import { ServerApi, streamprops } from "@/api";
 import qs from "qs";
 import { createPortal } from "react-dom";
-import { disableBodyScroll, clearAllBodyScrollLocks } from "body-scroll-lock";
+import { clearAllBodyScrollLocks, disableBodyScroll } from "body-scroll-lock";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Slider } from "@/components/ui/slider";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import {
   ArrowLeft,
   LoaderCircle,
@@ -54,7 +49,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import Link from "next/link";
 
 export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
   const router = useRouter();
@@ -184,6 +178,17 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
     };
   }, []);
 
+  const timeline = (state: "playing" | "stopped" | "paused" | "buffering") => {
+    if (player.current && watch) {
+      ServerApi.timeline({
+        id: parseInt(watch),
+        duration: Math.floor(player.current.getDuration()) * 1000,
+        state: state,
+        time: Math.floor(player.current.getCurrentTime()) * 1000,
+      }).then();
+    }
+  };
+
   useEffect(() => {
     if (!watch) return;
 
@@ -198,8 +203,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
 
       if (!timelineUpdateData) return;
 
-      const { terminationCode, terminationText } =
-        timelineUpdateData.MediaContainer;
+      const { terminationCode } = timelineUpdateData.MediaContainer;
       if (terminationCode) {
         setPlaying(false);
       }
@@ -215,6 +219,10 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
   useEffect(() => {
     if (!watch) {
       setUrl("");
+      setMetadata(null);
+      setPlayQueue(null);
+      setPlaying(false);
+      setReady(false);
     }
 
     (async () => {
@@ -231,7 +239,10 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
   useEffect(() => {
     if (!player.current) return;
 
-    if (ready && !playing) setPlaying(true);
+    if (ready && !playing) {
+      setPlaying(true);
+      timeline("playing");
+    }
   }, [ready]);
 
   // playback controll buttons
@@ -385,12 +396,16 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
 
                 switch (e.detail) {
                   case 1:
-                    setPlaying((state) => !state);
+                    setPlaying((state) => {
+                      timeline(state ? "paused" : "playing");
+                      return !state;
+                    });
                     break;
                   case 2:
                     if (!document.fullscreenElement) {
                       document.documentElement.requestFullscreen();
                       setPlaying(true);
+                      timeline("playing");
                     } else {
                       document.exitFullscreen();
                     }
@@ -425,9 +440,11 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
               }}
               onPause={() => {
                 setPlaying(false);
+                timeline("paused");
               }}
               onPlay={() => {
                 setPlaying(true);
+                timeline("playing");
               }}
               onBuffer={() => {
                 setBuffering(true);

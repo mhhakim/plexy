@@ -30,6 +30,14 @@ import { MetadataPreviewItem } from "@/components/cards/metadata-preview-item";
 import { Skeleton } from "@/components/ui/skeleton";
 import ReactPlayer from "react-player";
 import { CarouselContext } from "@/components/carousel";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const MetaScreen: FC = () => {
   const pathname = usePathname();
@@ -38,6 +46,7 @@ export const MetaScreen: FC = () => {
   const mid = searchParams.get("mid");
   const { close } = useContext(CarouselContext);
   const [episodeIndexCharCount, setEpisodeIndexCharCount] = useState(1);
+  const [tab, setTab] = useState("");
   const { muted, toggleMuted } = usePreviewMuted();
   const { metadata, loading: loadingMetadata } = useItemMetadata(mid);
   const { related, loading: loadingRelated } = useRelated(metadata);
@@ -56,7 +65,19 @@ export const MetaScreen: FC = () => {
   const { children: seasonChildren, loading: loadingSeasonChildren } =
     useItemChildren(info.isSeason || info.isShow ? season : null);
   const { children: showChildren, loading: loadingShowChildren } =
-    useItemChildren(info.isShow ? metadata : null);
+    useItemChildren(
+      info.isShow || info.isSeason || info.isEpisode
+        ? ({
+            ...metadata,
+            type: "show",
+            ratingKey: info.isSeason
+              ? (metadata?.parentRatingKey ?? undefined)
+              : info.isEpisode
+                ? (metadata?.grandparentRatingKey ?? undefined)
+                : (metadata?.ratingKey ?? undefined),
+          } as Plex.Metadata)
+        : null,
+    );
 
   const [preview, setPreview] = useState<string | null>(null);
   const [playing, setPlaying] = useState<boolean>(false);
@@ -103,6 +124,14 @@ export const MetaScreen: FC = () => {
 
   useEffect(() => {
     if (!metadata) return;
+
+    setTab(
+      metadata.type === "show"
+        ? "seasons"
+        : metadata.type === "episode" || metadata.type === "season"
+          ? "episodes"
+          : "related",
+    );
 
     if (info.isSeason && seasonChildren && seasonChildren.length > 0) {
       setEpisodeIndexCharCount(
@@ -165,6 +194,12 @@ export const MetaScreen: FC = () => {
     });
   };
 
+  const handleOpen = (ratingKey: string) => {
+    router.push(`${pathname}?mid=${ratingKey}`, {
+      scroll: false,
+    });
+  };
+
   return (
     <Dialog
       open={!!mid}
@@ -172,7 +207,7 @@ export const MetaScreen: FC = () => {
         if (!open) router.replace(pathname, { scroll: false });
       }}
     >
-      <DialogContent className="w-full p-0 max-w-[min(1500px,calc(100%-2rem))] h-full max-h-[calc(100%-2rem)] overflow-hidden z-[999]">
+      <DialogContent className="w-full p-0 max-w-[min(1500px,calc(100%-2rem))] h-full max-h-[calc(100%-2rem)] overflow-hidden z-[50]">
         <VisuallyHidden>
           <DialogTitle>Item metadata dialog</DialogTitle>
         </VisuallyHidden>
@@ -259,7 +294,7 @@ export const MetaScreen: FC = () => {
               </div>
             )}
             <div className="relative md:mt-96 mt-56 z-50">
-              <div className="px-20 pt-0 pb-20 flex flex-col gap-6">
+              <div className="px-4 sm:px-10 md:px-20 pt-0 pb-20 flex flex-col gap-6">
                 <div className="flex flex-row gap-6 items-center justify-start">
                   {loadingMetadata ? (
                     <Skeleton className="hidden [@media(min-width:1200px)]:block rounded min-w-[300px] min-h-[450px]" />
@@ -394,184 +429,267 @@ export const MetaScreen: FC = () => {
                     </p>
                   )}
 
-                  {info.isShow &&
-                    (loadingShowChildren ? (
-                      <>
-                        <Skeleton className="h-7 w-[20ch]" />
-                        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                          {Array.from({ length: 4 }).map((_, i) => (
-                            <div className="w-full space-y-3" key={i}>
-                              <Skeleton className="aspect-[9/14] w-full rounded" />
-                              <Skeleton className="h-5 w-[10ch]" />
-                              <Skeleton className="h-4 w-[15ch]" />
-                            </div>
-                          ))}
-                        </div>
-                      </>
-                    ) : (
-                      showChildren &&
-                      showChildren.length > 0 && (
-                        <>
-                          <p className="font-bold text-lg md:text-2xl">
-                            {showChildren.length} Season
-                            {showChildren.length > 1 ? "s" : ""}
-                          </p>
-                          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                            {showChildren.map((child) => (
-                              <SeasonPreviewItem
-                                key={child.ratingKey}
-                                season={child}
-                              />
-                            ))}
-                          </div>
-                        </>
-                      )
-                    ))}
+                  {metadata && (
+                    <Tabs value={tab} onValueChange={(value) => setTab(value)}>
+                      <TabsList>
+                        {metadata.type === "show" && (
+                          <TabsTrigger value="seasons">SEASONS</TabsTrigger>
+                        )}
+                        {(metadata.type === "season" ||
+                          metadata.type === "episode") && (
+                          <TabsTrigger value="episodes">EPISODES</TabsTrigger>
+                        )}
+                        <TabsTrigger value="related">
+                          MORE LIKE THIS
+                        </TabsTrigger>
+                      </TabsList>
 
-                  {info.isSeason &&
-                    (loadingSeasonChildren ? (
-                      <>
-                        <Skeleton className="h-7 w-[20ch]" />
-                        <div className="flex flex-col w-full">
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <div
-                              key={i}
-                              className="flex flex-row items-center p-4 group transition hover:bg-secondary w-full border-b-2 justify-start text-left"
-                            >
-                              <Skeleton className="w-[8px] h-[28px] mr-4" />
-                              <div className="pr-4 min-w-[150px] w-[150px] sm:min-w-[200px] sm:w-[200px] md:min-w-[250px] md:w-[250px] relative">
-                                <Skeleton className="aspect-video w-full" />
-                              </div>
-                              <div className="w-full">
-                                <Skeleton className="w-full sm:w-[200px] h-[22px] mb-1" />
-                                <Skeleton className="h-[22px] w-full" />
+                      <TabsContent value="seasons" className="space-y-6">
+                        {info.isShow &&
+                          (loadingShowChildren ? (
+                            <div className="space-y-6">
+                              <Skeleton className="h-7 w-[20ch]" />
+                              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                                {Array.from({ length: 4 }).map((_, i) => (
+                                  <div className="w-full space-y-3" key={i}>
+                                    <Skeleton className="aspect-[9/14] w-full rounded" />
+                                    <Skeleton className="h-5 w-[10ch]" />
+                                    <Skeleton className="h-4 w-[15ch]" />
+                                  </div>
+                                ))}
                               </div>
                             </div>
-                          ))}
-                        </div>
-                      </>
-                    ) : (
-                      seasonChildren &&
-                      seasonChildren.length > 0 && (
-                        <>
-                          <p className="font-bold text-lg md:text-2xl">
-                            {seasonChildren.length} Episode
-                            {seasonChildren.length > 1 ? "s" : ""}
-                          </p>
-                          <div className="flex flex-col w-full">
-                            {seasonChildren.map((child) => (
-                              <EpisodePreviewItem
-                                key={child.ratingKey}
-                                item={child}
-                                count={episodeIndexCharCount}
-                              />
-                            ))}
-                          </div>
-                        </>
-                      )
-                    ))}
-
-                  {info.isEpisode &&
-                    (loadingEpisodeChildren ? (
-                      <>
-                        <Skeleton className="h-7 w-[20ch]" />
-                        <div className="flex flex-col w-full">
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <div
-                              key={i}
-                              className="flex flex-row items-center p-4 group transition hover:bg-secondary w-full border-b-2 justify-start text-left"
-                            >
-                              <Skeleton className="w-[8px] h-[28px] mr-4" />
-                              <div className="pr-4 min-w-[150px] w-[150px] sm:min-w-[200px] sm:w-[200px] md:min-w-[250px] md:w-[250px] relative">
-                                <Skeleton className="aspect-video w-full" />
-                              </div>
-                              <div className="w-full">
-                                <Skeleton className="w-full sm:w-[200px] h-[22px] mb-1" />
-                                <Skeleton className="h-[22px] w-full" />
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </>
-                    ) : (
-                      episodeChildren &&
-                      episodeChildren.length > 0 && (
-                        <>
-                          <p className="font-bold text-lg md:text-2xl">
-                            {episodeChildren.length} Episode
-                            {episodeChildren.length > 1 ? "s" : ""}
-                          </p>
-                          <div className="flex flex-col w-full">
-                            {episodeChildren.map((child) => (
-                              <EpisodePreviewItem
-                                key={child.ratingKey}
-                                selected={child.ratingKey === mid}
-                                item={child}
-                                count={episodeIndexCharCount}
-                              />
-                            ))}
-                          </div>
-                        </>
-                      )
-                    ))}
-
-                  {related &&
-                    (loadingRelated ? (
-                      <>
-                        <Skeleton className="h-7 w-[20ch]" />
-                        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <div className="bg-alternative rounded" key={i}>
-                              <Skeleton
-                                key={i}
-                                className="aspect-video w-full rounded-b-none"
-                              />
-                              <div className="p-4 space-y-4">
-                                <Skeleton className="h-6 w-[25ch]" />
-                                <div className="space-y-2">
-                                  <Skeleton className="h-3" />
-                                  <Skeleton className="h-3" />
-                                  <Skeleton className="h-3" />
-                                  <Skeleton className="h-3" />
+                          ) : (
+                            showChildren &&
+                            showChildren.length > 0 && (
+                              <div className="space-y-6">
+                                <p className="font-bold text-lg md:text-2xl">
+                                  {showChildren.length} Season
+                                  {showChildren.length > 1 ? "s" : ""}
+                                </p>
+                                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                                  {showChildren.map((child) => (
+                                    <SeasonPreviewItem
+                                      key={child.ratingKey}
+                                      season={child}
+                                    />
+                                  ))}
                                 </div>
                               </div>
-                            </div>
+                            )
                           ))}
-                        </div>
-                      </>
-                    ) : (
-                      related.map((hub, i) => (
-                        <div
-                          key={`${hub.title}-${i}`}
-                          className="flex flex-col gap-6"
-                        >
-                          <button
-                            type="button"
-                            className="text-left group w-full flex flex-row items-center gap-2"
-                            onClick={() => {
-                              router.push(
-                                `${pathname}?${qs.stringify({ key: hub.key, libtitle: hub.title })}`,
-                                {
-                                  scroll: false,
-                                },
-                              );
-                            }}
-                          >
-                            <p className="font-bold text-2xl">{hub.title}</p>
-                            <div className="group-hover:opacity-100 group-hover:translate-x-0 opacity-0 transition duration-150 -translate-x-full">
-                              <ChevronRight className="h-6 w-6 text-plex" />
-                            </div>
-                          </button>
-                          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                            {hub.Metadata?.slice(0, 15)
+                      </TabsContent>
 
-                              .map((item, i) => (
-                                <MetadataPreviewItem key={i} item={item} />
-                              ))}
-                          </div>
-                        </div>
-                      ))
-                    ))}
+                      <TabsContent value="episodes" className="space-y-6">
+                        {info.isSeason &&
+                          (loadingSeasonChildren ? (
+                            <div className="space-y-6">
+                              <Skeleton className="h-7 w-[20ch]" />
+                              <div className="flex flex-col w-full">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                  <div
+                                    key={i}
+                                    className="flex flex-row items-center p-4 group transition hover:bg-secondary w-full border-b-2 justify-start text-left"
+                                  >
+                                    <Skeleton className="w-[8px] h-[28px] mr-4" />
+                                    <div className="pr-4 min-w-[150px] w-[150px] sm:min-w-[200px] sm:w-[200px] md:min-w-[250px] md:w-[250px] relative">
+                                      <Skeleton className="aspect-video w-full" />
+                                    </div>
+                                    <div className="w-full">
+                                      <Skeleton className="w-full sm:w-[200px] h-[22px] mb-1" />
+                                      <Skeleton className="h-[22px] w-full" />
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ) : (
+                            seasonChildren &&
+                            seasonChildren.length > 0 && (
+                              <div className="space-y-6">
+                                <div className="flex justify-between">
+                                  <p className="font-bold text-lg md:text-2xl">
+                                    {seasonChildren.length} Episode
+                                    {seasonChildren.length > 1 ? "s" : ""}
+                                  </p>
+                                  {showChildren && showChildren.length > 1 && (
+                                    <Select
+                                      onValueChange={(value) =>
+                                        handleOpen(value)
+                                      }
+                                      value={metadata.ratingKey}
+                                    >
+                                      <SelectTrigger className="max-w-fit gap-2">
+                                        <SelectValue
+                                          placeholder={metadata.title}
+                                        />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {showChildren.map((child) => (
+                                          <SelectItem
+                                            key={child.ratingKey}
+                                            value={child.ratingKey}
+                                          >
+                                            {child.title}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  )}
+                                </div>
+                                <div className="flex flex-col w-full">
+                                  {seasonChildren.map((child) => (
+                                    <EpisodePreviewItem
+                                      key={child.ratingKey}
+                                      item={child}
+                                      count={episodeIndexCharCount}
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                            )
+                          ))}
+
+                        {info.isEpisode &&
+                          (loadingEpisodeChildren ? (
+                            <div className="space-y-6">
+                              <Skeleton className="h-7 w-[20ch]" />
+                              <div className="flex flex-col w-full">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                  <div
+                                    key={i}
+                                    className="flex flex-row items-center p-4 group transition hover:bg-secondary w-full border-b-2 justify-start text-left"
+                                  >
+                                    <Skeleton className="w-[8px] h-[28px] mr-4" />
+                                    <div className="pr-4 min-w-[150px] w-[150px] sm:min-w-[200px] sm:w-[200px] md:min-w-[250px] md:w-[250px] relative">
+                                      <Skeleton className="aspect-video w-full" />
+                                    </div>
+                                    <div className="w-full">
+                                      <Skeleton className="w-full sm:w-[200px] h-[22px] mb-1" />
+                                      <Skeleton className="h-[22px] w-full" />
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ) : (
+                            episodeChildren &&
+                            episodeChildren.length > 0 && (
+                              <div className="space-y-6">
+                                <div className="flex justify-between">
+                                  <p className="font-bold text-lg md:text-2xl">
+                                    {episodeChildren.length} Episode
+                                    {episodeChildren.length > 1 ? "s" : ""}
+                                  </p>
+                                  {showChildren && showChildren.length > 1 && (
+                                    <Select
+                                      onValueChange={(value) =>
+                                        handleOpen(value)
+                                      }
+                                      value={metadata.parentRatingKey}
+                                    >
+                                      <SelectTrigger className="max-w-fit gap-2">
+                                        <SelectValue
+                                          placeholder={metadata.title}
+                                        />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {showChildren.map((child) => (
+                                          <SelectItem
+                                            key={child.ratingKey}
+                                            value={child.ratingKey}
+                                          >
+                                            {child.title}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  )}
+                                </div>
+                                <div className="flex flex-col w-full">
+                                  {episodeChildren.map((child) => (
+                                    <EpisodePreviewItem
+                                      key={child.ratingKey}
+                                      selected={child.ratingKey === mid}
+                                      item={child}
+                                      count={episodeIndexCharCount}
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                            )
+                          ))}
+                      </TabsContent>
+
+                      <TabsContent value="related" className="space-y-6">
+                        {related &&
+                          (loadingRelated ? (
+                            <div className="space-y-6">
+                              <Skeleton className="h-7 w-[20ch]" />
+                              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                  <div
+                                    className="bg-alternative rounded"
+                                    key={i}
+                                  >
+                                    <Skeleton
+                                      key={i}
+                                      className="aspect-video w-full rounded-b-none"
+                                    />
+                                    <div className="p-4 space-y-4">
+                                      <Skeleton className="h-6 w-[25ch]" />
+                                      <div className="space-y-2">
+                                        <Skeleton className="h-3" />
+                                        <Skeleton className="h-3" />
+                                        <Skeleton className="h-3" />
+                                        <Skeleton className="h-3" />
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ) : (
+                            related.map((hub, i) => (
+                              <div
+                                key={`${hub.title}-${i}`}
+                                className="flex flex-col gap-6"
+                              >
+                                <button
+                                  type="button"
+                                  className="text-left group w-full flex flex-row items-center gap-2"
+                                  onClick={() => {
+                                    router.push(
+                                      `${pathname}?${qs.stringify({ key: hub.key, libtitle: hub.title })}`,
+                                      {
+                                        scroll: false,
+                                      },
+                                    );
+                                  }}
+                                >
+                                  <p className="font-bold text-2xl">
+                                    {hub.title}
+                                  </p>
+                                  <div className="group-hover:opacity-100 group-hover:translate-x-0 opacity-0 transition duration-150 -translate-x-full">
+                                    <ChevronRight className="h-6 w-6 text-plex" />
+                                  </div>
+                                </button>
+                                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                                  {hub.Metadata?.slice(0, 15)
+
+                                    .map((item, i) => (
+                                      <MetadataPreviewItem
+                                        key={i}
+                                        item={item}
+                                      />
+                                    ))}
+                                </div>
+                              </div>
+                            ))
+                          ))}
+                      </TabsContent>
+                    </Tabs>
+                  )}
                 </div>
               </div>
             </div>

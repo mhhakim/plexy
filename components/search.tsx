@@ -13,6 +13,12 @@ import { ServerApi } from "@/api";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import qs from "qs";
 import { usePathname, useRouter } from "next/navigation";
+import {
+  Command,
+  CommandEmpty,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 
 export const Search = () => {
   const [open, setOpen] = useState(false);
@@ -86,12 +92,12 @@ export const Search = () => {
           </kbd>
         </Button>
       </DialogTrigger>
-      <DialogContent className="p-0 rounded max-w-[min(32rem,calc(100%-2rem))]">
-        <VisuallyHidden>
-          <DialogTitle>Search dialog</DialogTitle>
-        </VisuallyHidden>
 
-        <div>
+      <VisuallyHidden>
+        <DialogTitle>Search dialog</DialogTitle>
+      </VisuallyHidden>
+      <DialogContent className="overflow-hidden p-0">
+        <Command className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
           <div className="flex flex-row items-center px-3 border-b">
             <SearchIcon className="mr-2 h-4 w-4 shrink-0 opacity-50" />
             <input
@@ -102,76 +108,94 @@ export const Search = () => {
             />
           </div>
 
-          {results.length > 0 ? (
-            <ScrollArea className="flex flex-col gap-2 px-3 py-2 max-h-[600px]">
-              {results.map((item, i) => (
-                <button
-                  key={`${item.key}-${i}`}
-                  className={`rounded flex w-full flex-row gap-2 justify-start text-left items-center p-2 hover:bg-accent hover:text-accent-foreground`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    router.push(
-                      `${pathname}?mid=${item.ratingKey.toString()}`,
-                      { scroll: false },
-                    );
-                    handleReset();
-                    setOpen(false);
-                  }}
-                >
-                  <img
-                    loading="lazy"
-                    width={60}
-                    height={90}
-                    src={`${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
-                      {
-                        width: 60,
-                        height: 90,
-                        url: `${(item.type === "episode" ? item.parentThumb : item.thumb) || item.thumb}?X-Plex-Token=${token}`,
-                        minSize: 1,
-                        upscale: 1,
-                        "X-Plex-Token": token,
-                      },
-                    )}`}
-                    alt="search result poster"
-                    className="w-[60px] h-[90px] rounded"
-                  />
-                  <div>
-                    <p className="line-clamp-1 font-bold">{item.title}</p>
-                    {item.type === "episode" && (
-                      <>
-                        <p className="line-clamp-1 text-muted-foreground font-bold text-sm">
-                          {item.grandparentTitle}
-                        </p>
-                        {item.parentIndex !== undefined &&
-                        item.index !== undefined ? (
-                          <p className="line-clamp-1 font-bold text-sm text-muted-foreground">
-                            S{item.parentIndex.toString().padStart(2, "0")}
-                            {" • "}
-                            {item.index.toString().padStart(2, "0")}
-                            {" • "}Episode
-                          </p>
-                        ) : (
-                          <p className="line-clamp-1 font-bold text-sm text-muted-foreground">
-                            episode
-                          </p>
-                        )}
-                      </>
-                    )}
-                    {item.type !== "episode" && (
-                      <p className="line-clamp-1 font-bold capitalize text-sm text-muted-foreground">
-                        {item.type}
-                      </p>
-                    )}
-                  </div>
-                </button>
-              ))}
-            </ScrollArea>
-          ) : (
-            <div className="py-6 px-2 text-center text-sm">
-              No results found.
-            </div>
-          )}
-        </div>
+          <ScrollArea className="max-h-[600px]">
+            <CommandList className="max-h-[600px] no-scrollbar px-3 py-2">
+              <div>
+                {results.length > 0 ? (
+                  results.map((item, i) => (
+                    <Button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        router.push(
+                          `${pathname}?mid=${item.ratingKey.toString()}`,
+                          { scroll: false },
+                        );
+                        handleReset();
+                        setOpen(false);
+                      }}
+                      key={`${item.key}-${i}`}
+                      className="rounded overflow-hidden mb-2 flex h-fit w-full flex-row gap-2 justify-start text-left items-center p-2 hover:bg-accent hover:text-accent-foreground"
+                      asChild
+                    >
+                      <CommandItem
+                        onSelect={() => {
+                          router.push(
+                            `${pathname}?mid=${item.ratingKey.toString()}`,
+                            { scroll: false },
+                          );
+                          handleReset();
+                          setOpen(false);
+                        }}
+                        className="overflow-hidden"
+                      >
+                        <img
+                          loading="lazy"
+                          width={60}
+                          height={90}
+                          src={`${localStorage.getItem("server")}/photo/:/transcode?${qs.stringify(
+                            {
+                              width: 60,
+                              height: 90,
+                              url: `${(item.type === "episode" ? item.parentThumb : item.thumb) || item.thumb}?X-Plex-Token=${token}`,
+                              minSize: 1,
+                              upscale: 1,
+                              "X-Plex-Token": token,
+                            },
+                          )}`}
+                          alt="search result poster"
+                          className="w-[60px] h-[90px] rounded"
+                        />
+                        <div className="max-w-max overflow-hidden">
+                          <p className="truncate font-bold">{item.title}</p>
+                          {item.type === "episode" && (
+                            <>
+                              <p className="truncate text-muted-foreground font-bold text-sm">
+                                {item.grandparentTitle}
+                              </p>
+                              {item.parentIndex !== undefined &&
+                              item.index !== undefined ? (
+                                <p className="truncate font-bold text-sm text-muted-foreground">
+                                  S
+                                  {item.parentIndex.toString().padStart(2, "0")}
+                                  {" • "}
+                                  {item.index.toString().padStart(2, "0")}
+                                  {" • "}Episode
+                                </p>
+                              ) : (
+                                <p className="truncate font-bold text-sm text-muted-foreground">
+                                  episode
+                                </p>
+                              )}
+                            </>
+                          )}
+                          {item.type !== "episode" && (
+                            <p className="line-clamp-1 font-bold capitalize text-sm text-muted-foreground">
+                              {item.type}
+                            </p>
+                          )}
+                        </div>
+                      </CommandItem>
+                    </Button>
+                  ))
+                ) : (
+                  <CommandEmpty className="py-6 px-2 text-center text-sm">
+                    No results found.
+                  </CommandEmpty>
+                )}
+              </div>
+            </CommandList>
+          </ScrollArea>
+        </Command>
 
         <DialogClose className="absolute right-4 top-3">
           <button
