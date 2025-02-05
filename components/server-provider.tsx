@@ -36,6 +36,7 @@ export function ServerProvider({ children }: { children: ReactNode }) {
       console.log(currentInfo);
       if (currentInfo) {
         localStorage.setItem("server", currentInfo.connection.uri);
+        localStorage.setItem("token", currentInfo.server.accessToken);
         setServer(currentInfo);
       }
       fetchAvailableServers()
@@ -47,6 +48,7 @@ export function ServerProvider({ children }: { children: ReactNode }) {
           }
           console.log(info, list);
           if (!currentInfo && info) {
+            localStorage.setItem("token", info.server.accessToken);
             localStorage.setItem("server", info.connection.uri);
             setServer(info);
           }
@@ -65,6 +67,7 @@ export function ServerProvider({ children }: { children: ReactNode }) {
   const handleServerSelection = (server: LibraryAndServer) => {
     setServer(server);
     localStorage.setItem("server", server.connection.uri);
+    localStorage.setItem("token", server.server.accessToken);
     window.location.reload();
   };
 
