@@ -36,7 +36,7 @@ const HubItem = forwardRef<
 
   const handleUpdate = () => {
     if (info.guid) {
-      ServerApi.discoverMetadata({ guid: info.guid }).then(console.log);
+      ServerApi.discoverMetadata({ guid: info.guid });
     }
     onUpdate(item);
   };

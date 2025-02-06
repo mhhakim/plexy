@@ -33,7 +33,6 @@ export function ServerProvider({ children }: { children: ReactNode }) {
     let controllers: AbortController[] = [];
     setLoading(true);
     fetchExistingServer(currentConnectionUri).then((currentInfo) => {
-      console.log(currentInfo);
       if (currentInfo) {
         localStorage.setItem("server", currentInfo.connection.uri);
         localStorage.setItem("token", currentInfo.server.accessToken);
@@ -46,7 +45,6 @@ export function ServerProvider({ children }: { children: ReactNode }) {
             // TODO: error
             return;
           }
-          console.log(info, list);
           if (!currentInfo && info) {
             localStorage.setItem("token", info.server.accessToken);
             localStorage.setItem("server", info.connection.uri);

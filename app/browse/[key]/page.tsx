@@ -1,21 +1,17 @@
 "use client";
 
 import { ServerApi } from "@/api";
-import { useParams, usePathname, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Hero } from "@/components/hero";
 import { HubSlider } from "@/components/hub-slider";
-import { Button } from "@/components/ui/button";
-import qs from "qs";
 import { useHubs } from "@/hooks/use-hubs";
 import { cn } from "@/lib/utils";
 import { APPBAR_HEIGHT } from "@/components/appbar";
 
 export default function Page() {
   const params = useParams<{ key: string }>();
-  const pathname = usePathname();
-  const router = useRouter();
   const library = useQuery({
     queryKey: ["details", params.key],
     queryFn: async () => {
@@ -75,7 +71,7 @@ export default function Page() {
   }, [params.key]);
 
   useEffect(() => {
-    const updateHubs = (event: PopStateEvent) => {
+    const updateHubs = () => {
       const storage = localStorage.getItem("from-meta-screen");
       if (storage) {
         const { ratingKey, parentRatingKey, grandparentRatingKey } = JSON.parse(
@@ -122,53 +118,32 @@ export default function Page() {
 
   if (type === "show" || type === "movie") {
     return (
-      <>
-        <div className="w-full flex flex-col items-start justify-start">
-          {featured && <Hero item={featured} />}
-          <div
-            className={cn(
-              "flex flex-col items-start justify-start w-full z-10",
-              featured &&
-                "lg:-mt-[calc(10vw-4rem)] md:mt-[3rem] -mt-[calc(-10vw-2rem)]",
-            )}
-            style={{
-              paddingTop: !featured
-                ? `calc(${APPBAR_HEIGHT} + 2rem)`
-                : undefined,
-            }}
-          >
-            {hubs &&
-              hubs.map((item, i) => (
-                <HubSlider
-                  key={`${item.key}-${i}`}
-                  id={params.key}
-                  hub={item}
-                  onAppend={(items: Plex.HubMetadata[]) => append(i, items)}
-                  onUpdate={(updatedItem, itemIndex) =>
-                    handleUpdate(updatedItem, itemIndex, i)
-                  }
-                />
-              ))}
-          </div>
+      <div className="w-full flex flex-col items-start justify-start">
+        {featured && <Hero item={featured} />}
+        <div
+          className={cn(
+            "flex flex-col items-start justify-start w-full z-10",
+            featured &&
+              "lg:-mt-[calc(10vw-4rem)] md:mt-[3rem] -mt-[calc(-10vw-2rem)]",
+          )}
+          style={{
+            paddingTop: !featured ? `calc(${APPBAR_HEIGHT} + 2rem)` : undefined,
+          }}
+        >
+          {hubs &&
+            hubs.map((item, i) => (
+              <HubSlider
+                key={`${item.key}-${i}`}
+                id={params.key}
+                hub={item}
+                onAppend={(items: Plex.HubMetadata[]) => append(i, items)}
+                onUpdate={(updatedItem, itemIndex) =>
+                  handleUpdate(updatedItem, itemIndex, i)
+                }
+              />
+            ))}
         </div>
-        <div className="absolute right-0 top-16 p-4 z-40">
-          <Button
-            type="button"
-            variant="search"
-            size="sm"
-            onClick={() => {
-              router.push(
-                `${pathname}?${qs.stringify({ key: `/library/sections/${params.key}/all?sort=titleSort`, libtitle: "Library" })}`,
-                {
-                  scroll: false,
-                },
-              );
-            }}
-          >
-            Library
-          </Button>
-        </div>
-      </>
+      </div>
     );
   }
 

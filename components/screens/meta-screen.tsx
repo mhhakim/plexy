@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
   ChevronRight,
-  Maximize,
   Play,
   Volume2,
   VolumeX,
@@ -213,8 +212,8 @@ export const MetaScreen: FC = () => {
         </VisuallyHidden>
         <ScrollArea>
           <div className="max-w-full w-full rounded-lg h-full overflow-auto relative">
-            {info.coverImage ? (
-              <div className="absolute top-0 right-0 left-0 z-0 max-w-full">
+            {info.coverImage && metadata ? (
+              <div className="absolute top-0 right-0 left-0 z-0 max-w-full previewPlayerContainerRef">
                 {playing ? (
                   <ReactPlayer
                     url={preview!}
@@ -278,6 +277,24 @@ export const MetaScreen: FC = () => {
                       <Volume2 className="w-4 h-4" />
                     )}
                   </Button>
+                  {/*<Button*/}
+                  {/*  variant="outline"*/}
+                  {/*  size="icon"*/}
+                  {/*  onClick={() => {*/}
+                  {/*    if (!playerContainerRef.current) return;*/}
+                  {/*    const targetElement = document.querySelector("body");*/}
+                  {/*    playerContainerRef.current.style.zIndex = "9999";*/}
+                  {/*    playerContainerRef.current.style.position = "absolute";*/}
+                  {/*    playerContainerRef.current.style.top = "0";*/}
+                  {/*    playerContainerRef.current.style.bottom = "0";*/}
+                  {/*    playerContainerRef.current.style.backgroundColor =*/}
+                  {/*      "black";*/}
+                  {/*    targetElement!.appendChild(playerContainerRef.current);*/}
+                  {/*  }}*/}
+                  {/*  type="button"*/}
+                  {/*>*/}
+                  {/*  <Maximize />*/}
+                  {/*</Button>*/}
                 </div>
               </div>
             ) : (

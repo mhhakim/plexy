@@ -11,6 +11,7 @@ import { useSearchParams } from "next/navigation";
 import { WatchScreen } from "@/components/screens/watch-screen";
 import { LibraryScreen } from "@/components/screens/library-screen";
 import { CarouselWrapper } from "@/components/carousel/carousel";
+import { SearchProvider } from "@/components/search-provider";
 
 const client = new QueryClient();
 
@@ -42,7 +43,7 @@ export default function Providers({ children }: { children: ReactNode }) {
         <AuthProvider>
           <SessionProvider>
             <CarouselWrapper>
-              <Suspense>
+              <Suspense fallback={null}>
                 <MetaScreen />
                 <WatchScreen watch={watch ?? undefined} />
                 <LibraryScreen
@@ -51,7 +52,7 @@ export default function Providers({ children }: { children: ReactNode }) {
                   keypath={key ?? undefined}
                 />
               </Suspense>
-              {children}
+              <SearchProvider>{children}</SearchProvider>
             </CarouselWrapper>
           </SessionProvider>
         </AuthProvider>

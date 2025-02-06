@@ -69,7 +69,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // should have the token here
             if (!res.data.authToken) {
               // TODO: handle error
-              console.log(res.data);
               return;
             }
 
