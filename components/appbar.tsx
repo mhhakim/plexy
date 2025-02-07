@@ -29,6 +29,11 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import qs from "qs";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 export const APPBAR_HEIGHT = "4.5rem";
 
@@ -168,24 +173,16 @@ export const Appbar = () => {
         </Sheet>
         <div className="flex-1" />
         {user && (
-          <Sheet>
-            <SheetTrigger>
+          <Popover>
+            <PopoverTrigger>
               <Avatar>
                 <AvatarImage src={user.thumb} />
                 <AvatarFallback>
                   {user.username.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-            </SheetTrigger>
-            <SheetContent side="right">
-              <SheetHeader className="pb-4 flex flex-row justify-between items-center space-y-0">
-                <SheetTitle>Plexy</SheetTitle>
-                <SheetClose asChild>
-                  <Button variant="search" size="icon">
-                    <X />
-                  </Button>
-                </SheetClose>
-              </SheetHeader>
+            </PopoverTrigger>
+            <PopoverContent side="bottom" className="m-4">
               <div className="flex flex-col gap-4">
                 <div className="hover:text-primary hover:border-primary/80 flex gap-2 items-center bg-muted/40 p-2 rounded-lg border overflow-hidden">
                   <div>
@@ -230,8 +227,8 @@ export const Appbar = () => {
                   </>
                 )}
               </div>
-            </SheetContent>
-          </Sheet>
+            </PopoverContent>
+          </Popover>
         )}
       </div>
     </>
