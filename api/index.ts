@@ -80,7 +80,7 @@ const browser = () => {
   return browserName;
 };
 
-export const xprops = () => {
+export const xprops = (token = localStorage.getItem("token")) => {
   return {
     "X-Incomplete-Segments": "1",
     "X-Plex-Product": PLEX.application,
@@ -93,7 +93,7 @@ export const xprops = () => {
     "X-Plex-Device": browser(),
     "X-Plex-Device-Name": browser(),
     "X-Plex-Device-Screen-Resolution": `${window.screen.width}x${window.screen.height}`,
-    "X-Plex-Token": localStorage.getItem("token") as string,
+    "X-Plex-Token": token as string,
     "X-Plex-Language": "en",
     "X-Plex-Session-Id": sessionStorage.getItem("sessionId") as string,
     "X-Plex-Session-Identifier": window.plexSessionId ?? "",
@@ -157,16 +157,13 @@ export class Api {
       `https://plex.tv/api/v2/pins/${props.pin}?X-Plex-Client-Identifier=${props.uuid}`,
     );
   }
-  static async resources({ token }: { token: string }) {
-    return axios.get(`https://plex.tv/api/resources?X-Plex-Token=${token}`);
-  }
   static async servers() {
     return axios.get<PlexServer[]>(
       `https://clients.plex.tv/api/v2/resources?${qs.stringify({
         includeHttps: 1,
         includeRelay: 1,
         includeIPv6: 1,
-        ...xprops(),
+        ...xprops(localStorage.getItem("auth-token")),
       })}`,
     );
   }

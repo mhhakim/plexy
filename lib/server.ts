@@ -19,7 +19,7 @@ export async function fetchConnectionLibrary(
       `${connection.uri}/library/sections`,
       {
         headers: {
-          "X-Plex-Token": localStorage.getItem("token") as string,
+          "X-Plex-Token": server.accessToken as string,
           accept: "application/json",
         },
         signal,
@@ -80,9 +80,9 @@ export async function fetchAvailableServers() {
   return Api.servers().then(async (res) => {
     let list = res.data || [];
 
-    // remove the server with no connections from the list
+    // remove the server with no connections or no accessToken from the list
     for (let i = list.length - 1; i >= 0; i--) {
-      if (!list[i].connections?.length) {
+      if (!list[i].connections?.length || !list[i].accessToken) {
         list.splice(i, 1);
       }
     }
@@ -120,9 +120,9 @@ export async function fetchExistingServer(currentConnectionUri: string) {
 
           let connected: PlexServer | null = null;
 
-          // remove the server with no connections from the list
+          // remove the server with no connections or no accessToken from the list
           for (let i = list.length - 1; i >= 0; i--) {
-            if (!list[i].connections?.length) {
+            if (!list[i].connections?.length || !list[i].accessToken) {
               list.splice(i, 1);
             }
           }
