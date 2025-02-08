@@ -3,12 +3,19 @@
 import { FC, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ServerApi } from "@/api";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
   ChevronRight,
+  Info,
   Play,
   Volume2,
   VolumeX,
@@ -37,6 +44,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 
 export const MetaScreen: FC = () => {
   const pathname = usePathname();
@@ -277,24 +290,6 @@ export const MetaScreen: FC = () => {
                       <Volume2 className="w-4 h-4" />
                     )}
                   </Button>
-                  {/*<Button*/}
-                  {/*  variant="outline"*/}
-                  {/*  size="icon"*/}
-                  {/*  onClick={() => {*/}
-                  {/*    if (!playerContainerRef.current) return;*/}
-                  {/*    const targetElement = document.querySelector("body");*/}
-                  {/*    playerContainerRef.current.style.zIndex = "9999";*/}
-                  {/*    playerContainerRef.current.style.position = "absolute";*/}
-                  {/*    playerContainerRef.current.style.top = "0";*/}
-                  {/*    playerContainerRef.current.style.bottom = "0";*/}
-                  {/*    playerContainerRef.current.style.backgroundColor =*/}
-                  {/*      "black";*/}
-                  {/*    targetElement!.appendChild(playerContainerRef.current);*/}
-                  {/*  }}*/}
-                  {/*  type="button"*/}
-                  {/*>*/}
-                  {/*  <Maximize />*/}
-                  {/*</Button>*/}
                 </div>
               </div>
             ) : (
@@ -399,17 +394,37 @@ export const MetaScreen: FC = () => {
                       )}
                     </div>
                     {!loadingMetadata && (
-                      <Button
-                        variant="default"
-                        size="lg"
-                        onClick={info.play}
-                        className="w-fit font-bold"
-                      >
-                        <Play fill="currentColor" /> Play
-                        {info.playable
-                          ? `${info.playable.season !== null ? ` S${info.playable.season}` : ""}${info.playable.episode !== null ? ` E${info.playable.episode}` : ""}`
-                          : null}
-                      </Button>
+                      <div className="flex flex-row gap-4">
+                        <Button
+                          variant="default"
+                          onClick={info.play}
+                          className="w-fit font-bold"
+                        >
+                          <Play fill="currentColor" /> Play
+                          {info.playable
+                            ? `${info.playable.season !== null ? ` S${info.playable.season}` : ""}${info.playable.episode !== null ? ` E${info.playable.episode}` : ""}`
+                            : null}
+                        </Button>
+                        {/*<Dialog>*/}
+                        {/*  <DialogTrigger>*/}
+                        {/*    <Button*/}
+                        {/*      variant="default"*/}
+                        {/*      size="icon"*/}
+                        {/*      className="font-bold"*/}
+                        {/*    >*/}
+                        {/*      <Info />*/}
+                        {/*    </Button>*/}
+                        {/*  </DialogTrigger>*/}
+                        {/*  <DialogContent className="shadow-2xl">*/}
+                        {/*    <DialogHeader>*/}
+                        {/*      <DialogTitle>More Options</DialogTitle>*/}
+                        {/*    </DialogHeader>*/}
+                        {/*    <Button variant="outline" className="w-full">*/}
+                        {/*      Mark as watched*/}
+                        {/*    </Button>*/}
+                        {/*  </DialogContent>*/}
+                        {/*</Dialog>*/}
+                      </div>
                     )}
                     <div className="space-y-2">
                       {loadingMetadata ? (

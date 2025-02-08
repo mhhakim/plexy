@@ -245,6 +245,24 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
     }
   }, [ready]);
 
+  const next = useMemo(() => (playQueue && playQueue[1]) ?? null, [playQueue]);
+
+  const handleNext = useCallback(() => {
+    if (next) {
+      router.replace(`${pathname}?watch=${next.ratingKey}`, {
+        scroll: false,
+      });
+    }
+  }, [next]);
+
+  useEffect(() => {
+    if ("mediaSession" in navigator) {
+      navigator.mediaSession.setActionHandler("nexttrack", () => {
+        handleNext();
+      });
+    }
+  }, [handleNext]);
+
   // playback controll buttons
   // SPACE: play/pause
   // LEFT: seek back 10 seconds
@@ -253,9 +271,13 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
   // DOWN: decrease volume
   // , (comma): Back 1 frame
   // . (period): Forward 1 frame
-  // F: fullscreen
+  // F: Maximize/Minimize
+  // M: Mute/Unmute
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+
       if (e.key === " " && player.current) {
         setPlaying((state) => !state);
       }
@@ -271,12 +293,20 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
           localStorage.setItem("volume", value.toString());
           return value;
         });
+        setIsMuted(() => {
+          localStorage.setItem("is_watch_muted", "false");
+          return false;
+        });
       }
       if (e.key === "ArrowDown" && player.current) {
         setVolume((state) => {
           const value = Math.max(state - 5, 0);
           localStorage.setItem("volume", value.toString());
           return value;
+        });
+        setIsMuted(() => {
+          localStorage.setItem("is_watch_muted", "false");
+          return false;
         });
       }
       if (e.key === "," && player.current) {
@@ -291,6 +321,12 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
         } else {
           document.exitFullscreen().then();
         }
+      }
+      if (e.key === "m") {
+        setIsMuted((prev) => {
+          localStorage.setItem("is_watch_muted", prev ? "false" : "true");
+          return !prev;
+        });
       }
     };
 
@@ -382,7 +418,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex flex-col bg-black" ref={container}>
-      {metadata ? (
+      {metadata && !isLoadingMetadata ? (
         <>
           <div
             className={`absolute inset-0 ${showControls ? "" : "cursor-none"}`}
@@ -513,12 +549,22 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
               url={url}
               width="100%"
               height="100%"
+              pip
             />
           </div>
           <div
             className={`sticky top-0 w-full flex flex-col gap-6 p-6 bg-background/80 ${showControls || !playing ? "" : "-translate-y-full"} transition`}
           >
-            <button onClick={() => back()} className="group w-fit">
+            <button
+              onClick={() => back()}
+              className="group w-fit"
+              id="button-back"
+              onKeyDown={(event) => {
+                if (event.key === " ") {
+                  event.preventDefault();
+                }
+              }}
+            >
               <ArrowLeft className="w-8 h-8 text-muted-foreground group-hover:scale-125 hover:text-primary transition duration-75" />
             </button>
           </div>
@@ -527,46 +573,54 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
             className={`flex flex-row p-6 justify-end z-50 ${showSkip ? "" : "hidden"} transition`}
             autoFocus
           >
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                if (!player.current || !metadata?.Marker) return;
-                const time =
-                  metadata.Marker?.filter(
-                    (marker) =>
-                      marker.startTimeOffset / 1000 <= progress &&
-                      marker.endTimeOffset / 1000 >= progress &&
-                      marker.type === "intro",
-                  )[0].endTimeOffset / 1000;
-                player.current.seekTo(time + 1);
-              }}
-            >
-              <SkipForward /> Skip Intro
-            </Button>
+            {showSkip && (
+              <Button
+                type="button"
+                variant="outline"
+                id="button-skipintro"
+                autoFocus
+                onClick={() => {
+                  if (!player.current || !metadata?.Marker) return;
+                  const time =
+                    metadata.Marker?.filter(
+                      (marker) =>
+                        marker.startTimeOffset / 1000 <= progress &&
+                        marker.endTimeOffset / 1000 >= progress &&
+                        marker.type === "intro",
+                    )[0].endTimeOffset / 1000;
+                  player.current.seekTo(time + 1);
+                }}
+              >
+                <SkipForward /> Skip Intro
+              </Button>
+            )}
           </div>
           <div
             className={`flex flex-row p-6 justify-end z-50 ${showCredit ? "" : "hidden"} transition`}
             autoFocus
           >
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                if (!player.current || !metadata?.Marker) return;
-                const time =
-                  metadata.Marker?.filter(
-                    (marker) =>
-                      marker.startTimeOffset / 1000 <= progress &&
-                      marker.endTimeOffset / 1000 >= progress &&
-                      marker.type === "credits" &&
-                      !marker.final,
-                  )[0].endTimeOffset / 1000;
-                player.current.seekTo(time + 1);
-              }}
-            >
-              <SkipForward /> Skip Credit
-            </Button>
+            {showCredit && (
+              <Button
+                type="button"
+                variant="outline"
+                id="button-skipcredit"
+                autoFocus
+                onClick={() => {
+                  if (!player.current || !metadata?.Marker) return;
+                  const time =
+                    metadata.Marker?.filter(
+                      (marker) =>
+                        marker.startTimeOffset / 1000 <= progress &&
+                        marker.endTimeOffset / 1000 >= progress &&
+                        marker.type === "credits" &&
+                        !marker.final,
+                    )[0].endTimeOffset / 1000;
+                  player.current.seekTo(time + 1);
+                }}
+              >
+                <SkipForward /> Skip Credit
+              </Button>
+            )}
           </div>
           <div
             className={`sticky bottom-0 w-full flex flex-col gap-6 p-6 bg-background/80 ${showControls || !playing ? "" : "translate-y-full"} transition`}
@@ -598,6 +652,12 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
               className="flex flex-row gap-4 items-center"
             >
               <button
+                id="button-play"
+                onKeyDown={(event) => {
+                  if (event.key === " ") {
+                    event.preventDefault();
+                  }
+                }}
                 onClick={() => {
                   setPlaying(!playing);
                 }}
@@ -616,6 +676,12 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
               </button>
               <div className="flex group items-center">
                 <button
+                  id="button-volume"
+                  onKeyDown={(event) => {
+                    if (event.key === " ") {
+                      event.preventDefault();
+                    }
+                  }}
                   onClick={() => {
                     localStorage.setItem(
                       "is_watch_muted",
@@ -655,6 +721,12 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                 {metadata.type === "episode" && (
                   <span>
                     <button
+                      id="button-grandparent"
+                      onKeyDown={(event) => {
+                        if (event.key === " ") {
+                          event.preventDefault();
+                        }
+                      }}
                       onClick={() =>
                         router.push(
                           `${pathname}?mid=${metadata.grandparentRatingKey}`,
@@ -666,6 +738,12 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                     </button>
                     {" - "}
                     <button
+                      id="button-parent"
+                      onKeyDown={(event) => {
+                        if (event.key === " ") {
+                          event.preventDefault();
+                        }
+                      }}
                       onClick={() =>
                         router.push(
                           `${pathname}?mid=${metadata.parentRatingKey}`,
@@ -682,23 +760,17 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                 )}
               </p>
               <div className="flex-1" />
-              {playQueue && playQueue[1] && (
+              {next && (
                 <TooltipProvider delayDuration={100}>
                   <Tooltip>
-                    <TooltipTrigger asChild>
+                    <TooltipTrigger asChild id="button-next">
                       <button
-                        onClick={() => {
-                          if (!playQueue) return;
-                          const next = playQueue[1];
-                          if (next) {
-                            router.replace(
-                              `${pathname}?watch=${next.ratingKey}`,
-                              {
-                                scroll: false,
-                              },
-                            );
+                        onKeyDown={(event) => {
+                          if (event.key === " ") {
+                            event.preventDefault();
                           }
                         }}
+                        onClick={() => handleNext()}
                       >
                         <SkipForward className="w-8 h-8 text-muted-foreground hover:scale-125 hover:text-primary transition duration-75" />
                       </button>
@@ -715,7 +787,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                           {
                             width: 16 * 20,
                             height: 9 * 20,
-                            url: `${playQueue[1].thumb}?X-Plex-Token=${token}`,
+                            url: `${next.thumb}?X-Plex-Token=${token}`,
                             minSize: 1,
                             upscale: 1,
                             "X-Plex-Token": token,
@@ -725,26 +797,30 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                       />
                       <div className="p-4 text-primary">
                         <p className="text-xl line-clamp-1 font-bold">
-                          {playQueue[1].title}
+                          {next.title}
                         </p>
                         <p className="text-normal font-bold text-muted-foreground">
-                          S
-                          {playQueue[1].parentIndex
-                            ?.toString()
-                            .padStart(2, "0")}
-                          E{playQueue[1].index?.toString().padStart(2, "0")}
+                          S{next.parentIndex?.toString().padStart(2, "0")}E
+                          {next.index?.toString().padStart(2, "0")}
                         </p>
-                        <p className="text-md line-clamp-6">
-                          {playQueue[1].summary}
-                        </p>
+                        <p className="text-md line-clamp-6">{next.summary}</p>
                       </div>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               )}
               <Dialog>
-                <DialogTrigger>
-                  <SlidersHorizontal className="w-8 h-8 text-muted-foreground hover:scale-125 hover:text-primary transition duration-75" />
+                <DialogTrigger asChild>
+                  <button
+                    onKeyDown={(event) => {
+                      if (event.key === " ") {
+                        event.preventDefault();
+                      }
+                    }}
+                    id="button-settings"
+                  >
+                    <SlidersHorizontal className="w-8 h-8 text-muted-foreground hover:scale-125 hover:text-primary transition duration-75" />
+                  </button>
                 </DialogTrigger>
                 <DialogContent className="m-4 flex flex-col gap-2">
                   <VisuallyHidden>
@@ -932,6 +1008,12 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                 </DialogContent>
               </Dialog>
               <button
+                onKeyDown={(event) => {
+                  if (event.key === " ") {
+                    event.preventDefault();
+                  }
+                }}
+                id="button-fullscreen"
                 onClick={() => {
                   if (!document.fullscreenElement) {
                     document.documentElement.requestFullscreen().then();
