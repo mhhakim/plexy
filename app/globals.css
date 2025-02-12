@@ -87,6 +87,10 @@
     body {
         @apply bg-background text-foreground;
     }
+
+    .without-ring {
+        @apply focus:ring-0 focus:ring-offset-0 focus-within:ring-0 focus-within:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 ring-0 ring-offset-0 focus:outline-0 focus-within:outline-0 focus-visible:outline-0 outline-0 focus:border-0 focus-within:border-0 focus-visible:border-0 border-0;
+    }
 }
 
 .hover-time {

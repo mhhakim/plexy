@@ -557,7 +557,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
           >
             <button
               onClick={() => back()}
-              className="group w-fit"
+              className="group w-fit without-ring"
               id="button-back"
               onKeyDown={(event) => {
                 if (event.key === " ") {
@@ -653,6 +653,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
             >
               <button
                 id="button-play"
+                className="without-ring"
                 onKeyDown={(event) => {
                   if (event.key === " ") {
                     event.preventDefault();
@@ -677,6 +678,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
               <div className="flex group items-center">
                 <button
                   id="button-volume"
+                  className="without-ring"
                   onKeyDown={(event) => {
                     if (event.key === " ") {
                       event.preventDefault();
@@ -722,6 +724,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                   <span>
                     <button
                       id="button-grandparent"
+                      className="without-ring"
                       onKeyDown={(event) => {
                         if (event.key === " ") {
                           event.preventDefault();
@@ -739,6 +742,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                     {" - "}
                     <button
                       id="button-parent"
+                      className="without-ring"
                       onKeyDown={(event) => {
                         if (event.key === " ") {
                           event.preventDefault();
@@ -765,6 +769,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                   <Tooltip>
                     <TooltipTrigger asChild id="button-next">
                       <button
+                        className="without-ring"
                         onKeyDown={(event) => {
                           if (event.key === " ") {
                             event.preventDefault();
@@ -812,6 +817,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
               <Dialog>
                 <DialogTrigger asChild>
                   <button
+                    className="without-ring"
                     onKeyDown={(event) => {
                       if (event.key === " ") {
                         event.preventDefault();
@@ -1008,6 +1014,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                 </DialogContent>
               </Dialog>
               <button
+                className="without-ring"
                 onKeyDown={(event) => {
                   if (event.key === " ") {
                     event.preventDefault();
