@@ -292,6 +292,8 @@ export const HubSlider: FC<{
     };
   }, [page]);
 
+  if (!hub.Metadata || hub.Metadata.length < 1) return null;
+
   return (
     <div className="w-[100%] overflow-x-hidden mb-12 last:mb-24">
       <button

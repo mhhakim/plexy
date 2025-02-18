@@ -4,7 +4,16 @@ import Link from "next/link";
 import { useSession } from "@/hooks/use-session";
 import { Button } from "@/components/ui/button";
 import { usePathname, useRouter } from "next/navigation";
-import { Film, House, LogOut, Menu, Server, TvMinimal, X } from "lucide-react";
+import {
+  ChevronsLeftRightEllipsis,
+  Film,
+  House,
+  LogOut,
+  Menu,
+  Server,
+  TvMinimal,
+  X,
+} from "lucide-react";
 import { Search } from "@/components/search";
 import { useIsAtTop } from "@/hooks/use-is-at-top";
 import { cn } from "@/lib/utils";
@@ -49,6 +58,7 @@ export const Appbar = () => {
     localStorage.removeItem("auth-token");
     localStorage.removeItem("uuid");
     localStorage.removeItem("pin");
+    localStorage.removeItem("user-uuid");
     window.location.href = "/";
   };
 
@@ -189,17 +199,17 @@ export const Appbar = () => {
                     <Avatar>
                       <AvatarImage src={user.thumb} />
                       <AvatarFallback>
-                        {user.username.slice(0, 2).toUpperCase()}
+                        {user.title.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                   </div>
                   <div className="w-min">
-                    <p className="font-semibold leading-tight">
-                      {user.username}
-                    </p>
-                    <p className="font-medium truncate leading-tight text-xs text-muted-foreground">
-                      {user.email}
-                    </p>
+                    <p className="font-semibold leading-tight">{user.title}</p>
+                    {user.email && (
+                      <p className="font-medium truncate leading-tight text-xs text-muted-foreground">
+                        {user.email}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <Search />
@@ -216,6 +226,17 @@ export const Appbar = () => {
                         </Button>
                       }
                     />
+                    <Button
+                      className="justify-start px-2 font-bold"
+                      size="sm"
+                      type="button"
+                      onClick={() => {
+                        localStorage.removeItem("user-uuid");
+                        window.location.reload();
+                      }}
+                    >
+                      <ChevronsLeftRightEllipsis /> <span>Change User</span>
+                    </Button>
                     <Button
                       className="justify-start px-2 font-bold"
                       size="sm"

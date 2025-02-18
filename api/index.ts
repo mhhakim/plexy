@@ -157,6 +157,35 @@ export class Api {
       `https://plex.tv/api/v2/pins/${props.pin}?X-Plex-Client-Identifier=${props.uuid}`,
     );
   }
+  static async users() {
+    return axios.get(
+      `https://clients.plex.tv/api/home/users?${qs.stringify({
+        ...xprops(localStorage.getItem("auth-token")),
+      })}`,
+      {
+        headers: {
+          Accept: "application/json",
+        },
+      },
+    );
+  }
+  static async switch({ uuid, pin }: { uuid: string; pin?: string }) {
+    return axios.post<Plex.UserData>(
+      `https://clients.plex.tv/api/v2/home/users/${uuid}/switch?${qs.stringify({
+        ...xprops(localStorage.getItem("auth-token")),
+        includeSubscriptions: 1,
+        includeProviders: 1,
+        includeSettings: 1,
+        includeSharedSettings: 1,
+        ...(pin ? { pin } : {}),
+      })}`,
+      {
+        headers: {
+          Accept: "application/json",
+        },
+      },
+    );
+  }
   static async servers() {
     return axios.get<PlexServer[]>(
       `https://clients.plex.tv/api/v2/resources?${qs.stringify({

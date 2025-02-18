@@ -37,7 +37,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     setPlexSessionId(window.plexSessionId);
 
     const token = localStorage.getItem("auth-token") as string;
-    const uuid = localStorage.getItem("uuid") as string;
+    const uuid = localStorage.getItem("user-uuid") as string;
 
     if (!user && token && uuid) {
       Api.user({ token, uuid })
