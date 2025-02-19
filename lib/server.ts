@@ -23,6 +23,7 @@ export async function fetchConnectionLibrary(
           accept: "application/json",
         },
         signal,
+        timeout: 10_000,
       },
     )
     .then(({ data }) => {

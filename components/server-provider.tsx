@@ -16,6 +16,12 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 
 export type LibraryAndServer = {
   libraries: Plex.LibrarySection[];
@@ -83,19 +89,7 @@ export function ServerProvider({ children }: { children: ReactNode }) {
   if (loading || !server) return null;
 
   if (!user) {
-    return (
-      <UserSelect
-        onSubmit={({ uuid, pin }) => {
-          Api.switch({ uuid, pin }).then((res) => {
-            localStorage.setItem("user-uuid", uuid);
-            localStorage.setItem("uuid", uuid);
-            localStorage.setItem("token", res.data.authToken);
-            localStorage.setItem("auth-token", res.data.authToken);
-            window.location.reload();
-          });
-        }}
-      />
-    );
+    return <UserSelect />;
   }
 
   return (
@@ -112,18 +106,39 @@ export function ServerProvider({ children }: { children: ReactNode }) {
   );
 }
 
-function UserSelect({
-  onSubmit,
-}: {
-  onSubmit: ({ uuid, pin }: { uuid: string; pin?: string }) => void;
-}) {
+function UserSelect() {
   const [users, setUsers] = useState<
     Pick<Plex.UserData, "uuid" | "title" | "thumb" | "hasPassword">[]
   >([]);
   const [viewPassword, setViewPassword] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const token = localStorage.getItem("token");
   const server = localStorage.getItem("server");
+
+  const handleSubmit = ({
+    uuid,
+    pin = undefined,
+  }: {
+    uuid: string;
+    pin?: string;
+  }) => {
+    setLoading(true);
+    Api.switch({ uuid, pin })
+      .then((res) => {
+        localStorage.setItem("user-uuid", uuid);
+        localStorage.setItem("uuid", uuid);
+        localStorage.setItem("token", res.data.authToken);
+        localStorage.setItem("auth-token", res.data.authToken);
+        window.location.reload();
+      })
+      .catch((err) => {
+        console.error(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
   useEffect(() => {
     Api.users().then((res) => {
@@ -137,10 +152,10 @@ function UserSelect({
         Plex.UserData,
         "uuid" | "title" | "thumb" | "hasPassword"
       >[] = (obj.MediaContainer.User as Record<string, unknown>[]).map(
-        (user) =>
-          ({
+        (user) => {
+          return {
             uuid: user["@_uuid"],
-            hasPassword: user["@_hasPassword"] as boolean,
+            hasPassword: user["@_protected"] == 1,
             thumb: `${server}/photo/:/transcode?${qs.stringify({
               width: 128,
               height: 128,
@@ -149,25 +164,31 @@ function UserSelect({
               "X-Plex-Token": token,
             })}`,
             title: user["@_title"],
-          }) as Pick<Plex.UserData, "uuid" | "title" | "thumb" | "hasPassword">,
+          } as Pick<Plex.UserData, "uuid" | "title" | "thumb" | "hasPassword">;
+        },
       );
       setUsers(() => mappedUsers);
     });
   }, []);
 
   return (
-    <div className="p-20 lg:p-40 flex flex-col gap-4">
+    <div className="p-10 sm:p-20 md:p-30 lg:p-40 flex flex-col gap-4">
+      <p className="font-medium text-xl">Select a User</p>
       {users.map((user, index) => (
-        <div className="group hover:text-primary bg-muted/40 rounded-lg border hover:border-primary/80 w-full">
+        <div
+          key={user.uuid}
+          className="group hover:text-primary bg-muted/40 rounded-lg border hover:border-primary/80 w-full flex flex-row flex-wrap gap-2"
+        >
           <button
             onClick={() => {
               if (user.hasPassword) {
                 setViewPassword((prev) => (prev === index ? null : index));
               } else {
-                onSubmit({ uuid: user.uuid });
+                handleSubmit({ uuid: user.uuid });
               }
             }}
-            className="w-full flex gap-2 items-center p-2 overflow-hidden"
+            className="w-full flex gap-2 items-center p-2 overflow-hidden flex-1 min-w-fit disabled:text-muted-foreground"
+            disabled={loading}
           >
             <div>
               <Avatar>
@@ -191,25 +212,33 @@ function UserSelect({
                 ) as unknown as {
                   userPin: string;
                 };
-                onSubmit({ uuid: user.uuid, pin: data.userPin });
+                handleSubmit({ uuid: user.uuid, pin: data.userPin });
               }}
               className={cn(
                 "p-2 overflow-hidden transition-[height] flex gap-2 items-end",
               )}
             >
-              <div className="w-full">
-                <Label htmlFor="password-input">Password</Label>
-                <Input
-                  name="userPin"
-                  type="password"
-                  autoFocus
-                  required
-                  id="password-input"
-                />
-              </div>
-              <Button variant="default" size="icon">
-                <Send />
-              </Button>
+              <InputOTP
+                maxLength={4}
+                pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
+                autoFocus
+                required
+                id="password-input"
+                name="userPin"
+                onChange={(value) => {
+                  if (value.length === 4) {
+                    handleSubmit({ uuid: user.uuid, pin: value });
+                  }
+                }}
+                disabled={loading}
+              >
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                  <InputOTPSlot index={3} />
+                </InputOTPGroup>
+              </InputOTP>
             </form>
           )}
         </div>
