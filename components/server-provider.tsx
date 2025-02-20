@@ -167,7 +167,6 @@ function UserSelect() {
           } as Pick<Plex.UserData, "uuid" | "title" | "thumb" | "hasPassword">;
         },
       );
-      console.log(mappedUsers);
       setUsers(() => mappedUsers);
     });
   }, []);
