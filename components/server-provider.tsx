@@ -167,6 +167,7 @@ function UserSelect() {
           } as Pick<Plex.UserData, "uuid" | "title" | "thumb" | "hasPassword">;
         },
       );
+      console.log(mappedUsers);
       setUsers(() => mappedUsers);
     });
   }, []);
@@ -198,9 +199,7 @@ function UserSelect() {
                 </AvatarFallback>
               </Avatar>
             </div>
-            <div className="w-min">
-              <p className="font-semibold leading-tight">{user.title}</p>
-            </div>
+            <p className="font-semibold leading-tight">{user.title}</p>
           </button>
           {viewPassword === index && (
             <form

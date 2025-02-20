@@ -43,6 +43,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import he from "he";
 
 export const APPBAR_HEIGHT = "4.5rem";
 
@@ -203,8 +204,10 @@ export const Appbar = () => {
                       </AvatarFallback>
                     </Avatar>
                   </div>
-                  <div className="w-min">
-                    <p className="font-semibold leading-tight">{user.title}</p>
+                  <div>
+                    <p className="font-semibold line-clamp-1">
+                      {he.decode(user.title)}
+                    </p>
                     {user.email && (
                       <p className="font-medium truncate leading-tight text-xs text-muted-foreground">
                         {user.email}
