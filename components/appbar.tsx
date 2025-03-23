@@ -11,6 +11,7 @@ import {
   LogOut,
   Menu,
   Server,
+  SettingsIcon,
   TvMinimal,
   X,
 } from "lucide-react";
@@ -51,7 +52,8 @@ export const Appbar = () => {
   const path = usePathname();
   const router = useRouter();
   const { user } = useSession();
-  const { libraries } = useServer();
+  const { libraries, disabledLibraries } = useServer();
+
   const isAtTop = useIsAtTop();
 
   const handleLogout = () => {
@@ -89,45 +91,47 @@ export const Appbar = () => {
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
-              {libraries.map((section) => (
-                <NavigationMenuItem key={section.key}>
-                  <NavigationMenuTrigger>
-                    <Link
-                      href={`/browse/${section.key}`}
-                      data-state={
-                        path.includes(`/browse/${section.key}`)
-                          ? "active"
-                          : "inactive"
-                      }
-                      className="data-[state=active]:text-primary"
-                    >
-                      {section.title}
-                    </Link>
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent className="px-12 py-6 flex flex-col gap-2">
-                    <Button
-                      onClick={() => {
-                        router.push(
-                          `${path}?${qs.stringify({ key: `/library/sections/${section.key}/all?sort=titleSort`, libtitle: `${section.title} Library` })}`,
-                          {
-                            scroll: false,
-                          },
-                        );
-                      }}
-                      variant="link"
-                      className="justify-start"
-                    >
-                      Library
-                    </Button>
-                    <Button disabled variant="link" className="justify-start">
-                      Collections
-                    </Button>
-                    <Button disabled variant="link" className="justify-start">
-                      Categories
-                    </Button>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-              ))}
+              {libraries.map((section) =>
+                !disabledLibraries[section.title] ? (
+                  <NavigationMenuItem key={section.key}>
+                    <NavigationMenuTrigger>
+                      <Link
+                        href={`/browse/${section.key}`}
+                        data-state={
+                          path.includes(`/browse/${section.key}`)
+                            ? "active"
+                            : "inactive"
+                        }
+                        className="data-[state=active]:text-primary"
+                      >
+                        {section.title}
+                      </Link>
+                    </NavigationMenuTrigger>
+                    <NavigationMenuContent className="px-12 py-6 flex flex-col gap-2">
+                      <Button
+                        onClick={() => {
+                          router.push(
+                            `${path}?${qs.stringify({ key: `/library/sections/${section.key}/all?sort=titleSort`, libtitle: `${section.title} Library` })}`,
+                            {
+                              scroll: false,
+                            },
+                          );
+                        }}
+                        variant="link"
+                        className="justify-start"
+                      >
+                        Library
+                      </Button>
+                      <Button disabled variant="link" className="justify-start">
+                        Collections
+                      </Button>
+                      <Button disabled variant="link" className="justify-start">
+                        Categories
+                      </Button>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+                ) : null,
+              )}
             </NavigationMenuList>
           </NavigationMenu>
         </div>
@@ -158,27 +162,29 @@ export const Appbar = () => {
                   Home
                 </Link>
               </Button>
-              {libraries.map((section) => (
-                <Button
-                  key={section.key}
-                  variant="search"
-                  asChild
-                  className="justify-start data-[state=active]:border-primary data-[state=active]:text-primary"
-                >
-                  <Link
-                    href={`/browse/${section.key}`}
-                    data-state={
-                      path.includes(`/browse/${section.key}`)
-                        ? "active"
-                        : "inactive"
-                    }
+              {libraries.map((section) =>
+                !disabledLibraries[section.title] ? (
+                  <Button
+                    key={section.key}
+                    variant="search"
+                    asChild
+                    className="justify-start data-[state=active]:border-primary data-[state=active]:text-primary"
                   >
-                    {section.type === "movie" && <Film size={20} />}
-                    {section.type === "show" && <TvMinimal size={20} />}
-                    {section.title}
-                  </Link>
-                </Button>
-              ))}
+                    <Link
+                      href={`/browse/${section.key}`}
+                      data-state={
+                        path.includes(`/browse/${section.key}`)
+                          ? "active"
+                          : "inactive"
+                      }
+                    >
+                      {section.type === "movie" && <Film size={20} />}
+                      {section.type === "show" && <TvMinimal size={20} />}
+                      {section.title}
+                    </Link>
+                  </Button>
+                ) : null,
+              )}
             </div>
           </SheetContent>
         </Sheet>
@@ -216,6 +222,16 @@ export const Appbar = () => {
                   </div>
                 </div>
                 <Search />
+                <Button
+                  className="justify-start px-2 font-bold"
+                  size="sm"
+                  type="button"
+                  asChild
+                >
+                  <Link href="/settings">
+                    <SettingsIcon /> <span>Settings</span>
+                  </Link>
+                </Button>
                 {user && (
                   <>
                     <ChangeServerDialog
