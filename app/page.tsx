@@ -12,7 +12,7 @@ export default function Home() {
   const [promoted, setPromoted] = useState<Plex.Hub[] | null>(null);
   const { hubs, reload, append } = useHubs(promoted);
   const [isLoading, setIsLoading] = useState(false);
-  const { libraries } = useServer();
+  const { libraries, disabledLibraries } = useServer();
 
   const handleUpdate = (
     updatedItem: Plex.HubMetadata,
@@ -44,7 +44,9 @@ export default function Home() {
 
   useEffect(() => {
     setIsLoading(true);
-    const dirs = libraries.map((a) => a.key);
+    const dirs = libraries
+      .filter((a) => !disabledLibraries[a.title])
+      .map((a) => a.key);
     (async () => {
       if (dirs.length > 0) {
         const item = await ServerApi.random({ dir: dirs });
