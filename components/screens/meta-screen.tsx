@@ -3,19 +3,12 @@
 import { FC, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ServerApi } from "@/api";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
   ChevronRight,
-  Info,
   Play,
   Volume2,
   VolumeX,
@@ -44,12 +37,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 
 export const MetaScreen: FC = () => {
   const pathname = usePathname();
@@ -387,8 +374,13 @@ export const MetaScreen: FC = () => {
                               {metadata?.contentRating}
                             </p>
                           )}
+                          {metadata?.editionTitle && (
+                            <p className="border border-plex rounded-sm px-1 text-plex text-sm">
+                              {metadata.editionTitle}
+                            </p>
+                          )}
                           {metadata?.year && (
-                            <p className="px-1 text-sm">{metadata?.year}</p>
+                            <p className="px-1 text-sm">{metadata.year}</p>
                           )}
                         </div>
                       )}

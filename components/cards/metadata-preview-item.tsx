@@ -63,6 +63,11 @@ const MetadataPreviewItem = forwardRef<
                   {quality}
                 </p>
               )}
+              {item?.editionTitle && (
+                <p className="border border-plex rounded-sm px-1 text-plex text-sm">
+                  {item.editionTitle}
+                </p>
+              )}
               <div className="flex-1"></div>
               {item.year && <p className="px-1 text-sm">{item.year}</p>}
             </div>
