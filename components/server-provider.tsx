@@ -11,11 +11,7 @@ import { Api } from "@/api";
 import { XMLParser } from "fast-xml-parser";
 import qs from "qs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { Send } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import {
   InputOTP,
@@ -34,6 +30,8 @@ const Context = createContext(
     servers: PlexServer[];
     server: LibraryAndServer;
     libraries: Plex.LibrarySection[];
+    disabledLibraries: { [key in string]: boolean };
+    toggleDisableLibrary: (title: string) => void;
     handleServerSelection: (server: LibraryAndServer) => void;
   },
 );
@@ -43,6 +41,9 @@ export function ServerProvider({ children }: { children: ReactNode }) {
   const [server, setServer] = useState<LibraryAndServer | null>(null);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<boolean>(false);
+  const [disabledLibraries, setDisabledLibraries] = useState<{
+    [key in string]: boolean;
+  }>(JSON.parse(localStorage.getItem("disabledLibraries") ?? "{}"));
 
   useEffect(() => {
     setUser(!!localStorage.getItem("user-uuid"));
@@ -79,6 +80,13 @@ export function ServerProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  const toggleDisableLibrary = (title: string) => {
+    const updated = { ...disabledLibraries };
+    updated[title] = !updated[title];
+    setDisabledLibraries(updated);
+    localStorage.setItem("disabledLibraries", JSON.stringify(updated));
+  };
+
   const handleServerSelection = (server: LibraryAndServer) => {
     setServer(server);
     localStorage.setItem("server", server.connection.uri);
@@ -98,6 +106,8 @@ export function ServerProvider({ children }: { children: ReactNode }) {
         servers,
         server,
         libraries: server.libraries ?? [],
+        disabledLibraries,
+        toggleDisableLibrary,
         handleServerSelection,
       }}
     >
