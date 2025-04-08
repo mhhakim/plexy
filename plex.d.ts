@@ -194,6 +194,7 @@ declare namespace Plex {
     slug?: string;
     studio: string;
     type: LibraryType;
+    editionTitle?: string;
     title: string;
     titleSort?: string;
     librarySectionTitle: string;
@@ -470,6 +471,7 @@ declare namespace Plex {
     grandparentThumb?: string;
     parentThumb?: string;
     viewedLeafCount?: number;
+    editionTitle?: string;
     grandparentTitle?: string;
     parentTitle?: string;
     index?: number;
