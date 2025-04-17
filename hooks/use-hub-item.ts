@@ -74,6 +74,17 @@ const extractGuidNumber = (inputString: string | undefined) => {
   return match ? match[1] : null;
 };
 
+export const extractClearLogo = (item: Plex.Metadata | Plex.HubMetadata) => {
+  const logoUrl = item?.Image?.find((i) => i.type === "clearLogo")?.url;
+  if (logoUrl) {
+    const token = localStorage.getItem("token");
+    const server = localStorage.getItem("server");
+
+    return `${server}${logoUrl}?X-Plex-Token=${token}`;
+  }
+  return null;
+};
+
 const extractProgress = (isType: IsType, item: Item): number => {
   if (isType.movie || isType.episode) {
     if (item.viewOffset)
@@ -213,6 +224,7 @@ export const useHubItem = (
       playable: null,
       coverImage: "",
       posterImage: "",
+      clearLogo: null,
       play: () => null,
       open: () => null,
     };
@@ -239,6 +251,7 @@ export const useHubItem = (
   const duration = extractDuration(isType, item);
   const playable = extractPlayable(isType, item);
   const quality = extractQuality(isType, item);
+  const clearLogo = extractClearLogo(item);
 
   const open = (mid: string = item.ratingKey) => {
     if (searchParams.get("mid") !== mid) {
@@ -308,6 +321,7 @@ export const useHubItem = (
     playable,
     coverImage,
     posterImage,
+    clearLogo,
     play,
     open,
   };

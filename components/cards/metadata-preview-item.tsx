@@ -16,7 +16,7 @@ const MetadataPreviewItem = forwardRef<
     >
       <OnDeckImagePreviewItem
         item={item}
-        indicator
+        // indicator
         action="open"
         higherResolution
       />

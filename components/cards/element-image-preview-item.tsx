@@ -14,6 +14,7 @@ export const ElementImagePreviewItem: FC<{
   progress?: boolean;
   quality?: boolean;
   higherResolution?: boolean;
+  clearLogo?: string | null;
 }> = ({
   item,
   image,
@@ -24,6 +25,7 @@ export const ElementImagePreviewItem: FC<{
   progress = true,
   quality = false,
   higherResolution = false,
+  clearLogo,
 }) => {
   const { isEpisode, isMovie, isSeason, play, open, ...info } = useHubItem(
     item,
@@ -49,6 +51,31 @@ export const ElementImagePreviewItem: FC<{
         alt=""
         loading="lazy"
       />
+      {clearLogo && (
+        <>
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(0, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0))",
+            }}
+          ></div>
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(45deg, hsl(var(--background)), rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0), rgba(0, 0, 0, 0), rgba(0, 0, 0, 0))",
+            }}
+          ></div>
+          <div className="absolute inset-0 bg-cover bg-center">
+            <img
+              className="absolute bottom-0 left-0 p-4 w-auto max-w-[calc(70%-2rem)] h-auto max-h-[(100%-2rem)]"
+              src={clearLogo}
+              alt={item.title}
+            />
+          </div>
+        </>
+      )}
       {indicator && (isEpisode || isSeason) && (
         <p className="px-2 py-1 bg-background/60 rounded-bl truncate uppercase text-sm font-bold absolute right-0 top-0">
           {isEpisode && `s${item.parentIndex} e${item.index}`}

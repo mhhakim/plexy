@@ -17,6 +17,7 @@ const config: Config = {
       },
       animation: {
         "caret-blink": "caret-blink 1.25s ease-out infinite",
+        "spin-fast": "spin 0.75s linear infinite", // faster than default (1s)
       },
       screens: {
         "3xl": "1600px",

@@ -49,7 +49,7 @@ const HubItem = forwardRef<
       index={index}
       hoverview={
         isOnDeck ? (
-          <div className="bg-alternative rounded overflow-hidden">
+          <div className="bg-alternative rounded-[2px] overflow-hidden">
             <OnDeckImagePreviewItem
               item={item}
               progress={false}
@@ -165,15 +165,15 @@ const HubItem = forwardRef<
       {isOnDeck ? (
         <OnDeckImagePreviewItem
           item={item}
-          indicator
-          className="rounded overflow-hidden"
+          // indicator
+          className="rounded-[2px] overflow-hidden"
           action="open"
         />
       ) : (
         <OtherImagePreviewItem
           item={item}
           indicator
-          className="rounded overflow-hidden"
+          className="rounded-[2px] overflow-hidden"
           action="open"
         />
       )}
@@ -308,17 +308,17 @@ export const HubSlider: FC<{
           );
         }}
       >
-        <p className="font-bold text-xl md:text-2xl tracking-tight">
+        <p className="font-semibold text-xl md:text-2xl text-primary/80 group-hover:text-primary transition-colors">
           {hub.title}
         </p>
-        <div className="group-hover:opacity-100 group-hover:translate-x-0 opacity-0 transition duration-150 -translate-x-full">
+        <div className="group-hover:opacity-100 group-hover:translate-x-0 mt-1 opacity-0 transition duration-150 -translate-x-full">
           <ChevronRight className="h-6 w-6 text-plex" />
         </div>
       </button>
       {hub.Metadata && (
         <Carousel
           edges={isTiny ? 40 : 80}
-          spacing={10}
+          spacing={6}
           scale={isTiny ? 1.15 : 1.3}
           minimumVisibleItem={isOnDeck ? 1 : isTiny ? 2 : 3}
         >
