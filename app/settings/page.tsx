@@ -4,9 +4,11 @@ import { APPBAR_HEIGHT } from "@/components/appbar";
 import { useServer } from "@/components/server-provider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { useSettings } from "@/components/settings-provider";
 
 export default function Page() {
   const { libraries, disabledLibraries, toggleDisableLibrary } = useServer();
+  const { updateDisableClearLogo, disableClearLogo } = useSettings();
 
   return (
     <div
@@ -30,6 +32,16 @@ export default function Page() {
             {section.title}
           </Label>
         ))}
+      </section>
+      <section className="py-2.5 space-y-4">
+        <h2 className="text-base font-semibold">Misc</h2>
+        <Label className="flex gap-2 items-center font-semibold">
+          <Checkbox
+            defaultChecked={disableClearLogo}
+            onCheckedChange={(checked) => updateDisableClearLogo(!!checked)}
+          />
+          Disable clear logos
+        </Label>
       </section>
     </div>
   );

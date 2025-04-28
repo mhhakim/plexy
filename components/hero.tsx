@@ -7,8 +7,10 @@ import { ServerApi } from "@/api";
 import { useQuery } from "@tanstack/react-query";
 import { useHubItem } from "@/hooks/use-hub-item";
 import { APPBAR_HEIGHT } from "@/components/appbar";
+import { useSettings } from "@/components/settings-provider";
 
 export const Hero: FC<{ item: Plex.Metadata }> = ({ item }) => {
+  const { disableClearLogo } = useSettings();
   const metadata = useQuery({
     queryKey: ["metadata", item.ratingKey],
     queryFn: async () => {
@@ -69,7 +71,7 @@ export const Hero: FC<{ item: Plex.Metadata }> = ({ item }) => {
             } as CSSProperties
           }
         >
-          {clearLogo ? (
+          {!disableClearLogo && clearLogo ? (
             <img
               className={`min-w-[150px] w-auto max-w-[calc(100%-5rem)] lg:max-w-[60%] xl:max-w-[600px] max-h-[200px] xl:max-h-[320px] h-full`}
               src={clearLogo}

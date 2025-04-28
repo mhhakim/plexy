@@ -3,6 +3,7 @@ import { Progress } from "@/components/ui/progress";
 import { HubItemInfo } from "@/hooks/use-hub-item";
 import { ClassNameValue } from "tailwind-merge";
 import { cn } from "@/lib/utils";
+import { useSettings } from "@/components/settings-provider";
 
 export const ElementImagePreviewItem: FC<{
   item: Plex.HubMetadata | Plex.Metadata;
@@ -30,6 +31,7 @@ export const ElementImagePreviewItem: FC<{
   clearLogo,
 }) => {
   const { isEpisode, isMovie, isSeason, play, open } = info;
+  const { disableClearLogo } = useSettings();
 
   return (
     <button
@@ -51,7 +53,7 @@ export const ElementImagePreviewItem: FC<{
         alt=""
         loading="lazy"
       />
-      {isOnDeck && clearLogo && (
+      {isOnDeck && clearLogo && !disableClearLogo && (
         <>
           <div
             className="absolute inset-0"
