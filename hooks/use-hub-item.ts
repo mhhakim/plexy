@@ -1,9 +1,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import qs from "qs";
-import _ from "lodash";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { ServerApi } from "@/api";
-import { useQuery } from "@tanstack/react-query";
 
 export const getCoverImage = (
   url: string,
@@ -200,10 +198,50 @@ const extractQuality = (isType: IsType, item: Item): string | null => {
   return null;
 };
 
+export type HubItemInfo =
+  | {
+      isEpisode: boolean;
+      isSeason: boolean;
+      isShow: boolean;
+      isMovie: boolean;
+      guid: null;
+      watched: null;
+      progress: null;
+      childCount: null;
+      leafCount: null;
+      duration: null;
+      quality: null;
+      playable: null;
+      coverImage: string;
+      posterImage: string;
+      clearLogo: null;
+      play: () => null;
+      open: () => null;
+    }
+  | {
+      isEpisode: boolean;
+      isSeason: boolean;
+      isShow: boolean;
+      isMovie: boolean;
+      guid: null | string;
+      watched: boolean;
+      progress: number;
+      childCount: number | null;
+      leafCount: number | null;
+      duration: ItemDuration | null;
+      quality: string | null;
+      playable: Playable;
+      coverImage: string;
+      posterImage: string;
+      clearLogo: string | null;
+      play: () => void;
+      open: (mid?: string) => void;
+    };
+
 export const useHubItem = (
   item?: Item | null | undefined,
   options: { fullSize?: boolean; higherResolution?: boolean } = {},
-) => {
+): HubItemInfo => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

@@ -27,7 +27,6 @@ import { usePreviewMuted } from "@/hooks/use-preview-muted";
 import qs from "qs";
 import { MetadataPreviewItem } from "@/components/cards/metadata-preview-item";
 import { Skeleton } from "@/components/ui/skeleton";
-import ReactPlayer from "react-player";
 import { CarouselContext } from "@/components/carousel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -78,8 +77,8 @@ export const MetaScreen: FC = () => {
         : null,
     );
 
-  const [preview, setPreview] = useState<string | null>(null);
-  const [playing, setPlaying] = useState<boolean>(false);
+  // const [preview, setPreview] = useState<string | null>(null);
+  // const [playing, setPlaying] = useState<boolean>(false);
 
   const { languages, subtitles, process } = useItemLanguages();
 
@@ -100,23 +99,23 @@ export const MetaScreen: FC = () => {
     const extras = metadata.Extras?.Metadata;
     if (!extras?.[0] || !extras?.[0]?.Media?.[0]?.Part?.[0]?.key) return;
 
-    setPreview(
-      `${localStorage.getItem("server")}${
-        extras?.[0]?.Media?.[0]?.Part?.[0]?.key
-      }&X-Plex-Token=${localStorage.getItem("token")}`,
-    );
+    // setPreview(
+    //   `${localStorage.getItem("server")}${
+    //     extras?.[0]?.Media?.[0]?.Part?.[0]?.key
+    //   }&X-Plex-Token=${localStorage.getItem("token")}`,
+    // );
 
-    const timeout = setTimeout(() => {
-      setPlaying(true);
-    }, 3000);
-
-    return () => clearTimeout(timeout);
+    // const timeout = setTimeout(() => {
+    //   setPlaying(true);
+    // }, 3000);
+    //
+    // return () => clearTimeout(timeout);
   }, [metadata?.ratingKey]);
 
   useEffect(() => {
     closeButtonRef.current?.scrollIntoView(false);
-    setPreview(null);
-    setPlaying(false);
+    // setPreview(null);
+    // setPlaying(false);
 
     if (mid && close) close();
   }, [mid]);
@@ -214,30 +213,30 @@ export const MetaScreen: FC = () => {
           <div className="max-w-full w-full rounded-lg h-full overflow-auto relative">
             {info.coverImage && metadata ? (
               <div className="absolute top-0 right-0 left-0 z-0 max-w-full previewPlayerContainerRef">
-                {playing ? (
-                  <ReactPlayer
-                    url={preview!}
-                    controls={false}
-                    width="100%"
-                    height="100%"
-                    autoPlay
-                    playing={playing}
-                    volume={muted ? 0 : 0.5}
-                    muted={muted}
-                    onEnded={() => setPlaying(false)}
-                    onError={() => setPlaying(false)}
-                    pip={false}
-                    config={{
-                      file: { attributes: { disablePictureInPicture: true } },
-                    }}
-                  />
-                ) : (
-                  <img
-                    className="w-full"
-                    src={info.coverImage}
-                    alt="preview image"
-                  />
-                )}
+                {/*{playing ? (*/}
+                {/*  <ReactPlayer*/}
+                {/*    url={preview!}*/}
+                {/*    controls={false}*/}
+                {/*    width="100%"*/}
+                {/*    height="100%"*/}
+                {/*    autoPlay*/}
+                {/*    playing={playing}*/}
+                {/*    volume={muted ? 0 : 0.5}*/}
+                {/*    muted={muted}*/}
+                {/*    onEnded={() => setPlaying(false)}*/}
+                {/*    onError={() => setPlaying(false)}*/}
+                {/*    pip={false}*/}
+                {/*    config={{*/}
+                {/*      file: { attributes: { disablePictureInPicture: true } },*/}
+                {/*    }}*/}
+                {/*  />*/}
+                {/*) : (*/}
+                <img
+                  className="w-full"
+                  src={info.coverImage}
+                  alt="preview image"
+                />
+                {/*)}*/}
                 <div
                   className="absolute inset-0"
                   style={{

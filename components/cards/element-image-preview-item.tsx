@@ -1,11 +1,13 @@
 import { FC } from "react";
 import { Progress } from "@/components/ui/progress";
-import { useHubItem } from "@/hooks/use-hub-item";
+import { HubItemInfo } from "@/hooks/use-hub-item";
 import { ClassNameValue } from "tailwind-merge";
-import { cn, durationToMin } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 export const ElementImagePreviewItem: FC<{
   item: Plex.HubMetadata | Plex.Metadata;
+  info: HubItemInfo;
+  isOnDeck?: boolean;
   image: string;
   action?: "play" | "open" | null;
   disabled?: boolean;
@@ -13,10 +15,11 @@ export const ElementImagePreviewItem: FC<{
   className?: ClassNameValue;
   progress?: boolean;
   quality?: boolean;
-  higherResolution?: boolean;
   clearLogo?: string | null;
 }> = ({
   item,
+  info,
+  isOnDeck = false,
   image,
   disabled = false,
   indicator = false,
@@ -24,13 +27,10 @@ export const ElementImagePreviewItem: FC<{
   action = null,
   progress = true,
   quality = false,
-  higherResolution = false,
   clearLogo,
 }) => {
-  const { isEpisode, isMovie, isSeason, play, open, ...info } = useHubItem(
-    item,
-    { higherResolution },
-  );
+  const { isEpisode, isMovie, isSeason, play, open } = info;
+
   return (
     <button
       className={cn("relative w-full flex flex-col", className)}
@@ -51,7 +51,7 @@ export const ElementImagePreviewItem: FC<{
         alt=""
         loading="lazy"
       />
-      {clearLogo && (
+      {isOnDeck && clearLogo && (
         <>
           <div
             className="absolute inset-0"
@@ -67,7 +67,7 @@ export const ElementImagePreviewItem: FC<{
                 "linear-gradient(45deg, hsl(var(--background)), rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0), rgba(0, 0, 0, 0), rgba(0, 0, 0, 0))",
             }}
           ></div>
-          <div className="absolute inset-0 bg-cover bg-center">
+          <div className="absolute inset-0 bg-center">
             <img
               className="absolute bottom-0 left-0 p-4 w-auto max-w-[calc(70%-2rem)] h-auto max-h-[(100%-2rem)]"
               src={clearLogo}

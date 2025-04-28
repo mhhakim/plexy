@@ -5,7 +5,10 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 export const OnDeckImagePreviewItem: FC<
-  Omit<React.ComponentPropsWithoutRef<typeof ElementImagePreviewItem>, "image">
+  Omit<
+    React.ComponentPropsWithoutRef<typeof ElementImagePreviewItem>,
+    "image"
+  > & { higherResolution?: boolean }
 > = ({ item, className, higherResolution, ...rest }) => {
   const clearLogo = extractClearLogo(item);
   const image = useMemo(() => {
@@ -13,7 +16,7 @@ export const OnDeckImagePreviewItem: FC<
       return getCoverImage(item.art, false, higherResolution);
     if (item.type === "episode")
       return getCoverImage(
-        (clearLogo && item.grandparentArt) ?? item.thumb ?? item.art,
+        (clearLogo && item.thumb) ?? item.thumb ?? item.art,
         false,
         higherResolution,
       );

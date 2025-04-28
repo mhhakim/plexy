@@ -5,7 +5,10 @@ import * as React from "react";
 import { ElementImagePreviewItem } from "@/components/cards/element-image-preview-item";
 
 export const OtherImagePreviewItem: FC<
-  Omit<React.ComponentPropsWithoutRef<typeof ElementImagePreviewItem>, "image">
+  Omit<
+    React.ComponentPropsWithoutRef<typeof ElementImagePreviewItem>,
+    "image"
+  > & { higherResolution?: boolean }
 > = ({ item, higherResolution, className, ...rest }) => {
   const image = useMemo(() => {
     if (item.type === "episode")
