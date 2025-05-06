@@ -1,11 +1,14 @@
 import { FC } from "react";
 import { Progress } from "@/components/ui/progress";
-import { useHubItem } from "@/hooks/use-hub-item";
+import { HubItemInfo } from "@/hooks/use-hub-item";
 import { ClassNameValue } from "tailwind-merge";
-import { cn, durationToMin } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { useSettings } from "@/components/settings-provider";
 
 export const ElementImagePreviewItem: FC<{
   item: Plex.HubMetadata | Plex.Metadata;
+  info: HubItemInfo;
+  isOnDeck?: boolean;
   image: string;
   action?: "play" | "open" | null;
   disabled?: boolean;
@@ -13,9 +16,11 @@ export const ElementImagePreviewItem: FC<{
   className?: ClassNameValue;
   progress?: boolean;
   quality?: boolean;
-  higherResolution?: boolean;
+  clearLogo?: string | null;
 }> = ({
   item,
+  info,
+  isOnDeck = false,
   image,
   disabled = false,
   indicator = false,
@@ -23,12 +28,11 @@ export const ElementImagePreviewItem: FC<{
   action = null,
   progress = true,
   quality = false,
-  higherResolution = false,
+  clearLogo,
 }) => {
-  const { isEpisode, isMovie, isSeason, play, open, ...info } = useHubItem(
-    item,
-    { higherResolution },
-  );
+  const { isEpisode, isMovie, isSeason, play, open } = info;
+  const { disableClearLogo } = useSettings();
+
   return (
     <button
       className={cn("relative w-full flex flex-col", className)}
@@ -49,6 +53,31 @@ export const ElementImagePreviewItem: FC<{
         alt=""
         loading="lazy"
       />
+      {isOnDeck && clearLogo && !disableClearLogo && (
+        <>
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(0, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0))",
+            }}
+          ></div>
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(45deg, hsl(var(--background)), rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0), rgba(0, 0, 0, 0), rgba(0, 0, 0, 0))",
+            }}
+          ></div>
+          <div className="absolute inset-0 bg-center">
+            <img
+              className="absolute bottom-0 left-0 p-4 w-auto max-w-[calc(70%-2rem)] h-auto max-h-[(100%-2rem)]"
+              src={clearLogo}
+              alt={item.title}
+            />
+          </div>
+        </>
+      )}
       {indicator && (isEpisode || isSeason) && (
         <p className="px-2 py-1 bg-background/60 rounded-bl truncate uppercase text-sm font-bold absolute right-0 top-0">
           {isEpisode && `s${item.parentIndex} e${item.index}`}

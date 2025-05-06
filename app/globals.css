@@ -2,6 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+    font-family: 'Netflix';
+    src: url('../fonts/NetflixSans-Light.otf');
+    font-weight: 200;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Netflix';
+    src: url('../fonts/NetflixSans-Regular.otf');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Netflix';
+    src: url('../fonts/NetflixSans-Medium.otf');
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Netflix';
+    src: url('../fonts/NetflixSans-Bold.otf');
+    font-weight: bold;
+    font-style: normal;
+}
+
+body {
+    font-family: 'Netflix', sans-serif;
+}
+
 @layer utilities {
     .text-balance {
         text-wrap: balance;
@@ -109,4 +141,34 @@
 
 .ui-video-seek-slider .thumb .handler {
     background-color: hsl(var(--plex-accent));
+}
+
+.ui-video-seek-slider > .hover-time.active[data-testid="hover-time"] {
+    background-color: transparent !important;
+    padding: 0 !important;
+}
+
+.ui-video-seek-slider > .hover-time.active[data-testid="hover-time"] .preview-screen {
+    background-color: transparent !important;
+    padding: 0 !important;
+}
+
+.logo-shift {
+    transition: transform 0.8s ease;
+    transform: translateY(var(--h));
+}
+
+.fade-down {
+    animation: fadeDown 0.8s ease forwards;
+}
+
+@keyframes fadeDown {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(100%);
+    }
 }

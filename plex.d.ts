@@ -242,6 +242,7 @@ declare namespace Plex {
     Role?: Role[];
     Chapter?: Chapter[];
     Marker?: Marker[];
+    Image?: Image[];
     OnDeck?: {
       Metadata: Metadata;
     };
@@ -253,6 +254,12 @@ declare namespace Plex {
       size: number;
       Metadata: Metadata[];
     };
+  }
+
+  interface Image {
+    alt: string;
+    type: "clearLogo" | "background" | "coverPoster";
+    url: string;
   }
 
   interface Chapter {

@@ -14,6 +14,7 @@ import {
   Maximize,
   Minimize,
   Pause,
+  PictureInPicture,
   Play,
   SkipForward,
   SlidersHorizontal,
@@ -49,6 +50,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { getCoverImage } from "@/hooks/use-hub-item";
 
 export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
   const router = useRouter();
@@ -86,6 +88,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
   const [url, setUrl] = useState<string>("");
   const [nextUrl, setNextUrl] = useState<string>("");
   const [isLoadingMetadata, setIsLoadingMetadata] = useState<boolean>(false);
+  const [isPipAvailable, setIsPipAvailable] = useState<boolean>(false);
 
   useEffect(() => {
     if (!url && !!nextUrl) {
@@ -93,6 +96,12 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
       setNextUrl("");
     }
   }, [url, nextUrl]);
+
+  const video = useMemo(() => {
+    if (!ready) return null;
+
+    return document.querySelector("video");
+  }, [ready]);
 
   const loaded = () =>
     `${localStorage.getItem("server")}/video/:/transcode/universal/start.mpd?${qs.stringify(
@@ -112,14 +121,6 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
 
   const loadMetadata = async (id: string) => {
     setIsLoadingMetadata(true);
-    await ServerApi.decision({
-      id,
-      limitation: {
-        maxVideoBitrate: quality.bitrate,
-        autoAdjustQuality: quality.auto,
-      },
-    });
-
     let Metadata: Plex.Metadata | null = null;
     await ServerApi.metadata({ id }).then((metadata) => {
       if (!metadata) return;
@@ -138,6 +139,15 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
     });
 
     if (!Metadata) return;
+
+    await ServerApi.decision({
+      id,
+      limitation: {
+        maxVideoBitrate: quality.bitrate,
+        autoAdjustQuality: quality.auto,
+      },
+    });
+
     const serverPreferences = await ServerApi.preferences();
 
     if (serverPreferences) {
@@ -184,7 +194,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
         id: parseInt(watch),
         duration: Math.floor(player.current.getDuration()) * 1000,
         state: state,
-        time: Math.floor(player.current.getCurrentTime()) * 1000,
+        time: Math.floor(progress) * 1000,
       }).then();
     }
   };
@@ -198,7 +208,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
         id: parseInt(watch),
         duration: Math.floor(player.current.getDuration()) * 1000,
         state: buffering ? "buffering" : playing ? "playing" : "paused",
-        time: Math.floor(player.current.getCurrentTime()) * 1000,
+        time: Math.floor(progress) * 1000,
       });
 
       if (!timelineUpdateData) return;
@@ -237,13 +247,27 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
   }, [watch]);
 
   useEffect(() => {
-    if (!player.current) return;
+    if (!video) return;
+
+    if (
+      "pictureInPictureEnabled" in document &&
+      // @ts-ignore
+      video.requestPictureInPicture
+    ) {
+      setIsPipAvailable(true);
+    } else {
+      setIsPipAvailable(false);
+    }
 
     if (ready && !playing) {
       setPlaying(true);
       timeline("playing");
     }
-  }, [ready]);
+
+    return () => {
+      setIsPipAvailable(false);
+    };
+  }, [video]);
 
   const next = useMemo(() => (playQueue && playQueue[1]) ?? null, [playQueue]);
 
@@ -333,6 +357,9 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
     document.addEventListener("keydown", handleKeyDown);
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
+      if (watch !== undefined && player.current !== null) {
+        timeline("stopped");
+      }
     };
   }, []);
 
@@ -349,21 +376,10 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
     };
   }, [container, watch]);
 
-  const back = useCallback(() => {
-    if (!player.current || !watch) return;
-    ServerApi.timeline({
-      id: parseInt(watch),
-      duration: Math.floor(player.current.getDuration()) * 1000,
-      state: "stopped",
-      time: Math.floor(player.current.getCurrentTime()) * 1000,
-    })
-      .then(() => {
-        router.back();
-      })
-      .catch(() => {
-        router.back();
-      });
-  }, [router, watch]);
+  const back = () => {
+    timeline("stopped");
+    router.back();
+  };
 
   const videoOptions = useMemo(
     () =>
@@ -440,14 +456,27 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                   case 2:
                     if (!document.fullscreenElement) {
                       document.documentElement.requestFullscreen();
-                      setPlaying(true);
-                      timeline("playing");
                     } else {
                       document.exitFullscreen();
                     }
                     break;
                   default:
                     break;
+                }
+              }}
+              onSeek={(seconds) => {
+                if (player.current !== null) {
+                  setProgress(seconds);
+                  ServerApi.timeline({
+                    id: parseInt(watch),
+                    duration: Math.floor(player.current.getDuration()) * 1000,
+                    state: buffering
+                      ? "buffering"
+                      : playing
+                        ? "playing"
+                        : "paused",
+                    time: Math.floor(seconds) * 1000,
+                  });
                 }
               }}
               onReady={() => {
@@ -476,11 +505,15 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
               }}
               onPause={() => {
                 setPlaying(false);
-                timeline("paused");
+                if (playing) {
+                  timeline("paused");
+                }
               }}
               onPlay={() => {
                 setPlaying(true);
-                timeline("playing");
+                if (!playing) {
+                  timeline("playing");
+                }
               }}
               onBuffer={() => {
                 setBuffering(true);
@@ -503,21 +536,11 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
 
                 setPlaying(false);
               }}
-              config={{
-                file: {
-                  forceDisableHls: true,
-                  forceDASH: true,
-                  dashVersion: "4.7.0",
-                  attributes: {
-                    controlsList: "nodownload",
-                    disablePictureInPicture: true,
-                    disableRemotePlayback: true,
-                    autoPlay: true,
-                  },
-                },
-              }}
               onEnded={() => {
-                if (!playQueue) return console.log("No play queue");
+                if (!playQueue) {
+                  // TODO: maybe call back
+                  return console.log("No play queue");
+                }
 
                 if (metadata.type !== "episode") {
                   router.push(
@@ -546,6 +569,23 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                   scroll: false,
                 });
               }}
+              config={{
+                file: {
+                  forceDisableHls: true,
+                  forceDASH: true,
+                  dashVersion: "4.7.0",
+                  attributes: {
+                    controlsList: "nodownload",
+                    disablePictureInPicture: false,
+                    disableRemotePlayback: true,
+                    autoPlay: true,
+                    poster: getCoverImage(metadata.art, true),
+                    crossorigin: "anonymous",
+                  },
+                },
+              }}
+              controls={false}
+              stopOnUnmount={false}
               url={url}
               width="100%"
               height="100%"
@@ -638,6 +678,24 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                     limitTimeTooltipBySides={true}
                     secondsPrefix="00:"
                     minutesPrefix="0:"
+                    getPreviewScreenUrl={(value) => {
+                      if (!metadata.Media || !metadata.Media[0].Part[0].indexes)
+                        return "";
+                      return `${localStorage.getItem(
+                        "server",
+                      )}/photo/:/transcode?${qs.stringify({
+                        width: "240",
+                        height: "135",
+                        minSize: "1",
+                        upscale: "1",
+                        url: `/library/parts/${
+                          metadata.Media[0].Part[0].id
+                        }/indexes/sd/${value}?X-Plex-Token=${
+                          localStorage.getItem("token") as string
+                        }`,
+                        "X-Plex-Token": localStorage.getItem("token") as string,
+                      })}`;
+                    }}
                   />
                 </div>
               )}
@@ -661,6 +719,11 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                 }}
                 onClick={() => {
                   setPlaying(!playing);
+                  if (playing) {
+                    timeline("paused");
+                  } else {
+                    timeline("playing");
+                  }
                 }}
               >
                 {playing ? (
@@ -718,7 +781,7 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                 </div>
               </div>
               <div className="flex-1" />
-              <p className="font-bold select-none text-center">
+              <p className="font-bold select-none text-center line-clamp-1">
                 {metadata.type === "movie" && metadata.title}
                 {metadata.type === "episode" && (
                   <span>
@@ -813,6 +876,30 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
+              )}
+              {isPipAvailable && (
+                <button
+                  className="without-ring"
+                  onClick={async () => {
+                    try {
+                      if (document.pictureInPictureElement) {
+                        await document.exitPictureInPicture();
+                      } else if (video) {
+                        await video.requestPictureInPicture();
+                      }
+                    } catch (error) {
+                      console.error("PiP error:", error);
+                    }
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === " ") {
+                      event.preventDefault();
+                    }
+                  }}
+                  id="button-pip"
+                >
+                  <PictureInPicture className="w-8 h-8 text-muted-foreground hover:scale-125 hover:text-primary transition duration-75" />
+                </button>
               )}
               <Dialog>
                 <DialogTrigger asChild>
@@ -1040,7 +1127,22 @@ export const WatchScreen: FC<{ watch: string | undefined }> = ({ watch }) => {
         </>
       ) : (
         <div className="absolute inset-0 flex flex-row items-center justify-center">
-          <LoaderCircle className="w-20 h-20 animate-spin text-plex" />
+          {metadata?.art && (
+            <>
+              <div className="absolute inset-0">
+                <img
+                  className="h-full object-cover blur-[3px]"
+                  src={getCoverImage(metadata.art, true)}
+                  alt="Metadata art"
+                />
+              </div>
+              <div className="absolute inset-0 bg-background/80"></div>
+            </>
+          )}
+          <LoaderCircle
+            strokeWidth={2}
+            className="w-10 h-10 animate-spin-fast text-plex"
+          />
         </div>
       )}
       <Dialog

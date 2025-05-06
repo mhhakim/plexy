@@ -116,15 +116,31 @@ export function ServerProvider({ children }: { children: ReactNode }) {
   );
 }
 
+function mapUser(
+  rec: Record<string, unknown>,
+): Pick<Plex.UserData, "uuid" | "title" | "thumb" | "hasPassword"> {
+  const token = localStorage.getItem("token");
+  const server = localStorage.getItem("server");
+  return {
+    uuid: rec["@_uuid"] as string,
+    hasPassword: rec["@_protected"] == 1,
+    thumb: `${server}/photo/:/transcode?${qs.stringify({
+      width: 128,
+      height: 128,
+      url: rec["@_thumb"],
+      minSize: 1,
+      "X-Plex-Token": token,
+    })}`,
+    title: rec["@_title"] as string,
+  };
+}
+
 function UserSelect() {
   const [users, setUsers] = useState<
     Pick<Plex.UserData, "uuid" | "title" | "thumb" | "hasPassword">[]
   >([]);
   const [viewPassword, setViewPassword] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
-
-  const token = localStorage.getItem("token");
-  const server = localStorage.getItem("server");
 
   const handleSubmit = ({
     uuid,
@@ -161,22 +177,9 @@ function UserSelect() {
       const mappedUsers: Pick<
         Plex.UserData,
         "uuid" | "title" | "thumb" | "hasPassword"
-      >[] = (obj.MediaContainer.User as Record<string, unknown>[]).map(
-        (user) => {
-          return {
-            uuid: user["@_uuid"],
-            hasPassword: user["@_protected"] == 1,
-            thumb: `${server}/photo/:/transcode?${qs.stringify({
-              width: 128,
-              height: 128,
-              url: user["@_thumb"],
-              minSize: 1,
-              "X-Plex-Token": token,
-            })}`,
-            title: user["@_title"],
-          } as Pick<Plex.UserData, "uuid" | "title" | "thumb" | "hasPassword">;
-        },
-      );
+      >[] = Array.isArray(obj.MediaContainer.User)
+        ? (obj.MediaContainer.User as Record<string, unknown>[]).map(mapUser)
+        : [mapUser(obj.MediaContainer.User as Record<string, unknown>)];
       setUsers(() => mappedUsers);
     });
   }, []);

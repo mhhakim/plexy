@@ -36,6 +36,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Plex.Metadata[]>([]);
+  const [domLoaded, setDomLoaded] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -58,6 +59,14 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      setDomLoaded(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!domLoaded) return;
+
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
@@ -65,9 +74,9 @@ export function SearchProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    document.addEventListener("keydown", down);
+    document.body.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
-  }, []);
+  }, [domLoaded]);
 
   const handleSearch = (value: string) => {
     setQuery(value);
@@ -129,7 +138,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
                           setOpen(false);
                         }}
                         key={`${item.key}-${i}`}
-                        className="rounded overflow-hidden mb-2 flex h-fit w-full flex-row gap-2 justify-start text-left items-center p-2"
+                        className="rounded overflow-hidden cursor-pointer mb-2 flex h-fit w-full flex-row gap-2 justify-start text-left items-center p-2"
                         asChild
                       >
                         <CommandItem

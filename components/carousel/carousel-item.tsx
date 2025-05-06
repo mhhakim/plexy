@@ -52,7 +52,7 @@ const CarouselItem = forwardRef<
 
   return (
     <div
-      className="group overflow-x-hidden rounded relative h-full flex flex-col"
+      className="group overflow-x-hidden relative h-full flex flex-col"
       style={{
         minWidth: `${size}px`,
         width: `${size}px`,

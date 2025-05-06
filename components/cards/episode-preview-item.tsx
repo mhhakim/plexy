@@ -1,7 +1,6 @@
 import { FC } from "react";
-import { cn, durationToText } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
-import { usePathname, useRouter } from "next/navigation";
 import { Play } from "lucide-react";
 import { getCoverImage, useHubItem } from "@/hooks/use-hub-item";
 
@@ -30,7 +29,7 @@ export const EpisodePreviewItem: FC<{
         <img
           loading="lazy"
           className="rounded aspect-video object-cover w-full"
-          src={getCoverImage(item.thumb)}
+          src={getCoverImage(item.thumb || item.art)}
           alt="episode preview image"
         />
         {progress !== 0 && (
